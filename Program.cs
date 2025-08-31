@@ -11,6 +11,11 @@ using ThesisNest.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 // ------------------------
+// Add User Secrets
+// ------------------------
+builder.Configuration.AddUserSecrets<Program>();
+
+// ------------------------
 // 1) Connection String
 // ------------------------
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
