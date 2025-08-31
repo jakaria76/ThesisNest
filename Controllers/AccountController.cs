@@ -105,102 +105,102 @@ namespace ThesisNest.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        // -------------------------
-        // EXTERNAL LOGIN (Google, GitHub)
-        // -------------------------
-        //[HttpPost]
-        //[AllowAnonymous]
-        //[ValidateAntiForgeryToken]
-        //public IActionResult GoogleLogin(string returnUrl = "/") => ExternalLogin("Google", returnUrl);
+         //-------------------------
+         //EXTERNAL LOGIN(Google, GitHub)
+         //-------------------------
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public IActionResult GoogleLogin(string returnUrl = "/") => ExternalLogin("Google", returnUrl);
 
-        //[HttpPost]
-        //[AllowAnonymous]
-        //[ValidateAntiForgeryToken]
-        //public IActionResult GitHubLogin(string returnUrl = "/") => ExternalLogin("GitHub", returnUrl);
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public IActionResult GitHubLogin(string returnUrl = "/") => ExternalLogin("GitHub", returnUrl);
 
-        //[AllowAnonymous]
-        //private IActionResult ExternalLogin(string provider, string returnUrl)
-        //{
-        //    var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Account", new { ReturnUrl = returnUrl });
-        //    var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
-        //    return Challenge(properties, provider);
-        //}
+        [AllowAnonymous]
+        private IActionResult ExternalLogin(string provider, string returnUrl)
+        {
+            var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Account", new { ReturnUrl = returnUrl });
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+            return Challenge(properties, provider);
+        }
 
-        //[AllowAnonymous]
-        //public async Task<IActionResult> ExternalLoginCallback(string returnUrl = "/", string remoteError = null)
-        //{
-        //    if (remoteError != null)
-        //    {
-        //        TempData["ErrorMessage"] = $"External provider error: {remoteError}";
-        //        return RedirectToAction(nameof(Login));
-        //    }
+        [AllowAnonymous]
+        public async Task<IActionResult> ExternalLoginCallback(string returnUrl = "/", string remoteError = null)
+        {
+            if (remoteError != null)
+            {
+                TempData["ErrorMessage"] = $"External provider error: {remoteError}";
+                return RedirectToAction(nameof(Login));
+            }
 
-        //    var info = await _signInManager.GetExternalLoginInfoAsync();
-        //    if (info == null)
-        //    {
-        //        TempData["ErrorMessage"] = "External login information not found.";
-        //        return RedirectToAction(nameof(Login));
-        //    }
+            var info = await _signInManager.GetExternalLoginInfoAsync();
+            if (info == null)
+            {
+                TempData["ErrorMessage"] = "External login information not found.";
+                return RedirectToAction(nameof(Login));
+            }
 
-        //    var signInResult = await _signInManager.ExternalLoginSignInAsync(
-        //        info.LoginProvider, info.ProviderKey, isPersistent: false);
+            var signInResult = await _signInManager.ExternalLoginSignInAsync(
+                info.LoginProvider, info.ProviderKey, isPersistent: false);
 
-        //    if (!signInResult.Succeeded)
-        //    {
-        //        var email = info.Principal.FindFirstValue(ClaimTypes.Email);
-        //        var name = info.Principal.FindFirstValue(ClaimTypes.Name) ?? email;
+            if (!signInResult.Succeeded)
+            {
+                var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+                var name = info.Principal.FindFirstValue(ClaimTypes.Name) ?? email;
 
-        //        if (string.IsNullOrEmpty(email))
-        //        {
-        //            TempData["ErrorMessage"] = "We could not retrieve your email address from the external provider.";
-        //            return RedirectToAction(nameof(Login));
-        //        }
+                if (string.IsNullOrEmpty(email))
+                {
+                    TempData["ErrorMessage"] = "We could not retrieve your email address from the external provider.";
+                    return RedirectToAction(nameof(Login));
+                }
 
-        //        var user = await _userManager.FindByEmailAsync(email);
-        //        if (user == null)
-        //        {
-        //            user = new ApplicationUser
-        //            {
-        //                Email = email,
-        //                UserName = email,
-        //                FullName = name,
-        //                EmailConfirmed = true
-        //            };
+                var user = await _userManager.FindByEmailAsync(email);
+                if (user == null)
+                {
+                    user = new ApplicationUser
+                    {
+                        Email = email,
+                        UserName = email,
+                        FullName = name,
+                        EmailConfirmed = true
+                    };
 
-        //            var createRes = await _userManager.CreateAsync(user);
-        //            if (!createRes.Succeeded)
-        //            {
-        //                TempData["ErrorMessage"] = "Something went wrong while creating your account.";
-        //                return RedirectToAction(nameof(Login));
-        //            }
+                    var createRes = await _userManager.CreateAsync(user);
+                    if (!createRes.Succeeded)
+                    {
+                        TempData["ErrorMessage"] = "Something went wrong while creating your account.";
+                        return RedirectToAction(nameof(Login));
+                    }
 
-        //            if (!await _roleManager.RoleExistsAsync("Student"))
-        //                await _roleManager.CreateAsync(new IdentityRole("Student"));
-        //            await _userManager.AddToRoleAsync(user, "Student");
-        //        }
+                    if (!await _roleManager.RoleExistsAsync("Student"))
+                        await _roleManager.CreateAsync(new IdentityRole("Student"));
+                    await _userManager.AddToRoleAsync(user, "Student");
+                }
 
-        //        var addLoginRes = await _userManager.AddLoginAsync(user, info);
-        //        if (!addLoginRes.Succeeded)
-        //        {
-        //            TempData["ErrorMessage"] = "Failed to link external login.";
-        //            return RedirectToAction(nameof(Login));
-        //        }
-        //    }
+                var addLoginRes = await _userManager.AddLoginAsync(user, info);
+                if (!addLoginRes.Succeeded)
+                {
+                    TempData["ErrorMessage"] = "Failed to link external login.";
+                    return RedirectToAction(nameof(Login));
+                }
+            }
 
-        //    var finalUser =
-        //        await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey)
-        //        ?? await _userManager.FindByEmailAsync(info.Principal.FindFirstValue(ClaimTypes.Email));
+            var finalUser =
+                await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey)
+                ?? await _userManager.FindByEmailAsync(info.Principal.FindFirstValue(ClaimTypes.Email));
 
-        //    if (finalUser == null)
-        //    {
-        //        TempData["ErrorMessage"] = "Failed to sign in with external provider.";
-        //        return RedirectToAction(nameof(Login));
-        //    }
+            if (finalUser == null)
+            {
+                TempData["ErrorMessage"] = "Failed to sign in with external provider.";
+                return RedirectToAction(nameof(Login));
+            }
 
-        //    await _signInManager.SignInAsync(finalUser, isPersistent: false);
+            await _signInManager.SignInAsync(finalUser, isPersistent: false);
 
-        //    return RedirectToAction("Index", "Home");
-        //}
+            return RedirectToAction("Index", "Home");
+        }
 
     }
 }

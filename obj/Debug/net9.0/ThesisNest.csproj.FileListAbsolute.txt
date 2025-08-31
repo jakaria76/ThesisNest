@@ -1,5 +1,4 @@
 E:\3.2\ThesisNest\ThesisNest\bin\Debug\net9.0\appsettings.Development.json
-E:\3.2\ThesisNest\ThesisNest\bin\Debug\net9.0\appsettings.json
 E:\3.2\ThesisNest\ThesisNest\bin\Debug\net9.0\ThesisNest.staticwebassets.runtime.json
 E:\3.2\ThesisNest\ThesisNest\bin\Debug\net9.0\ThesisNest.staticwebassets.endpoints.json
 E:\3.2\ThesisNest\ThesisNest\bin\Debug\net9.0\ThesisNest.exe
