@@ -1,0 +1,312 @@
+﻿@model ThesisNest.Models.StudentProfile
+@{
+    ViewData["Title"] = "Student Profile";
+
+    var imgSrc = (Model?.ProfileImage != null && !string.IsNullOrEmpty(Model.ProfileImageContentType))
+        ? Url.Action("Photo", "StudentProfile", new { id = Model.Id })
+        : "https://via.placeholder.com/140x140.png?text=User";
+}
+
+<div class="container-xxl py-4">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success shadow-sm">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger shadow-sm">@TempData["Error"]</div>
+    }
+
+    @if (Model == null)
+    {
+        <div class="card border-0 shadow-sm p-4 text-center">
+            <div class="mb-2">No profile found.</div>
+            <a asp-action="Create" class="btn btn-primary">Create Profile</a>
+        </div>
+    }
+    else
+    {
+        <div class="tn-profile card border-0 shadow-lg">
+            <!-- Banner -->
+            <div class="tnp-banner"></div>
+
+            <!-- Header -->
+            <div class="tnp-header px-3 px-md-4 pb-3 pb-md-4">
+                <div class="d-flex align-items-center gap-3 gap-md-4 tnp-headrow">
+                    <div class="tnp-avatar-wrap">
+                        <img src="@imgSrc" alt="Profile" class="tnp-avatar">
+                    </div>
+
+                    <div class="flex-grow-1">
+                        <h2 class="tnp-name mb-1">@Model.FullName</h2>
+
+                        <div class="tnp-chipwrap d-flex flex-wrap gap-2">
+                            @if (!string.IsNullOrWhiteSpace(Model.Email))
+                            {
+                                <a class="tnp-chip" href="mailto:@Model.Email">
+                                    <i class="bi bi-envelope me-2"></i>@Model.Email
+                                </a>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(Model.PhoneNumber))
+                            {
+                                <a class="tnp-chip" href="tel:@Model.PhoneNumber">
+                                    <i class="bi bi-telephone me-2"></i>@Model.PhoneNumber
+                                </a>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(Model.LinkedIn))
+                            {
+                                <a class="tnp-chip" href="@Model.LinkedIn" target="_blank" rel="noopener">
+                                    <i class="bi bi-linkedin me-2"></i>LinkedIn
+                                </a>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(Model.GitHub))
+                            {
+                                <a class="tnp-chip" href="@Model.GitHub" target="_blank" rel="noopener">
+                                    <i class="bi bi-github me-2"></i>GitHub
+                                </a>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(Model.Portfolio))
+                            {
+                                <a class="tnp-chip" href="@Model.Portfolio" target="_blank" rel="noopener">
+                                    <i class="bi bi-globe me-2"></i>Portfolio
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Details -->
+            <div class="tnp-body px-3 px-md-4">
+                <div class="row g-4">
+                    <div class="col-12 col-lg-6">
+                        <div class="tnp-block">
+                            <div class="tnp-block-title">Basic Info</div>
+                            <dl class="tnp-dl">
+                                <dt>Date of Birth</dt>
+                                <dd>@Model.DateOfBirth?.ToString("yyyy-MM-dd")</dd>
+                                <dt>Gender</dt>
+                                <dd>@Model.Gender</dd>
+                                <dt>Address</dt>
+                                <dd>@Model.Address</dd>
+                            </dl>
+                        </div>
+
+                        <div class="tnp-block mt-4">
+                            <div class="tnp-block-title">Thesis</div>
+                            <dl class="tnp-dl">
+                                <dt>Title</dt>
+                                <dd>@Model.ThesisTitle</dd>
+                                <dt>Supervisor</dt>
+                                <dd>@Model.Supervisor</dd>
+                                <dt>Status</dt>
+                                <dd>@Model.ThesisStatus</dd>
+                                <dt>Submission</dt>
+                                <dd>@Model.SubmissionDate?.ToString("yyyy-MM-dd")</dd>
+                                <dt>Feedback</dt>
+                                <dd>@Model.Feedback</dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-6">
+                        <div class="tnp-block">
+                            <div class="tnp-block-title">Academic</div>
+                            <dl class="tnp-dl">
+                                <dt>University</dt>
+                                <dd>@Model.University</dd>
+                                <dt>Department</dt>
+                                <dd>@Model.Department</dd>
+                                <dt>Student ID</dt>
+                                <dd>@Model.StudentId</dd>
+                                <dt>Semester</dt>
+                                <dd>@Model.Semester</dd>
+                                <dt>CGPA</dt>
+                                <dd>@Model.GPA</dd>
+                            </dl>
+                        </div>
+
+                        <div class="tnp-block mt-4">
+                            <div class="tnp-block-title">Other</div>
+                            <dl class="tnp-dl">
+                                <dt>Skills</dt>
+                                <dd>@Model.Skills</dd>
+                                <dt>Achievements</dt>
+                                <dd>@Model.Achievements</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer actions -->
+            <div class="tnp-footer px-3 px-md-4 py-3">
+                <div class="d-flex flex-column flex-md-row gap-2 justify-content-md-end">
+                    <a asp-action="Edit" class="btn tnp-btn-edit px-4">
+                        <i class="bi bi-pencil-square me-2"></i>Edit
+                    </a>
+
+                    <form id="deleteForm" asp-action="Delete" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn tnp-btn-delete px-4"
+                                onclick="return confirm('Delete your profile?');">
+                            <i class="bi bi-trash me-2"></i>Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Styles {
+    <style>
+        .tn-profile {
+            background: var(--bg-soft);
+            color: var(--text);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .tnp-banner {
+            height: 92px;
+            background: linear-gradient(135deg, rgba(59,130,246,.18), rgba(99,102,241,.18));
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tnp-avatar-wrap {
+            width: 104px;
+            height: 104px;
+            border-radius: 999px;
+            padding: 3px;
+            background: linear-gradient(135deg, var(--accent), rgba(99,102,241,.9));
+            box-shadow: 0 8px 24px rgba(0,0,0,.15);
+        }
+
+        .tnp-avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 999px;
+            object-fit: cover;
+            display: block;
+            border: 3px solid var(--bg-soft);
+        }
+
+        .tnp-name {
+            font-weight: 800;
+            letter-spacing: .2px;
+        }
+
+        .tnp-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            border-radius: 999px;
+            padding: .42rem .8rem;
+            background: rgba(59,130,246,.14);
+            color: var(--text);
+            border: 1px solid rgba(59,130,246,.28);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: .95rem;
+        }
+
+            .tnp-chip:hover {
+                background: rgba(59,130,246,.22);
+                color: var(--text);
+            }
+
+        .tnp-block-title {
+            text-transform: uppercase;
+            font-weight: 800;
+            font-size: .9rem;
+            letter-spacing: .12rem;
+            color: var(--muted);
+            border-bottom: 1px dashed var(--border);
+            padding-bottom: .6rem;
+            margin-bottom: 1rem;
+        }
+
+        .tnp-dl {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            row-gap: .55rem;
+            column-gap: 1.25rem;
+        }
+
+            .tnp-dl dt {
+                font-weight: 700;
+                color: var(--text);
+            }
+
+            .tnp-dl dd {
+                margin: 0;
+                color: var(--text);
+                opacity: .94;
+                word-break: break-word;
+            }
+
+        .tnp-footer {
+            border-top: 1px solid var(--border);
+            background: rgba(0,0,0,0.02);
+        }
+
+        .tnp-btn-edit {
+            background: var(--accent);
+            color: #fff;
+            border-radius: 12px;
+            font-weight: 700;
+            border: 1px solid rgba(59,130,246,.35);
+            box-shadow: 0 10px 26px rgba(59,130,246,.18);
+        }
+
+            .tnp-btn-edit:hover {
+                filter: brightness(1.05);
+                color: #fff;
+            }
+
+        .tnp-btn-delete {
+            background: transparent;
+            color: #ef4444;
+            border-radius: 12px;
+            border: 1px solid rgba(239,68,68,.5);
+        }
+
+            .tnp-btn-delete:hover {
+                background: rgba(239,68,68,.1);
+            }
+        @@media (max-width:576px) {
+            .tnp-headrow
+
+        {
+            flex-direction: column !important;
+            align-items: center !important;
+            text-align: center;
+        }
+
+        .tnp-avatar-wrap {
+            width: 120px !important;
+            height: 120px !important;
+        }
+
+        .tnp-name {
+            font-size: 1.5rem;
+            line-height: 1.15;
+            margin-top: .25rem;
+        }
+
+        .tnp-chipwrap {
+            justify-content: center !important;
+        }
+
+        .tnp-dl {
+            grid-template-columns: 140px 1fr;
+        }
+
+        .tnp-footer .btn {
+            width: 100%;
+        }
+
+        }
+    </style>
+}

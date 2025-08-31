@@ -1,0 +1,495 @@
+﻿@model ThesisNest.Models.TeacherProfile
+
+@using ThesisNest.Models
+@{
+    ViewData["Title"] = "My Teacher Profile";
+    var imgSrc = (Model?.ProfileImage != null && !string.IsNullOrEmpty(Model.ProfileImageContentType))
+        ? Url.Action("Photo", "TeacherProfile", new { id = Model.Id })
+        : "https://via.placeholder.com/240x240.png?text=User";
+
+    var departments = (IEnumerable<Department>)(ViewData["Departments"] ?? Enumerable.Empty<Department>());
+}
+<div class="container-xxl py-4">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success shadow-sm">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger  shadow-sm">@TempData["Error"]</div>
+    }
+
+    @if (Model == null)
+    {
+        <div class="card border-0 shadow-sm p-4 text-center">
+            <div class="mb-2">No profile found.</div>
+            <a asp-action="Create" class="btn btn-primary">Create Profile</a>
+        </div>
+    }
+    else
+    {
+        <div class="tn-profile card border-0 shadow-lg overflow-hidden">
+            <div class="tnp-banner"></div>
+
+            <div class="tnp-header px-3 px-md-4 pb-3 pb-md-4">
+                <div class="d-flex align-items-center gap-3 gap-md-4 tnp-headrow">
+                    <div class="tnp-avatar-wrap"><img src="@imgSrc" class="tnp-avatar" alt="Profile" /></div>
+                    <div class="flex-grow-1 min-w-0">
+                        <h2 class="tnp-name mb-1 text-truncate" title="@Model.FullName">@Model.FullName</h2>
+                        <div class="text-muted tn-dim">@Model.Designation</div>
+                        <div class="text-muted small tn-dim">@Model.Department</div>
+
+                        <div class="tnp-chipwrap d-flex flex-wrap gap-2 mt-2">
+                            @if (!string.IsNullOrWhiteSpace(Model.Email))
+                            {
+                                <a class="tnp-chip" href="mailto:@Model.Email"><i class="bi bi-envelope me-2"></i><span class="text-truncate">@Model.Email</span></a>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(Model.Phone))
+                            {
+                                <a class="tnp-chip" href="tel:@Model.Phone"><i class="bi bi-telephone me-2"></i>@Model.Phone</a>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(Model.OfficeLocation))
+                            {
+                                <span class="tnp-chip"><i class="bi bi-geo-alt me-2"></i>@Model.OfficeLocation</span>
+                            }
+                        </div>
+                    </div>
+                    <div class="ms-auto d-none d-md-block">
+                        <a asp-action="Edit" class="btn btn-primary me-2"><i class="bi bi-pencil-square me-1"></i>Edit</a>
+                        <form asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('Delete your profile?');">
+                            @Html.AntiForgeryToken()
+                            <button class="btn btn-outline-danger"><i class="bi bi-trash"></i> Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tnp-body px-3 px-md-4">
+                <div class="row g-4">
+
+                    <!-- AT A GLANCE -->
+                    <div class="col-12 col-lg-6">
+                        <div class="tnp-block">
+                            <div class="tnp-block-title">At a Glance</div>
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <div class="card border-0 shadow-sm h-100">
+                                        <div class="card-body text-center p-3">
+                                            <div class="tn-subtitle">Ongoing Thesis</div>
+                                            <div class="display-6 fw-bold">@Model.OngoingThesisCount</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="card border-0 shadow-sm h-100">
+                                        <div class="card-body text-center p-3">
+                                            <div class="tn-subtitle">Completed</div>
+                                            <div class="display-6 fw-bold">@Model.CompletedThesisCount</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="tn-alert d-flex align-items-center gap-2 small m-0">
+                                        <i class="bi bi-link-45deg"></i>
+                                        <div class="text-truncate"><strong>Slug:</strong> <code class="tn-code">@Model.Slug</code></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ABOUT + ACTIVITY -->
+                    <div class="col-12 col-lg-6">
+                        <div class="tnp-block">
+                            <div class="tnp-block-title">About</div>
+                            <dl class="tnp-dl">
+                                <dt>Bio</dt>
+                                <dd class="text-wrap">@Model.Bio</dd>
+                                <dt>Research</dt>
+                                <dd class="text-wrap">@Model.ResearchSummary</dd>
+                            </dl>
+                        </div>
+
+                        <div class="tnp-block">
+                            <div class="tnp-block-title">Activity</div>
+                            <ul class="list-group list-group-flush shadow-sm tnp-activity-list">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Created at <span class="tn-badge-date">@Model.CreatedAt.ToLocalTime()</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Last updated <span class="tn-badge-date">@Model.UpdatedAt.ToLocalTime()</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- CONTACT -->
+                    <div class="col-12">
+                        <div class="tnp-block">
+                            <div class="tnp-block-title">Contact</div>
+                            <dl class="tnp-dl">
+                                <dt>Email</dt>
+                                <dd>@Model.Email</dd>
+                                <dt>Phone</dt>
+                                <dd>@Model.Phone</dd>
+                                <dt>Office</dt>
+                                <dd>@Model.OfficeLocation</dd>
+                                <dt>Visibility</dt>
+                                <dd>
+                                    Email: <strong>@(Model.IsPublicEmail ? "Public" : "Private")</strong>,
+                                    Phone: <strong>@(Model.IsPublicPhone ? "Public" : "Private")</strong>
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <!-- THESES -->
+                    <div class="col-12">
+                        <div class="tnp-block">
+                            <div class="tnp-block-title d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                <span>Theses</span>
+
+                                <!-- Add form (title + department + status + add) -->
+                                <form asp-action="AddThesis" method="post" class="thesis-form">
+                                    @Html.AntiForgeryToken()
+
+                                    <input name="title" class="form-control" placeholder="Add thesis title..." required />
+
+                                    <select name="departmentId" class="form-select" required>
+                                        <option value="">Select department</option>
+                                        @foreach (var d in departments)
+                                        {
+                                            <option value="@d.Id">@d.Name</option>
+                                        }
+                                    </select>
+
+                                    <select name="status" class="form-select">
+                                        <option value="@((int)ThesisStatus.Ongoing)">Ongoing</option>
+                                        <option value="@((int)ThesisStatus.Proposed)">Proposed</option>
+                                        <option value="@((int)ThesisStatus.Completed)">Completed</option>
+                                    </select>
+
+                                    <button class="btn btn-primary d-inline-flex align-items-center">
+                                        <i class="bi bi-plus-lg me-1"></i><span class="btn-text">Add</span>
+                                    </button>
+                                </form>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table align-middle m-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Title</th>
+                                            <th>Status</th>
+                                            <th>Created</th>
+                                            <th class="text-end">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var t in (Model.Theses ?? Enumerable.Empty<Thesis>()).OrderByDescending(x => x.CreatedAt))
+                                        {
+                                            <tr>
+                                                <td class="text-wrap">@t.Title</td>
+                                                <td><span class="tn-badge-status tn-badge-@t.Status.ToString().ToLower()">@t.Status</span></td>
+                                                <td>@t.CreatedAt.ToLocalTime()</td>
+                                                <td class="text-end">
+                                                    <div class="tn-thesis-actions d-flex flex-wrap gap-1 justify-content-end">
+                                                        <form asp-action="SetThesisStatus" method="post">
+                                                            @Html.AntiForgeryToken()
+                                                            <input type="hidden" name="thesisId" value="@t.Id" />
+                                                            <input type="hidden" name="status" value="@((int)ThesisStatus.Ongoing)" />
+                                                            <button class="btn btn-sm btn-outline-secondary">Ongoing</button>
+                                                        </form>
+                                                        <form asp-action="SetThesisStatus" method="post">
+                                                            @Html.AntiForgeryToken()
+                                                            <input type="hidden" name="thesisId" value="@t.Id" />
+                                                            <input type="hidden" name="status" value="@((int)ThesisStatus.Completed)" />
+                                                            <button class="btn btn-sm btn-success">Completed</button>
+                                                        </form>
+                                                        <form asp-action="SetThesisStatus" method="post">
+                                                            @Html.AntiForgeryToken()
+                                                            <input type="hidden" name="thesisId" value="@t.Id" />
+                                                            <input type="hidden" name="status" value="@((int)ThesisStatus.Cancelled)" />
+                                                            <button class="btn btn-sm btn-outline-danger">Cancelled</button>
+                                                        </form>
+                                                        <form asp-action="DeleteThesis" method="post" onsubmit="return confirm('Delete this thesis?');">
+                                                            @Html.AntiForgeryToken()
+                                                            <input type="hidden" name="thesisId" value="@t.Id" />
+                                                            <button class="btn btn-sm btn-link text-danger"><i class="bi bi-trash"></i></button>
+                                                        </form>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="tnp-footer px-3 px-md-4 py-3 d-block d-md-none">
+                <div class="d-grid gap-2">
+                    <a asp-action="Edit" class="btn btn-primary"><i class="bi bi-pencil-square me-1"></i>Edit</a>
+                    <form asp-action="Delete" method="post" onsubmit="return confirm('Delete your profile?');">
+                        @Html.AntiForgeryToken()
+                        <button class="btn btn-outline-danger"><i class="bi bi-trash"></i> Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Styles {
+    <style>
+        /* banner + dim text */
+        .tnp-banner {
+            height: 110px;
+            background: linear-gradient(135deg,rgba(59,130,246,.18),rgba(99,102,241,.18));
+            border-bottom: 1px solid var(--border)
+        }
+
+        .tn-dim {
+            color: var(--muted) !important
+        }
+
+        /* avatar sizes */
+        .tnp-avatar-wrap {
+            width: 128px;
+            height: 128px;
+            border-radius: 999px;
+            padding: 3px;
+            background: linear-gradient(135deg,var(--accent),rgba(99,102,241,.9));
+            box-shadow: 0 8px 24px rgba(0,0,0,.15);
+            flex-shrink: 0
+        }
+
+        .tnp-avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 999px;
+            object-fit: cover;
+            border: 3px solid var(--bg-soft)
+        }
+
+        @@media (max-width:576px) {
+            .tnp-headrow {
+                flex-wrap: wrap;
+                justify-content: center;
+                text-align: center
+            }
+
+            .tnp-chipwrap {
+                justify-content: center
+            }
+
+            .tnp-avatar-wrap {
+                width: 170px !important;
+                height: 170px !important;
+                margin: 0 auto 12px auto
+            }
+
+            .tnp-avatar {
+                border-width: 4px
+            }
+        }
+
+        /* chip */
+        .tnp-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            border-radius: 999px;
+            padding: .42rem .8rem;
+            background: var(--chip-bg,rgba(59,130,246,.14));
+            border: 1px solid var(--chip-border,rgba(59,130,246,.28));
+            text-decoration: none;
+            font-weight: 600;
+            color: var(--text);
+            max-width: 100%
+        }
+
+            .tnp-chip:hover {
+                background: var(--chip-bg-hover,rgba(59,130,246,.22));
+                color: var(--text)
+            }
+
+        .tnp-name {
+            font-weight: 800;
+            letter-spacing: .2px
+        }
+
+        /* blocks */
+        .tnp-block {
+            background: var(--bg-soft);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1rem;
+            box-shadow: 0 4px 16px rgba(0,0,0,.06)
+        }
+
+        .tnp-block-title {
+            text-transform: uppercase;
+            font-weight: 800;
+            font-size: .9rem;
+            letter-spacing: .12rem;
+            color: var(--muted);
+            border-bottom: 1px dashed var(--border);
+            padding-bottom: .6rem;
+            margin-bottom: 1rem
+        }
+
+        .tnp-dl {
+            display: grid;
+            grid-template-columns: 160px 1fr;
+            row-gap: .55rem;
+            column-gap: 1.25rem
+        }
+
+        @@media (max-width:576px) {
+            .tnp-dl {
+                grid-template-columns: 120px 1fr
+            }
+        }
+
+        .tn-subtitle {
+            color: var(--muted);
+            font-weight: 600;
+            font-size: .85rem;
+            letter-spacing: .3px
+        }
+
+        .tn-alert {
+            background: var(--bg-soft);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 10px;
+            padding: .5rem .75rem
+        }
+
+        .tnp-activity-list.list-group .list-group-item {
+            background: var(--bg-soft) !important;
+            color: var(--text) !important;
+            border-color: var(--border) !important
+        }
+
+        .tn-badge-date {
+            display: inline-block;
+            padding: .32rem .62rem;
+            border-radius: 8px;
+            font-size: .82rem;
+            font-weight: 700;
+            line-height: 1;
+            white-space: nowrap;
+            border: 1px solid var(--border) !important
+        }
+
+        html[data-theme="light"] .tn-badge-date {
+            background: #e9eef9 !important;
+            color: #0b1222 !important;
+            border-color: #c7d6f2 !important
+        }
+
+        html[data-theme="dark"] .tn-badge-date {
+            background: rgba(148,163,184,.25) !important;
+            color: #f8fafc !important;
+            border-color: var(--border) !important
+        }
+
+        .tn-badge-status {
+            display: inline-block;
+            padding: .28rem .6rem;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            font-weight: 700;
+            font-size: .75rem
+        }
+
+        .tn-badge-proposed {
+            background: rgba(234,179,8,.18);
+            color: var(--text)
+        }
+
+        .tn-badge-ongoing {
+            background: rgba(59,130,246,.18);
+            color: var(--text)
+        }
+
+        .tn-badge-completed {
+            background: rgba(16,185,129,.22);
+            color: var(--text)
+        }
+
+        .tn-badge-cancelled {
+            background: rgba(239,68,68,.18);
+            color: var(--text)
+        }
+
+        /* ===== Theses form: now 4-column on desktop ===== */
+        .thesis-form {
+            display: grid;
+            grid-template-columns: 1.2fr .8fr .8fr auto;
+            gap: .5rem;
+            align-items: center;
+            min-width: 0
+        }
+
+            .thesis-form .btn {
+                white-space: nowrap
+            }
+
+        @@media (max-width:768px) {
+            .thesis-form {
+                grid-template-columns: 1fr
+            }
+
+                .thesis-form .btn {
+                    width: 100%;
+                    justify-content: center
+                }
+        }
+
+        /* ===== Actions cell ===== */
+        .tn-thesis-actions form {
+            display: inline-flex
+        }
+
+        .tn-thesis-actions .btn {
+            white-space: nowrap
+        }
+
+        @@media (max-width:576px) {
+            .tn-thesis-actions {
+                gap: .35rem
+            }
+
+                .tn-thesis-actions .btn {
+                    padding: .35rem .5rem;
+                    font-size: .82rem
+                }
+        }
+
+        @@media (max-width:576px) {
+            .tnp-block .table {
+                font-size: .94rem
+            }
+
+                .tnp-block .table td, .tnp-block .table th {
+                    padding: .45rem .5rem
+                }
+
+                .tnp-block .table .text-end {
+                    text-align: left !important
+                }
+        }
+
+        .table-responsive {
+            -webkit-overflow-scrolling: touch
+        }
+    </style>
+}

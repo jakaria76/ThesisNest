@@ -1,0 +1,218 @@
+﻿@model ThesisNest.Models.TeacherProfile
+@{
+    ViewData["Title"] = "Edit Teacher Profile";
+    var imgSrc = (Model?.ProfileImage != null && !string.IsNullOrEmpty(Model.ProfileImageContentType))
+        ? Url.Action("Photo", "TeacherProfile", new { id = Model.Id })
+        : "https://via.placeholder.com/240x240.png?text=User";
+}
+<div class="container-xxl py-4">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h3 class="m-0">@ViewData["Title"]</h3>
+        <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Back to My Profile</a>
+    </div>
+
+    <form asp-action="Edit" method="post" enctype="multipart/form-data" class="card border-0 shadow-lg overflow-hidden">
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(m => m.Id)
+
+        <div class="px-3 px-md-4 py-3 tnp-band tnp-band-edit">
+            <div class="row g-3 align-items-center">
+                <div class="col-12 col-md">
+                    <div class="small text-muted">
+                        <strong>Last updated:</strong> @Model.UpdatedAt.ToLocalTime() &nbsp;|&nbsp;
+                        <strong>Created:</strong> @Model.CreatedAt.ToLocalTime()
+                    </div>
+                </div>
+                <div class="col-12 col-md-auto">
+                    <span class="badge tn-badge-success"><i class="bi bi-check2-circle me-1"></i> Live</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body p-3 p-md-4">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="row g-4">
+                <!-- Preview -->
+                <div class="col-lg-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body text-center">
+                            <img id="previewImg" src="@imgSrc" class="rounded-3 shadow-sm tnp-photo-xl" alt="photo" />
+                            <h4 class="mb-0 fw-bold mt-2" id="previewName">@Model.FullName</h4>
+                            <div class="text-muted" id="previewDesig">@Model.Designation</div>
+                            <div class="text-muted small" id="previewDept">@Model.Department</div>
+
+                            <div class="row g-2 mt-3">
+                                <div class="col-6">
+                                    <div class="card border-0 shadow-sm">
+                                        <div class="card-body p-2 text-center">
+                                            <div class="small text-muted">Ongoing</div>
+                                            <div class="h5 m-0">@Model.OngoingThesisCount</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="card border-0 shadow-sm">
+                                        <div class="card-body p-2 text-center">
+                                            <div class="small text-muted">Completed</div>
+                                            <div class="h5 m-0">@Model.CompletedThesisCount</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-3 small text-muted d-flex align-items-center justify-content-center gap-2 flex-wrap">
+                                <i class="bi bi-link-45deg"></i>
+                                <span>Slug: <code id="slugText" class="tn-code">@Model.Slug</code></span>
+                            </div>
+                        </div>
+                        <div class="card-footer small text-muted">
+                            Tip: নাম পাল্টালে slug auto-update হবে।
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form -->
+                <div class="col-lg-8">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label">Change Photo</label>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <input type="file" name="ProfileImageFile" id="inpPhoto" class="form-control" accept="image/*" />
+                                <div class="form-check d-flex align-items-center ms-1">
+                                    <input class="form-check-input" type="checkbox" name="removePhoto" id="removePhoto" />
+                                    <label class="form-check-label ms-2" for="removePhoto">Remove current photo</label>
+                                </div>
+                            </div>
+                            <div class="form-text">JPEG/PNG/WebP, max 2MB</div>
+                            <span class="text-danger" data-valmsg-for="ProfileImage"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="FullName" class="form-label"></label>
+                            <input asp-for="FullName" class="form-control" id="inpFullName" />
+                            <span asp-validation-for="FullName" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Designation" class="form-label"></label>
+                            <input asp-for="Designation" class="form-control" id="inpDesig" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Department" class="form-label"></label>
+                            <input asp-for="Department" class="form-control" id="inpDept" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="OfficeLocation" class="form-label"></label>
+                            <input asp-for="OfficeLocation" class="form-control" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Email" class="form-label"></label>
+                            <input asp-for="Email" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Phone" class="form-label"></label>
+                            <input asp-for="Phone" class="form-control" />
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="Bio" class="form-label"></label>
+                            <textarea asp-for="Bio" class="form-control" rows="3" id="inpBio"></textarea>
+                            <div class="d-flex justify-content-end small text-muted">
+                                <span><span id="bioCount">0</span>/1000</span>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="ResearchSummary" class="form-label">Research Summary</label>
+                            <textarea asp-for="ResearchSummary" class="form-control" rows="4" id="inpResearch"></textarea>
+                            <div class="d-flex justify-content-end small text-muted">
+                                <span><span id="resCount">0</span>/1500</span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 form-check ms-2">
+                            <input asp-for="IsPublicEmail" class="form-check-input" id="chkPublicEmail" />
+                            <label asp-for="IsPublicEmail" class="form-check-label"></label>
+                        </div>
+                        <div class="col-md-6 form-check ms-2">
+                            <input asp-for="IsPublicPhone" class="form-check-input" id="chkPublicPhone" />
+                            <label asp-for="IsPublicPhone" class="form-check-label"></label>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="alert alert-warning border-0 shadow-sm small m-0">
+                                <i class="bi bi-exclamation-triangle me-1"></i> পরিবর্তনগুলো সেভ করার পরই প্রোফাইলে দেখা যাবে।
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- /row -->
+        </div>
+
+        <div class="card-footer d-flex flex-wrap gap-2 justify-content-end">
+            <a asp-action="Index" class="btn btn-light">Cancel</a>
+            <button class="btn btn-primary" type="submit"><i class="bi bi-save2 me-1"></i> Update</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            const toSlug = (t) => (t || "")
+                .toLowerCase()
+                .trim()
+                .replace(/[^a-z0-9\s-_]/g, "")
+                .replace(/[\s_]+/g, "-")
+                .replace(/-+/g, "-")
+                .replace(/^-|-$/g, "");
+
+            const full = document.getElementById('inpFullName');
+            const desig = document.getElementById('inpDesig');
+            const dept  = document.getElementById('inpDept');
+            const bio   = document.getElementById('inpBio');
+            const res   = document.getElementById('inpResearch');
+
+            const pName = document.getElementById('previewName');
+            const pDes  = document.getElementById('previewDesig');
+            const pDep  = document.getElementById('previewDept');
+            const slugT = document.getElementById('slugText');
+
+            function updatePreview() {
+                pName.textContent = full.value || "Your Name";
+                pDes.textContent  = desig.value || "";
+                pDep.textContent  = dept.value || "";
+                const s = toSlug(full.value);
+                if (s) slugT.textContent = s;
+                document.getElementById('bioCount').textContent = bio.value.length;
+                document.getElementById('resCount').textContent = res.value.length;
+            }
+
+            ['input', 'change'].forEach(evt => {
+                full.addEventListener(evt, updatePreview);
+                desig.addEventListener(evt, updatePreview);
+                dept.addEventListener(evt, updatePreview);
+                bio.addEventListener(evt, updatePreview);
+                res.addEventListener(evt, updatePreview);
+            });
+
+            document.getElementById('inpPhoto')?.addEventListener('change', function (e) {
+                const f = e.target.files?.[0];
+                if (!f) return;
+                if (f.size > 2 * 1024 * 1024) {
+                    alert("Max 2MB image allowed.");
+                    e.target.value = "";
+                    return;
+                }
+                const url = URL.createObjectURL(f);
+                document.getElementById('previewImg').src = url;
+            });
+
+            updatePreview();
+        })();
+    </script>
+}

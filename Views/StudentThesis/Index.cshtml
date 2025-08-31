@@ -1,0 +1,75 @@
+﻿@model ThesisNest.Models.ViewModels.ThesisIndexVm
+@using ThesisNest.Models
+@{
+    ViewData["Title"] = "My Submissions";
+
+    string BadgeCls(ProposalStatus s) => s switch
+    {
+        ProposalStatus.Draft => "badge bg-secondary",
+        ProposalStatus.Submitted => "badge bg-primary",
+        ProposalStatus.UnderReview => "badge bg-info text-dark",
+        ProposalStatus.ChangesRequested => "badge bg-warning text-dark",
+        ProposalStatus.Approved => "badge bg-success",
+        ProposalStatus.Rejected => "badge bg-danger",
+        _ => "badge bg-light text-dark"
+    };
+}
+
+<div class="container-xxl py-4">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success shadow-sm">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger shadow-sm">@TempData["Error"]</div>
+    }
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="mb-0">My Submissions</h3>
+        <a asp-controller="StudentThesis" asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-upload"></i> Upload Proposal
+        </a>
+    </div>
+
+    <div class="card shadow border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Department</th>
+                        <th>Status</th>
+                        <th>Version</th>
+                        <th>Created</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Items == null || Model.Items.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">No submissions yet.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var item in Model.Items)
+                        {
+                            <tr>
+                                <td>@item.Title</td>
+                                <td>@item.Department</td>
+                                <td><span class="@BadgeCls(item.ProposalStatus)">@item.ProposalStatus</span></td>
+                                <td>@item.CurrentVersionNo</td>
+                                <td>@item.CreatedAtStr</td>
+                                <td class="text-end">
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">Details</a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

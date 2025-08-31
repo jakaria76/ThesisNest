@@ -1,0 +1,677 @@
+﻿/* ================= Layout sizes / radii ================= */
+:root {
+    --sb-w: 200px;
+    --sb-w-collapsed: 60px;
+    --tb-h: 56px;
+    --ft-h: 52px;
+    --radius: 12px;
+    --radius-sm: 10px;
+    /* do NOT put color tokens here—set per-theme below */
+}
+
+/* ================ LIGHT THEME TOKENS ================= */
+html[data-theme="light"] {
+    --bg: #f9fafb;
+    --bg-soft: #ffffff;
+    --topbar: #f3f4f6;
+    --border: #d1d5db;
+    --text: #111827;
+    --text-strong: #0b1222;
+    --muted: #6b7280;
+    --muted-strong: #525a6a;
+    --accent: #2563eb;
+    --accent-contrast: #ffffff;
+    --shadow: 0 8px 24px rgba(0,0,0,.08);
+    --chip-bg: rgba(37,99,235,.12);
+    --chip-bg-hover: rgba(37,99,235,.18);
+    --chip-border: rgba(37,99,235,.25);
+    --badge-bg: rgba(37,99,235,.15);
+    --badge-border: rgba(37,99,235,.30);
+    --badge-fg: var(--text);
+    --badge-success-bg: rgba(16,185,129,.18);
+    --badge-success-border: rgba(16,185,129,.32);
+    --badge-success-fg: var(--text);
+    --code-bg: rgba(148,163,184,.12);
+    --code-fg: var(--text);
+}
+
+/* ================ DARK THEME TOKENS ================= */
+html[data-theme="dark"] {
+    --bg: #0b1220;
+    --bg-soft: #0f172a;
+    --topbar: #111827;
+    --border: #1f2937;
+    --text: #e5e7eb;
+    --text-strong: #f8fafc;
+    --muted: #9ca3af;
+    --muted-strong: #c7d0dd;
+    --accent: #3b82f6;
+    --accent-contrast: #ffffff;
+    --shadow: 0 8px 24px rgba(0,0,0,.25);
+    --chip-bg: rgba(96,165,250,.20);
+    --chip-bg-hover: rgba(96,165,250,.30);
+    --chip-border: rgba(96,165,250,.45);
+    --badge-bg: rgba(96,165,250,.22);
+    --badge-border: rgba(96,165,250,.40);
+    --badge-fg: #eaf2ff;
+    --badge-success-bg: rgba(16,185,129,.25);
+    --badge-success-border: rgba(16,185,129,.45);
+    --badge-success-fg: #eafff6;
+    --code-bg: rgba(148,163,184,.18);
+    --code-fg: #e2e8f0;
+}
+
+/* ================= App base ================= */
+body.tn-app {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI',sans-serif;
+    transition: background .3s,color .3s;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* ================= Topbar ================= */
+.tn-topbar {
+    background: var(--topbar);
+    height: var(--tb-h);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 .75rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    transition: background .3s,color .3s,border .3s;
+}
+
+/* ================= Layout / Sidebar ================= */
+.tn-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.tn-sidebar {
+    flex: 0 0 var(--sb-w);
+    width: var(--sb-w);
+    background: var(--bg-soft);
+    transition: width .25s,flex-basis .25s,background .3s,color .3s,transform .3s;
+    overflow: hidden;
+    border-right: 1px solid var(--border);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+}
+
+.tn-brand {
+    padding: 10px 10px !important;
+}
+
+    .tn-brand .tn-logo {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        background: var(--topbar);
+        color: var(--text);
+        font-weight: 700;
+        font-size: .9rem;
+        display: grid;
+        place-items: center;
+    }
+
+/* collapsed (desktop) */
+.tn-sidebar.is-collapsed {
+    flex: 0 0 var(--sb-w-collapsed);
+    width: var(--sb-w-collapsed);
+}
+
+    .tn-sidebar.is-collapsed .tn-section,
+    .tn-sidebar.is-collapsed .tn-link span,
+    .tn-sidebar.is-collapsed .fw-semibold {
+        display: none;
+    }
+
+    .tn-sidebar.is-collapsed .tn-link {
+        justify-content: center;
+        gap: 0;
+        padding: .45rem;
+        border-radius: 12px;
+    }
+
+        .tn-sidebar.is-collapsed .tn-link i {
+            font-size: .95rem;
+        }
+
+/* nav */
+.tn-sidebar .tn-nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 6px;
+}
+
+.tn-section {
+    font-size: .72rem;
+    letter-spacing: .04em;
+    color: var(--muted);
+    padding: 4px 10px;
+}
+
+.tn-sidebar .tn-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: .5rem .6rem;
+    border-radius: 10px;
+    color: var(--text);
+    text-decoration: none;
+    transition: background .2s,color .2s,transform .15s;
+}
+
+    .tn-sidebar .tn-link i {
+        font-size: 1rem;
+        opacity: .95;
+    }
+
+    .tn-sidebar .tn-link:hover {
+        background: rgba(59,130,246,.15);
+    }
+
+html[data-theme="light"] .tn-sidebar .tn-link:hover {
+    background: rgba(37,99,235,.12);
+}
+
+.tn-sidebar .tn-link.active {
+    background: var(--accent);
+    color: var(--accent-contrast);
+    box-shadow: var(--shadow);
+}
+
+/* Logout */
+.tn-logout {
+    padding: 6px;
+}
+
+    .tn-logout .btn {
+        border-radius: 10px;
+        padding: .5rem .65rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+.tn-sidebar.is-collapsed .tn-logout .btn {
+    justify-content: center;
+    padding: .5rem;
+}
+
+    .tn-sidebar.is-collapsed .tn-logout .btn .logout-text {
+        display: none;
+    }
+
+/* ================= Content / Footer ================= */
+.tn-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.tn-main {
+    flex: 1;
+}
+
+.tn-footer {
+    background: var(--topbar);
+    color: var(--muted);
+    text-align: center;
+    height: var(--ft-h);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-top: 1px solid var(--border);
+    transition: background .3s,color .3s;
+}
+
+/* ================= Toggle button ================= */
+.theme-toggle-btn {
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-size: 1.2rem;
+    transition: color .2s,transform .15s;
+    border-radius: 10px;
+    padding: 4px;
+}
+
+    .theme-toggle-btn:hover {
+        color: var(--accent);
+    }
+
+    .theme-toggle-btn:active {
+        transform: scale(.96);
+    }
+
+/* ================= Cards / inputs ================= */
+.card, .tn-card, .form-control {
+    background: var(--bg-soft);
+    color: var(--text);
+    border: 1px solid var(--border);
+    transition: background .3s,color .3s,border .3s,box-shadow .2s;
+    border-radius: var(--radius);
+}
+
+a, a.nav-link {
+    color: var(--text);
+    transition: color .2s;
+}
+
+    a:hover, a.nav-link:hover {
+        color: var(--accent);
+    }
+
+/* ========== Mobile (<= 992px) ========== */
+@media (max-width:992px) {
+    .tn-layout {
+        display: block;
+        min-height: 100vh;
+    }
+
+    .tn-content {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    .tn-main {
+        flex: 1;
+    }
+
+    .tn-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        height: 100vh;
+        flex: 0 0 auto;
+        width: var(--sb-w);
+        transform: translateX(-100%);
+        z-index: 1040;
+        box-shadow: 0 0 0 1px var(--border),0 10px 30px rgba(0,0,0,.4);
+    }
+
+        .tn-sidebar.is-collapsed {
+            width: var(--sb-w);
+            flex: 0 0 auto;
+        }
+
+        .tn-sidebar.show {
+            transform: translateX(0);
+        }
+
+    body.tn-app.sidebar-open::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,.4);
+        z-index: 1030;
+    }
+}
+
+/* =============== Teacher Profile styles =============== */
+.tn-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    border-radius: 999px;
+    padding: .42rem .8rem;
+    background: var(--chip-bg);
+    border: 1px solid var(--chip-border);
+    font-weight: 600;
+    color: var(--text);
+    max-width: 100%;
+}
+
+    .tn-chip:hover {
+        background: var(--chip-bg-hover);
+        color: var(--text)
+    }
+
+    .tn-chip.tn-chip-on {
+        background: var(--badge-success-bg);
+        border-color: var(--badge-success-border);
+        color: var(--badge-success-fg);
+    }
+
+/* Override Bootstrap .text-muted using our theme tokens */
+.text-muted {
+    color: var(--muted) !important;
+}
+
+
+.tn-badge, .tn-badge-success {
+    display: inline-flex;
+    align-items: center;
+    gap: .25rem;
+    border-radius: 999px;
+    font-weight: 600;
+    padding: .35rem .7rem;
+    font-size: .75rem;
+}
+
+.tn-badge {
+    background: var(--badge-bg);
+    color: var(--badge-fg);
+    border: 1px solid var(--badge-border);
+}
+
+.tn-badge-success {
+    background: var(--badge-success-bg);
+    color: var(--badge-success-fg);
+    border: 1px solid var(--badge-success-border);
+}
+.tn-badge-date {
+    background: var(--code-bg);
+    color: var(--code-fg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: .25rem .6rem;
+    font-size: .8rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+
+.tn-code {
+    color: var(--code-fg);
+    background: var(--code-bg);
+    padding: .15rem .35rem;
+    border-radius: .35rem;
+    border: 1px solid var(--border)
+}
+
+.tnp-photo {
+    width: 160px;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 999px;
+    border: 4px solid var(--bg-soft)
+}
+
+.tnp-photo-xl {
+    width: 220px;
+    height: 220px;
+    object-fit: cover;
+    border-radius: .75rem;
+    border: 4px solid var(--bg-soft)
+}
+
+.tnp-block {
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    padding: 1rem;
+    box-shadow: 0 4px 16px rgba(0,0,0,.06);
+    margin-bottom: 1rem
+}
+
+.tnp-block-title {
+    text-transform: uppercase;
+    font-weight: 800;
+    font-size: .9rem;
+    letter-spacing: .12rem;
+    color: var(--muted-strong);
+    border-bottom: 1px dashed var(--border);
+    padding-bottom: .6rem;
+    margin-bottom: 1rem
+}
+
+.tnp-dl {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    row-gap: .55rem;
+    column-gap: 1.25rem
+}
+
+@media (max-width:576px) {
+    .tnp-dl {
+        grid-template-columns: 120px 1fr
+    }
+}
+/* ==== Mobile avatar fix ==== */
+@media (max-width: 768px) {
+    .tnp-headrow {
+        flex-wrap: wrap;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .tnp-avatar-wrap {
+        width: 180px !important;
+        height: 180px !important;
+        margin: 0 auto 1rem auto; /* center + spacing */
+    }
+
+    .tnp-avatar {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover;
+        border: 4px solid var(--bg-soft);
+        border-radius: 999px;
+    }
+
+    .tnp-chipwrap {
+        justify-content: center;
+    }
+}
+
+/* ===== Thesis table dark/light skin (scoped) ===== */
+.tnp-block .table {
+    background: var(--bg-soft);
+    color: var(--text);
+}
+
+    .tnp-block .table th,
+    .tnp-block .table td {
+        border-color: var(--border) !important;
+        color: var(--text);
+    }
+
+    /* Header */
+    .tnp-block .table thead th {
+        font-weight: 700;
+        border-bottom: 1px solid var(--border) !important;
+    }
+
+html[data-theme="dark"] .tnp-block .table thead th {
+    background: #0f172a;
+}
+/* deep slate */
+html[data-theme="light"] .tnp-block .table thead th {
+    background: #eef2f7;
+}
+/* soft gray */
+
+/* Body rows */
+html[data-theme="dark"] .tnp-block .table tbody tr:nth-child(even) {
+    background: rgba(255,255,255,.03);
+}
+
+html[data-theme="light"] .tnp-block .table tbody tr:nth-child(even) {
+    background: rgba(0,0,0,.03);
+}
+
+/* Hover */
+html[data-theme="dark"] .tnp-block .table tbody tr:hover {
+    background: rgba(59,130,246,.12);
+}
+
+html[data-theme="light"] .tnp-block .table tbody tr:hover {
+    background: rgba(37,99,235,.10);
+}
+
+/* Actions cell buttons — better contrast in dark */
+html[data-theme="dark"] .tn-thesis-actions .btn-outline-secondary {
+    color: #e5e7eb;
+    border-color: #475569;
+}
+
+    html[data-theme="dark"] .tn-thesis-actions .btn-outline-secondary:hover {
+        background: #334155;
+        border-color: #64748b;
+    }
+
+html[data-theme="dark"] .tn-thesis-actions .btn-outline-danger {
+    color: #fca5a5;
+    border-color: #7f1d1d;
+}
+
+    html[data-theme="dark"] .tn-thesis-actions .btn-outline-danger:hover {
+        background: rgba(239,68,68,.15);
+        border-color: #ef4444;
+    }
+
+/* Delete icon link color in dark */
+html[data-theme="dark"] .tn-thesis-actions .btn-link.text-danger {
+    color: #f87171 !important;
+}
+
+/* Status badge borders stay visible */
+.tn-badge-status {
+    border-color: var(--border) !important;
+}
+
+/* Small-screen polish */
+@media (max-width:576px) {
+    .tnp-block .table {
+        font-size: .94rem;
+    }
+
+        .tnp-block .table td, .tnp-block .table th {
+            padding: .45rem .5rem;
+        }
+
+        .tnp-block .table .text-end {
+            text-align: left !important;
+        }
+}
+
+/* ================= DARK/LIGHT FIXes (scoped) ================= */
+/* Tables (use Bootstrap variables so colors apply consistently) */
+.tnp-block .table {
+    background: var(--bg-soft);
+    color: var(--text);
+    /* Bootstrap table vars */
+    --bs-table-bg: var(--bg-soft);
+    --bs-table-color: var(--text);
+    --bs-table-border-color: var(--border);
+    --bs-table-hover-color: var(--text);
+    --bs-table-striped-color: var(--text);
+}
+
+html[data-theme="dark"] .tnp-block .table {
+    --bs-table-hover-bg: rgba(148,163,184,.12);
+    --bs-table-striped-bg: rgba(255,255,255,.03);
+}
+
+html[data-theme="light"] .tnp-block .table {
+    --bs-table-hover-bg: rgba(37,99,235,.10);
+    --bs-table-striped-bg: rgba(0,0,0,.03);
+}
+
+/* Header cells a bit stronger */
+.tnp-block .table thead th {
+    font-weight: 700;
+    border-bottom: 1px solid var(--border) !important;
+    background: transparent;
+}
+
+html[data-theme="dark"] .tnp-block .table thead th {
+    background: #0f172a;
+}
+/* deep slate */
+html[data-theme="light"] .tnp-block .table thead th {
+    background: #eef2f7;
+}
+/* soft gray */
+
+/* Cell borders/text inherit theme colors */
+.tnp-block .table th,
+.tnp-block .table td {
+    border-color: var(--border) !important;
+    color: var(--text);
+}
+
+/* List group inside Activity section */
+.tnp-activity-list.list-group {
+    --bs-list-group-bg: var(--bg-soft);
+    --bs-list-group-color: var(--text);
+    --bs-list-group-border-color: var(--border);
+    --bs-list-group-action-hover-color: var(--text);
+}
+
+    .tnp-activity-list.list-group .list-group-item {
+        background: var(--bg-soft) !important;
+        color: var(--text) !important;
+        border-color: var(--border) !important;
+    }
+
+/* Date badge (Activity) – already themed, keep visible on both modes */
+.tn-badge-date {
+    background: var(--code-bg);
+    color: var(--code-fg);
+    border: 1px solid var(--border);
+}
+
+/* Actions cell buttons – better contrast in dark mode */
+html[data-theme="dark"] .tn-thesis-actions .btn-outline-secondary {
+    color: #e5e7eb;
+    border-color: #475569;
+}
+
+    html[data-theme="dark"] .tn-thesis-actions .btn-outline-secondary:hover {
+        background: #334155;
+        border-color: #64748b;
+    }
+
+html[data-theme="dark"] .tn-thesis-actions .btn-outline-danger {
+    color: #fca5a5;
+    border-color: #7f1d1d;
+}
+
+    html[data-theme="dark"] .tn-thesis-actions .btn-outline-danger:hover {
+        background: rgba(239,68,68,.15);
+        border-color: #ef4444;
+    }
+
+html[data-theme="dark"] .tn-thesis-actions .btn-link.text-danger {
+    color: #f87171 !important;
+}
+
+/* Keep status badge borders readable */
+.tn-badge-status {
+    border-color: var(--border) !important;
+}
+
+/* Small screen tweaks */
+@media (max-width:576px) {
+    .tnp-block .table {
+        font-size: .94rem;
+    }
+
+        .tnp-block .table td, .tnp-block .table th {
+            padding: .45rem .5rem;
+        }
+
+        .tnp-block .table .text-end {
+            text-align: left !important;
+        }
+}
+
+/* iOS smooth scroll in responsive tables */
+.table-responsive {
+    -webkit-overflow-scrolling: touch;
+}
+

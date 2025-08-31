@@ -1,0 +1,15 @@
+﻿@model ThesisNest.Models.ProposalStatus
+@{
+    string text = Model.ToString();
+    string cls = Model switch
+    {
+        ThesisNest.Models.ProposalStatus.Draft => "badge bg-secondary",
+        ThesisNest.Models.ProposalStatus.Submitted => "badge bg-primary",
+        ThesisNest.Models.ProposalStatus.UnderReview => "badge bg-info text-dark",
+        ThesisNest.Models.ProposalStatus.ChangesRequested => "badge bg-warning text-dark",
+        ThesisNest.Models.ProposalStatus.Approved => "badge bg-success",
+        ThesisNest.Models.ProposalStatus.Rejected => "badge bg-danger",
+        _ => "badge bg-light text-dark"
+    };
+}
+<span class="@cls">@text</span>

@@ -1,0 +1,147 @@
+﻿@model ThesisNest.Models.ViewModels.ThesisDetailsVm
+@{
+    ViewData["Title"] = "Thesis Details";
+
+    string BadgeCls(ThesisNest.Models.ProposalStatus s) => s switch
+    {
+        ThesisNest.Models.ProposalStatus.Draft => "badge bg-secondary",
+        ThesisNest.Models.ProposalStatus.Submitted => "badge bg-primary",
+        ThesisNest.Models.ProposalStatus.UnderReview => "badge bg-info text-dark",
+        ThesisNest.Models.ProposalStatus.ChangesRequested => "badge bg-warning text-dark",
+        ThesisNest.Models.ProposalStatus.Approved => "badge bg-success",
+        ThesisNest.Models.ProposalStatus.Rejected => "badge bg-danger",
+        _ => "badge bg-light text-dark"
+    };
+}
+
+<div class="container-xxl py-4">
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="card shadow border-0 mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h3 class="mb-1">@Model.Thesis.Title</h3>
+                    <div class="text-muted">
+                        <strong>Department:</strong> @Model.Thesis.Department?.Name
+                        | <strong>Supervisor:</strong> @Model.Thesis.Supervisor?.FullName
+                        | <strong>Status:</strong> <span class="@BadgeCls(Model.Thesis.ProposalStatus)">@Model.Thesis.ProposalStatus</span>
+                    </div>
+                </div>
+                <a asp-action="Index" class="btn btn-outline-secondary">Back</a>
+            </div>
+
+            <hr />
+            <h5>Abstract</h5>
+            <p class="mb-0">@Model.Thesis.Abstract</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card shadow border-0">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Versions</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    @if (Model.Versions == null || !Model.Versions.Any())
+                    {
+                        <div class="list-group-item text-muted">No versions uploaded yet.</div>
+                    }
+                    else
+                    {
+                        foreach (var v in Model.Versions)
+                        {
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div><strong>Version @v.VersionNo</strong></div>
+                                    <div class="text-muted small">@v.CreatedAt.ToLocalTime().ToString("dd MMM yyyy, hh:mm tt")</div>
+                                    @if (!string.IsNullOrWhiteSpace(v.Comment))
+                                    {
+                                        <div class="mt-1"><em>@v.Comment</em></div>
+                                    }
+                                </div>
+                                <div class="btn-group">
+                                    <a asp-action="PreviewVersion" asp-route-id="@v.Id" class="btn btn-sm btn-outline-primary">Preview</a>
+                                    <a asp-action="DownloadVersion" asp-route-id="@v.Id" class="btn btn-sm btn-outline-secondary">Download</a>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card shadow border-0 mb-4">
+                <div class="card-header"><h5 class="mb-0">Upload New Version</h5></div>
+                <div class="card-body">
+                    <form asp-action="UploadVersion" method="post" enctype="multipart/form-data">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="thesisId" value="@Model.Thesis.Id" />
+                        <div class="mb-3">
+                            <label class="form-label">File (PDF/DOCX, ≤ 20MB)</label>
+                            <input type="file" name="file" class="form-control" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Note (optional)</label>
+                            <textarea name="note" rows="3" class="form-control" placeholder="Any short note for your supervisor"></textarea>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" name="submit" value="draft" class="btn btn-outline-secondary">Save as Draft</button>
+                            <button type="submit" name="submit" value="submit" class="btn btn-primary">Submit Version</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow border-0">
+                <div class="card-header"><h5 class="mb-0">Supervisor Feedback</h5></div>
+                <div class="list-group list-group-flush">
+                    @if (Model.Feedbacks == null || !Model.Feedbacks.Any())
+                    {
+                        <div class="list-group-item text-muted">No feedback yet.</div>
+                    }
+                    else
+                    {
+                        foreach (var f in Model.Feedbacks)
+                        {
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between">
+                                    <div><strong>@(f.GivenBy?.FullName ?? "Supervisor")</strong></div>
+                                    <div class="text-muted small">@f.CreatedAt.ToLocalTime().ToString("dd MMM yyyy, hh:mm tt")</div>
+                                </div>
+                                <div class="mt-1">@f.Message</div>
+                                <div class="mt-2">
+                                    <span class="badge @(f.IsChangeRequested ? "bg-warning text-dark" : "bg-success")">
+                                        @(f.IsChangeRequested ? "Changes requested" : "FYI")
+                                    </span>
+                                    @if (f.AcknowledgedAt == null)
+                                    {
+                                        <form asp-action="AcknowledgeFeedback" method="post" class="d-inline ms-2">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@f.Id" />
+                                            <button type="submit" class="btn btn-sm btn-outline-primary">Acknowledge</button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary ms-2">Acknowledged</span>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
