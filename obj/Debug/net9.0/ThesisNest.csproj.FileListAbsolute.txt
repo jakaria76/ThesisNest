@@ -306,3 +306,4 @@ E:\3.2\ThesisNest\ThesisNest\obj\Debug\net9.0\ThesisNest.genruntimeconfig.cache
 E:\3.2\ThesisNest\ThesisNest\obj\Debug\net9.0\ref\ThesisNest.dll
 E:\3.2\ThesisNest\ThesisNest\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt
 E:\3.2\ThesisNest\ThesisNest\obj\Debug\net9.0\compressed\348fxm5lu0-vuu987pfit.gz
+E:\3.2\ThesisNest\ThesisNest\obj\Debug\net9.0\ThesisNest.sourcelink.json
