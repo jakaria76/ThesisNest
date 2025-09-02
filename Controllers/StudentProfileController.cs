@@ -13,7 +13,6 @@ namespace ThesisNest.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        // Max 2MB
         private const long MaxPhotoBytes = 2 * 1024 * 1024;
         private static readonly HashSet<string> AllowedContentTypes = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -26,7 +25,7 @@ namespace ThesisNest.Controllers
             _userManager = userManager;
         }
 
-        // ============== READ (View) ==============
+        // ============== STUDENT PROFILE INDEX / VIEW ==============
         public async Task<IActionResult> Index()
         {
             var currentUser = await _userManager.GetUserAsync(User);
@@ -47,9 +46,8 @@ namespace ThesisNest.Controllers
             var currentUser = await _userManager.GetUserAsync(User);
             if (currentUser == null) return NotFound();
 
-            // if exists, go to Edit
-            var exists = await _context.StudentProfiles.AnyAsync(p => p.UserId == currentUser.Id);
-            if (exists) return RedirectToAction(nameof(Edit));
+            if (await _context.StudentProfiles.AnyAsync(p => p.UserId == currentUser.Id))
+                return RedirectToAction(nameof(Edit));
 
             var vm = new StudentProfile
             {
@@ -68,11 +66,9 @@ namespace ThesisNest.Controllers
             var currentUser = await _userManager.GetUserAsync(User);
             if (currentUser == null) return NotFound();
 
-            // enforce 1 profile per user
-            var exists = await _context.StudentProfiles.AnyAsync(p => p.UserId == currentUser.Id);
-            if (exists) return RedirectToAction(nameof(Edit));
+            if (await _context.StudentProfiles.AnyAsync(p => p.UserId == currentUser.Id))
+                return RedirectToAction(nameof(Edit));
 
-            // lock user id
             model.UserId = currentUser.Id;
 
             if (ProfileImageFile != null && ProfileImageFile.Length > 0)
@@ -120,9 +116,7 @@ namespace ThesisNest.Controllers
                 return View(model);
             }
 
-            if (!ModelState.IsValid) return View(model);
-
-            // update scalar fields
+            // Update scalar fields
             profile.FullName = model.FullName;
             profile.ProfilePictureUrl = model.ProfilePictureUrl;
             profile.DateOfBirth = model.DateOfBirth;
@@ -192,7 +186,7 @@ namespace ThesisNest.Controllers
             return RedirectToAction(nameof(Create));
         }
 
-        // ============== Serve Photo from DB ==============
+        // ============== PHOTO ==============
         [HttpGet]
         public async Task<IActionResult> Photo(int id)
         {
@@ -202,7 +196,6 @@ namespace ThesisNest.Controllers
             var profile = await _context.StudentProfiles.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
             if (profile == null) return NotFound();
 
-            // Only allow owner to view (adjust if admins/teachers should view)
             if (profile.UserId != currentUser.Id) return Forbid();
 
             if (profile.ProfileImage == null || string.IsNullOrEmpty(profile.ProfileImageContentType))
@@ -211,7 +204,7 @@ namespace ThesisNest.Controllers
             return File(profile.ProfileImage, profile.ProfileImageContentType);
         }
 
-        // ============== Helpers ==============
+        // ============== HELPERS ==============
         private static async Task<(bool ok, string? message)> TryBindPhotoAsync(StudentProfile target, IFormFile file)
         {
             if (!AllowedContentTypes.Contains(file.ContentType))
@@ -226,5 +219,8 @@ namespace ThesisNest.Controllers
             target.ProfileImageContentType = file.ContentType;
             return (true, null);
         }
+
+        // ============== VIEW TEACHER DETAILS (Students) ==============
+        
     }
 }

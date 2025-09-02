@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 
-
 namespace ThesisNest.Models.ViewModels
 {
     public class ThesisDetailsVm

@@ -57,11 +57,13 @@ else
     <ul class="navbar-nav ms-auto align-items-center">
         <li class="nav-item">
             <div class="d-flex gap-2">
-                <a class="btn btn-sm btn-outline-light"
+                <a class="btn btn-sm btn-primary"
                    asp-controller="Account" asp-action="Register"
                    asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)">
                     Register
                 </a>
+
+
                 <a class="btn btn-sm btn-primary"
                    asp-controller="Account" asp-action="Login"
                    asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)">

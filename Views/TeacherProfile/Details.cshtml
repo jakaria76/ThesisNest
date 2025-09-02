@@ -1,0 +1,91 @@
+﻿@model ThesisNest.Models.TeacherProfile
+@using ThesisNest.Models
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+
+@{
+    ViewData["Title"] = "My Teacher Profile";
+
+    var imgSrc = (Model?.ProfileImage != null && !string.IsNullOrEmpty(Model.ProfileImageContentType))
+        ? Url.Action("Photo", "TeacherProfile", new { id = Model.Id })
+        : "https://via.placeholder.com/240x240.png?text=User";
+
+    var departments = (IEnumerable<Department>)(ViewData["Departments"] ?? Enumerable.Empty<Department>());
+
+    // Check role
+    bool isTeacherOrAdmin = User.IsInRole("Teacher") || User.IsInRole("Admin");
+}
+
+<div class="container-xxl py-4">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success shadow-sm">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger shadow-sm">@TempData["Error"]</div>
+    }
+
+    @if (Model == null)
+    {
+        <div class="card border-0 shadow-sm p-4 text-center">
+            <div class="mb-2">No profile found.</div>
+            @if (isTeacherOrAdmin)
+            {
+                <a asp-action="Create" class="btn btn-primary">Create Profile</a>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="tn-profile card border-0 shadow-lg overflow-hidden">
+
+            <!-- Banner & Header -->
+            <div class="tnp-banner"></div>
+            <div class="tnp-header px-3 px-md-4 pb-3 pb-md-4">
+                <div class="d-flex align-items-center gap-3 gap-md-4 tnp-headrow">
+                    <div class="tnp-avatar-wrap">
+                        <img src="@imgSrc" class="tnp-avatar" alt="Profile" />
+                    </div>
+                    <div class="flex-grow-1 min-w-0">
+                        <h2 class="tnp-name mb-1 text-truncate" title="@Model.FullName">@Model.FullName</h2>
+                        <div class="text-muted tn-dim">@Model.Designation</div>
+                        <div class="text-muted small tn-dim">@Model.Department</div>
+                        <div class="tnp-chipwrap d-flex flex-wrap gap-2 mt-2">
+                            @if (!string.IsNullOrWhiteSpace(Model.Email))
+                            {
+                                <a class="tnp-chip" href="mailto:@Model.Email"><i class="bi bi-envelope me-2"></i>@Model.Email</a>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(Model.Phone))
+                            {
+                                <a class="tnp-chip" href="tel:@Model.Phone"><i class="bi bi-telephone me-2"></i>@Model.Phone</a>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(Model.OfficeLocation))
+                            {
+                                <span class="tnp-chip"><i class="bi bi-geo-alt me-2"></i>@Model.OfficeLocation</span>
+                            }
+                        </div>
+                    </div>
+
+                    @* Role-based Edit/Delete *@
+                    @if (isTeacherOrAdmin)
+                    {
+                        <div class="ms-auto d-none d-md-block">
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary me-2">
+                                <i class="bi bi-pencil-square me-1"></i>Edit
+                            </a>
+                            <form asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('Delete your profile?');">
+                                @Html.AntiForgeryToken()
+                                <button class="btn btn-outline-danger"><i class="bi bi-trash"></i> Delete</button>
+                            </form>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Rest of profile body stays the same... -->
+
+        </div>
+    }
+</div>

@@ -1,0 +1,162 @@
+﻿@model ThesisNest.Models.TeacherProfile
+@using ThesisNest.Models
+
+@{
+    ViewData["Title"] = "Teacher Details";
+
+    var imgSrc = (Model?.ProfileImage != null && !string.IsNullOrEmpty(Model.ProfileImageContentType))
+        ? Url.Action("Photo", "TeacherProfile", new { id = Model.Id })
+        : "https://via.placeholder.com/240x240.png?text=User";
+}
+
+<div class="container-xxl py-4">
+    @if (Model == null)
+    {
+        <div class="card border-0 shadow-sm p-4 text-center">
+            <div class="mb-2">Teacher profile not found.</div>
+            <a asp-controller="TeacherProfile" asp-action="Index" class="btn btn-primary">Back</a>
+        </div>
+    }
+    else
+    {
+        <div class="tn-profile card border-0 shadow-lg overflow-hidden">
+
+            <!-- Banner -->
+            <div class="tnp-banner"></div>
+
+            <!-- Header -->
+            <div class="tnp-header px-3 px-md-4 pb-3 pb-md-4">
+                <div class="d-flex align-items-center gap-3 gap-md-4 tnp-headrow">
+                    
+                    <div class="flex-grow-1 min-w-0">
+                        <h2 class="tnp-name mb-1 text-truncate" title="@Model.FullName">@Model.FullName</h2>
+                        <div class="text-muted tn-dim">@Model.Designation</div>
+                        <div class="text-muted small tn-dim">@Model.Department</div>
+
+                        <div class="tnp-chipwrap d-flex flex-wrap gap-2 mt-2">
+                            @if (!string.IsNullOrWhiteSpace(Model.Email))
+                            {
+                                <a class="tnp-chip" href="mailto:@Model.Email">
+                                    <i class="bi bi-envelope me-2"></i>@(Model.IsPublicEmail? Model.Email: "Private")
+                                </a>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(Model.Phone))
+                            {
+                                <a class="tnp-chip" href="tel:@Model.Phone">
+                                    <i class="bi bi-telephone me-2"></i>@(Model.IsPublicPhone? Model.Phone: "Private")
+                                </a>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(Model.OfficeLocation))
+                            {
+                                <span class="tnp-chip"><i class="bi bi-geo-alt me-2"></i>@Model.OfficeLocation</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Body -->
+            <div class="tnp-body px-3 px-md-4">
+                <div class="row g-4">
+
+                    <!-- About + Activity -->
+                    <div class="col-12 col-lg-6">
+                        <div class="tnp-block">
+                            <div class="tnp-block-title">About</div>
+                            <dl class="tnp-dl">
+                                <dt>Bio</dt>
+                                <dd>@(!string.IsNullOrEmpty(Model.Bio) ? Model.Bio : "N/A")</dd>
+                                <dt>Research</dt>
+                                <dd>@(!string.IsNullOrEmpty(Model.ResearchSummary) ? Model.ResearchSummary : "N/A")</dd>
+                            </dl>
+                        </div>
+
+                        <div class="tnp-block">
+                            <div class="tnp-block-title">Activity</div>
+                            <ul class="list-group list-group-flush shadow-sm tnp-activity-list">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Created at <span class="tn-badge-date">@Model.CreatedAt.ToLocalTime()</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Last updated <span class="tn-badge-date">@Model.UpdatedAt.ToLocalTime()</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Contact + Map -->
+                    <div class="col-12 col-lg-6">
+                        <div class="tnp-block">
+                            <div class="tnp-block-title">Contact & Office Location</div>
+                            <dl class="tnp-dl">
+                                <dt>Email</dt>
+                                <dd>@(Model.IsPublicEmail? Model.Email: "Private")</dd>
+                                <dt>Phone</dt>
+                                <dd>@(Model.IsPublicPhone? Model.Phone: "Private")</dd>
+                                <dt>Office</dt>
+                                <dd>@(!string.IsNullOrEmpty(Model.OfficeLocation) ? Model.OfficeLocation : "N/A")</dd>
+                            </dl>
+
+                            @if (Model.Latitude.HasValue && Model.Longitude.HasValue)
+                            {
+                                <div id="map" style="width:100%;height:300px;border-radius:12px"></div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Theses -->
+                    <div class="col-12">
+                        <div class="tnp-block">
+                            <div class="tnp-block-title">Theses</div>
+                            <div class="table-responsive">
+                                <table class="table align-middle m-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Title</th>
+                                            <th>Status</th>
+                                            <th>Created</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var t in (Model.Theses ?? Enumerable.Empty<Thesis>()).OrderByDescending(x => x.CreatedAt))
+                                        {
+                                            <tr>
+                                                <td>@t.Title</td>
+                                                <td><span class="tn-badge-status tn-badge-@t.Status.ToString().ToLower()">@t.Status</span></td>
+                                                <td>@t.CreatedAt.ToLocalTime()</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    }
+</div>
+
+@section Scripts {
+    @if (Model.Latitude.HasValue && Model.Longitude.HasValue)
+    {
+        <script>
+            const LAT_INIT = @Model.Latitude.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            const LNG_INIT = @Model.Longitude.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            const map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: parseFloat(LAT_INIT), lng: parseFloat(LNG_INIT) },
+                zoom: 15,
+                mapTypeControl: false,
+                streetViewControl: false
+            });
+            new google.maps.Marker({ position: { lat: parseFloat(LAT_INIT), lng: parseFloat(LNG_INIT) }, map });
+        </script>
+        <script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY"></script>
+    }
+}
+
+@section Styles {
+   
+}

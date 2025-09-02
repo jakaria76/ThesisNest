@@ -19,22 +19,34 @@ namespace ThesisNest.Data
         {
             base.OnModelCreating(builder);
 
-            // Student
-            builder.Entity<StudentProfile>()
-                   .Property(p => p.ProfileImage)
-                   .HasColumnType("varbinary(max)");
+            // ✅ Student Profile Config
+            builder.Entity<StudentProfile>(e =>
+            {
+                e.Property(p => p.ProfileImage).HasColumnType("varbinary(max)");
+            });
 
-            // Teacher
-            builder.Entity<TeacherProfile>().ToTable("TeacherProfiles");
-            builder.Entity<TeacherProfile>().HasIndex(t => t.UserId).IsUnique();
-            builder.Entity<TeacherProfile>().Property(t => t.ProfileImage).HasColumnType("varbinary(max)");
-            builder.Entity<TeacherProfile>().Property(t => t.OngoingThesisCount).HasDefaultValue(0);
-            builder.Entity<TeacherProfile>().Property(t => t.CompletedThesisCount).HasDefaultValue(0);
+            // ✅ Teacher Profile Config
+            builder.Entity<TeacherProfile>(e =>
+            {
+                e.ToTable("TeacherProfiles");
+                e.HasIndex(t => t.UserId).IsUnique();
+                e.Property(t => t.ProfileImage).HasColumnType("varbinary(max)");
 
-            // Thesis
+                // Ignore computed properties (not mapped to DB)
+                e.Ignore(t => t.OngoingThesisCount);
+                e.Ignore(t => t.CompletedThesisCount);
+
+                // ✅ RowVersion for concurrency
+                e.Property(t => t.RowVersion)
+                 .IsRowVersion()
+                 .IsConcurrencyToken();
+            });
+
+            // ✅ Thesis Config
             builder.Entity<Thesis>(e =>
             {
                 e.ToTable("Theses");
+
                 e.HasIndex(t => new { t.TeacherProfileId, t.Status });
                 e.HasIndex(t => new { t.DepartmentId, t.ProposalStatus });
 
@@ -48,23 +60,24 @@ namespace ThesisNest.Data
                  .HasForeignKey(t => t.StudentProfileId)
                  .OnDelete(DeleteBehavior.Restrict);
 
-                e.HasOne<Department>(t => t.Department)
+                e.HasOne(t => t.Department)
                  .WithMany()
                  .HasForeignKey(t => t.DepartmentId)
                  .OnDelete(DeleteBehavior.Restrict);
             });
 
-            // ThesisVersion
+            // ✅ ThesisVersion Config
             builder.Entity<ThesisVersion>(e =>
             {
                 e.HasIndex(v => new { v.ThesisId, v.VersionNo }).IsUnique();
+
                 e.HasOne(v => v.Thesis)
                  .WithMany(t => t.Versions)
                  .HasForeignKey(v => v.ThesisId)
                  .OnDelete(DeleteBehavior.Cascade);
             });
 
-            // ThesisFeedback
+            // ✅ ThesisFeedback Config
             builder.Entity<ThesisFeedback>(e =>
             {
                 e.HasOne(f => f.Thesis)

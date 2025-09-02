@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using System.Text.Json;
 using ThesisNest.Data;
@@ -32,7 +33,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services
     .AddDefaultIdentity<ApplicationUser>(options =>
     {
-        options.SignIn.RequireConfirmedAccount = false; // email confirmation
+        options.SignIn.RequireConfirmedAccount = false;
         options.Password.RequireDigit = false;
         options.Password.RequireLowercase = false;
         options.Password.RequireUppercase = false;
@@ -52,23 +53,27 @@ builder.Services.ConfigureApplicationCookie(o =>
     o.SlidingExpiration = true;
 });
 
-// External cookie SameSite fix (for external providers in cross-site flows)
+// External cookie SameSite fix
 builder.Services.ConfigureExternalCookie(o =>
 {
-    o.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None;
+    o.Cookie.SameSite = SameSiteMode.None;
 });
 
 // ------------------------
 // 4) External Authentication Providers
+//    IMPORTANT: do NOT override the default scheme set by Identity
 // ------------------------
 builder.Services.AddAuthentication()
     .AddGoogle(options =>
     {
+        options.SignInScheme = IdentityConstants.ExternalScheme;
         options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
         options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
     })
     .AddOAuth("LinkedIn", options =>
     {
+        options.SignInScheme = IdentityConstants.ExternalScheme;
+
         options.ClientId = builder.Configuration["Authentication:LinkedIn:ClientId"];
         options.ClientSecret = builder.Configuration["Authentication:LinkedIn:ClientSecret"];
         options.CallbackPath = new PathString("/signin-linkedin");
@@ -85,44 +90,46 @@ builder.Services.AddAuthentication()
             OnCreatingTicket = async context =>
             {
                 // Profile
-                var request = new HttpRequestMessage(HttpMethod.Get, "https://api.linkedin.com/v2/me");
+                using var request = new HttpRequestMessage(HttpMethod.Get, options.UserInformationEndpoint);
                 request.Headers.Authorization =
                     new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", context.AccessToken);
                 request.Headers.Add("X-Restli-Protocol-Version", "2.0.0");
 
-                var response = await context.Backchannel.SendAsync(request);
+                using var response = await context.Backchannel.SendAsync(request);
                 response.EnsureSuccessStatusCode();
 
                 using var user = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
                 var root = user.RootElement;
 
-                var id = root.GetProperty("id").GetString();
-                var firstName = root.TryGetProperty("localizedFirstName", out var fn) ? fn.GetString() : "";
-                var lastName = root.TryGetProperty("localizedLastName", out var ln) ? ln.GetString() : "";
+                var id = root.GetProperty("id").GetString() ?? "";
+                var firstName = root.TryGetProperty("localizedFirstName", out var fn) ? fn.GetString() ?? "" : "";
+                var lastName = root.TryGetProperty("localizedLastName", out var ln) ? ln.GetString() ?? "" : "";
 
-                context.Identity!.AddClaim(new Claim(ClaimTypes.NameIdentifier, id ?? ""));
+                context.Identity!.AddClaim(new Claim(ClaimTypes.NameIdentifier, id));
                 context.Identity!.AddClaim(new Claim(ClaimTypes.Name, $"{firstName} {lastName}".Trim()));
 
                 // Email
-                var emailRequest = new HttpRequestMessage(HttpMethod.Get,
+                using var emailRequest = new HttpRequestMessage(HttpMethod.Get,
                     "https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))");
                 emailRequest.Headers.Authorization =
                     new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", context.AccessToken);
                 emailRequest.Headers.Add("X-Restli-Protocol-Version", "2.0.0");
 
-                var emailResponse = await context.Backchannel.SendAsync(emailRequest);
+                using var emailResponse = await context.Backchannel.SendAsync(emailRequest);
                 emailResponse.EnsureSuccessStatusCode();
 
                 using var emailDoc = JsonDocument.Parse(await emailResponse.Content.ReadAsStringAsync());
                 var elements = emailDoc.RootElement.GetProperty("elements");
-                var email = elements[0].GetProperty("handle~").GetProperty("emailAddress").GetString();
+                var email = elements[0].GetProperty("handle~").GetProperty("emailAddress").GetString() ?? "";
 
-                context.Identity!.AddClaim(new Claim(ClaimTypes.Email, email ?? ""));
+                context.Identity!.AddClaim(new Claim(ClaimTypes.Email, email));
             }
         };
     })
     .AddOAuth("GitHub", options =>
     {
+        options.SignInScheme = IdentityConstants.ExternalScheme;
+
         options.ClientId = builder.Configuration["Authentication:GitHub:ClientId"];
         options.ClientSecret = builder.Configuration["Authentication:GitHub:ClientSecret"];
         options.CallbackPath = new PathString("/signin-github");
@@ -141,30 +148,29 @@ builder.Services.AddAuthentication()
         {
             OnCreatingTicket = async context =>
             {
-                var request = new HttpRequestMessage(HttpMethod.Get, context.Options.UserInformationEndpoint);
+                using var request = new HttpRequestMessage(HttpMethod.Get, options.UserInformationEndpoint);
                 request.Headers.Authorization =
                     new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", context.AccessToken);
                 request.Headers.Add("User-Agent", "ThesisNest-App");
 
-                var response = await context.Backchannel.SendAsync(request);
+                using var response = await context.Backchannel.SendAsync(request);
                 response.EnsureSuccessStatusCode();
 
-                using var user = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-                var root = user.RootElement;
+                using var root = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
 
-                // Email (primary preferred)
                 string? email = null;
-                if (root.TryGetProperty("email", out var eProp))
+
+                if (root.RootElement.TryGetProperty("email", out var eProp))
                     email = eProp.GetString();
 
                 if (string.IsNullOrEmpty(email))
                 {
-                    var emailsRequest = new HttpRequestMessage(HttpMethod.Get, "https://api.github.com/user/emails");
+                    using var emailsRequest = new HttpRequestMessage(HttpMethod.Get, "https://api.github.com/user/emails");
                     emailsRequest.Headers.Authorization =
                         new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", context.AccessToken);
                     emailsRequest.Headers.Add("User-Agent", "ThesisNest-App");
 
-                    var emailsResponse = await context.Backchannel.SendAsync(emailsRequest);
+                    using var emailsResponse = await context.Backchannel.SendAsync(emailsRequest);
                     emailsResponse.EnsureSuccessStatusCode();
 
                     using var emailsJson = JsonDocument.Parse(await emailsResponse.Content.ReadAsStringAsync());
@@ -180,8 +186,8 @@ builder.Services.AddAuthentication()
                 }
 
                 context.Identity!.AddClaim(new Claim(ClaimTypes.Email, email ?? ""));
-                context.Identity!.AddClaim(new Claim(ClaimTypes.NameIdentifier, root.GetProperty("id").ToString()));
-                context.Identity!.AddClaim(new Claim(ClaimTypes.Name, root.TryGetProperty("name", out var n) ? n.GetString() ?? "" : ""));
+                context.Identity!.AddClaim(new Claim(ClaimTypes.NameIdentifier, root.RootElement.GetProperty("id").ToString()));
+                context.Identity!.AddClaim(new Claim(ClaimTypes.Name, root.RootElement.TryGetProperty("name", out var n) ? n.GetString() ?? "" : ""));
             }
         };
     });
@@ -205,7 +211,6 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
 
 app.UseAuthentication();
@@ -217,25 +222,21 @@ app.UseAuthorization();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-
-    // Apply pending migrations
     var db = services.GetRequiredService<ApplicationDbContext>();
     await db.Database.MigrateAsync();
 
-    // Departments seed (only if empty)
-    if (!await db.Departments.AnyAsync())
+    // Seed Departments
+    var departments = new[] { "CSE", "EEE", "CV", "ME", "TE", "Arch", "IP" };
+    foreach (var deptName in departments)
     {
-        db.Departments.AddRange(
-            new Department { Name = "CSE" },
-            new Department { Name = "EEE" },
-            new Department { Name = "BBA" }
-        );
-        await db.SaveChangesAsync();
+        if (!await db.Departments.AnyAsync(d => d.Name == deptName))
+            db.Departments.Add(new Department { Name = deptName });
     }
+    await db.SaveChangesAsync();
 
-    // Seed roles/users as per your SeedData class
-    await SeedData.InitializeAsync(services);
+    await SeedData.InitializeAsync(services); // baki seed, roles etc.
 }
+
 
 // ------------------------
 // 8) Routes

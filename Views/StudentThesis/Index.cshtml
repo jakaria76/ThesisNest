@@ -1,5 +1,6 @@
 ﻿@model ThesisNest.Models.ViewModels.ThesisIndexVm
 @using ThesisNest.Models
+
 @{
     ViewData["Title"] = "My Submissions";
 
@@ -11,6 +12,17 @@
         ProposalStatus.ChangesRequested => "badge bg-warning text-dark",
         ProposalStatus.Approved => "badge bg-success",
         ProposalStatus.Rejected => "badge bg-danger",
+        _ => "badge bg-light text-dark"
+    };
+
+    string ThesisBadgeCls(ThesisStatus? s) => s switch
+    {
+        ThesisStatus.Proposed => "badge bg-secondary",
+        ThesisStatus.Pending => "badge bg-secondary",
+        ThesisStatus.InProgress => "badge bg-info text-dark",
+        ThesisStatus.Completed => "badge bg-success",
+        ThesisStatus.Rejected => "badge bg-danger",
+        null => "badge bg-light text-dark",
         _ => "badge bg-light text-dark"
     };
 }
@@ -39,7 +51,9 @@
                     <tr>
                         <th>Title</th>
                         <th>Department</th>
-                        <th>Status</th>
+                        <th>Teacher</th>
+                        <th>Proposal Status</th>
+                        <th>Teacher Status</th>
                         <th>Version</th>
                         <th>Created</th>
                         <th></th>
@@ -49,7 +63,7 @@
                     @if (Model.Items == null || Model.Items.Count == 0)
                     {
                         <tr>
-                            <td colspan="6" class="text-center text-muted py-4">No submissions yet.</td>
+                            <td colspan="8" class="text-center text-muted py-4">No submissions yet.</td>
                         </tr>
                     }
                     else
@@ -59,11 +73,36 @@
                             <tr>
                                 <td>@item.Title</td>
                                 <td>@item.Department</td>
+                                <td>
+                                    @* Teacher name clickable *@
+                                    @if (item.TeacherId.HasValue)
+                                    {
+                                        <a asp-controller="StudentThesis"
+                                           asp-action="TeacherDetails"
+                                           asp-route-id="@item.TeacherId">
+                                            @item.TeacherFullName
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">N/A</span>
+                                    }
+                                </td>
                                 <td><span class="@BadgeCls(item.ProposalStatus)">@item.ProposalStatus</span></td>
+                                <td>
+                                    @if (item.TeacherStatus.HasValue)
+                                    {
+                                        <span class="@ThesisBadgeCls(item.TeacherStatus)">@item.TeacherStatus</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Pending</span>
+                                    }
+                                </td>
                                 <td>@item.CurrentVersionNo</td>
                                 <td>@item.CreatedAtStr</td>
                                 <td class="text-end">
-                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">Details</a>
+                                    <a asp-controller="StudentThesis" asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">Details</a>
                                 </td>
                             </tr>
                         }

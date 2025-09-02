@@ -1,0 +1,26 @@
+﻿@{
+    ViewData["Title"] = "Preview Thesis Version";
+    var previewType = ViewBag.PreviewType as string;
+    var fileUrl = ViewBag.FileUrl as string;
+}
+
+<h2>Preview Thesis Version</h2>
+
+@if (previewType == "pdf" && !string.IsNullOrEmpty(fileUrl))
+{
+    <iframe src="@fileUrl" width="100%" height="800px"></iframe>
+}
+else if (previewType == "doc")
+{
+    <p>
+        <a class="btn btn-primary" href="@fileUrl" target="_blank">Open Document</a>
+    </p>
+}
+else
+{
+    <p class="text-muted">Preview not available for this file type.</p>
+}
+
+<p>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</p>

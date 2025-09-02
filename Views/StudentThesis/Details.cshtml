@@ -12,9 +12,54 @@
         ThesisNest.Models.ProposalStatus.Rejected => "badge bg-danger",
         _ => "badge bg-light text-dark"
     };
+
+    string BadgeClsStatus(ThesisNest.Models.ThesisStatus s) => s switch
+    {
+        ThesisNest.Models.ThesisStatus.Proposed => "badge bg-secondary",
+        ThesisNest.Models.ThesisStatus.Pending => "badge bg-info text-dark",
+        ThesisNest.Models.ThesisStatus.InProgress => "badge bg-warning text-dark",
+        ThesisNest.Models.ThesisStatus.Completed => "badge bg-success",
+        ThesisNest.Models.ThesisStatus.Rejected => "badge bg-danger",
+        _ => "badge bg-light text-dark"
+    };
 }
 
-<div class="container-xxl py-4">
+@section Styles {
+    <style>
+        .thesis-dtl .card,
+        .thesis-dtl .card-header,
+        .thesis-dtl .list-group-item {
+            background: var(--bg-soft) !important;
+            color: var(--text) !important;
+            border-color: var(--border) !important;
+        }
+
+        .thesis-dtl .list-group {
+            --bs-list-group-bg: var(--bg-soft);
+            --bs-list-group-color: var(--text);
+            --bs-list-group-border-color: var(--border);
+        }
+
+        .thesis-dtl hr {
+            border-color: var(--border);
+            opacity: 1;
+        }
+
+        .thesis-dtl .form-control, .thesis-dtl .form-select, .thesis-dtl textarea {
+            background: var(--bg-soft);
+            color: var(--text);
+            border-color: var(--border);
+        }
+
+        .thesis-dtl .text-muted {
+            color: var(--muted) !important;
+        }
+    </style>
+}
+
+<div class="container-xxl py-4 thesis-dtl">
+
+    <!-- Alerts -->
     @if (TempData["Error"] != null)
     {
         <div class="alert alert-danger">@TempData["Error"]</div>
@@ -24,6 +69,7 @@
         <div class="alert alert-success">@TempData["Success"]</div>
     }
 
+    <!-- Thesis Info -->
     <div class="card shadow border-0 mb-4">
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-start">
@@ -32,12 +78,12 @@
                     <div class="text-muted">
                         <strong>Department:</strong> @Model.Thesis.Department?.Name
                         | <strong>Supervisor:</strong> @Model.Thesis.Supervisor?.FullName
-                        | <strong>Status:</strong> <span class="@BadgeCls(Model.Thesis.ProposalStatus)">@Model.Thesis.ProposalStatus</span>
+                        | <strong>Proposal Status:</strong> <span class="@BadgeCls(Model.Thesis.ProposalStatus)">@Model.Thesis.ProposalStatus</span>
+                        | <strong>Teacher Status:</strong> <span class="@BadgeClsStatus(Model.Thesis.Status)">@Model.Thesis.Status</span>
                     </div>
                 </div>
                 <a asp-action="Index" class="btn btn-outline-secondary">Back</a>
             </div>
-
             <hr />
             <h5>Abstract</h5>
             <p class="mb-0">@Model.Thesis.Abstract</p>
@@ -45,6 +91,8 @@
     </div>
 
     <div class="row g-4">
+
+        <!-- Versions List -->
         <div class="col-lg-7">
             <div class="card shadow border-0">
                 <div class="card-header d-flex justify-content-between align-items-center">
@@ -57,7 +105,7 @@
                     }
                     else
                     {
-                        foreach (var v in Model.Versions)
+                        @foreach (var v in Model.Versions)
                         {
                             <div class="list-group-item d-flex justify-content-between align-items-center">
                                 <div>
@@ -70,7 +118,7 @@
                                 </div>
                                 <div class="btn-group">
                                     <a asp-action="PreviewVersion" asp-route-id="@v.Id" class="btn btn-sm btn-outline-primary">Preview</a>
-                                    <a asp-action="DownloadVersion" asp-route-id="@v.Id" class="btn btn-sm btn-outline-secondary">Download</a>
+                                    <a asp-action="DownloadVersion" asp-route-id="@v.Id" class="btn btn-sm btn-outline-primary">Download</a>
                                 </div>
                             </div>
                         }
@@ -79,21 +127,42 @@
             </div>
         </div>
 
+        <!-- Feedback and Upload New Version -->
         <div class="col-lg-5">
+
+            <!-- Upload / Update Thesis -->
             <div class="card shadow border-0 mb-4">
-                <div class="card-header"><h5 class="mb-0">Upload New Version</h5></div>
+                <div class="card-header"><h5 class="mb-0">Update Thesis / Upload New Version</h5></div>
                 <div class="card-body">
                     <form asp-action="UploadVersion" method="post" enctype="multipart/form-data">
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="thesisId" value="@Model.Thesis.Id" />
+
+                        <div class="mb-3">
+                            <label class="form-label">Title</label>
+                            <input type="text" name="title" class="form-control" value="@Model.Thesis.Title" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Abstract</label>
+                            <textarea name="abstract" rows="3" class="form-control">@Model.Thesis.Abstract</textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Keywords (optional)</label>
+                            <input type="text" name="keywords" class="form-control" value="@Model.Thesis.Keywords" />
+                        </div>
+
                         <div class="mb-3">
                             <label class="form-label">File (PDF/DOCX, ≤ 20MB)</label>
                             <input type="file" name="file" class="form-control" />
                         </div>
+
                         <div class="mb-3">
                             <label class="form-label">Note (optional)</label>
-                            <textarea name="note" rows="3" class="form-control" placeholder="Any short note for your supervisor"></textarea>
+                            <textarea name="note" rows="3" class="form-control"></textarea>
                         </div>
+
                         <div class="d-flex gap-2">
                             <button type="submit" name="submit" value="draft" class="btn btn-outline-secondary">Save as Draft</button>
                             <button type="submit" name="submit" value="submit" class="btn btn-primary">Submit Version</button>
@@ -102,6 +171,7 @@
                 </div>
             </div>
 
+            <!-- Supervisor Feedback -->
             <div class="card shadow border-0">
                 <div class="card-header"><h5 class="mb-0">Supervisor Feedback</h5></div>
                 <div class="list-group list-group-flush">
@@ -111,7 +181,7 @@
                     }
                     else
                     {
-                        foreach (var f in Model.Feedbacks)
+                        @foreach (var f in Model.Feedbacks)
                         {
                             <div class="list-group-item">
                                 <div class="d-flex justify-content-between">
@@ -123,6 +193,8 @@
                                     <span class="badge @(f.IsChangeRequested ? "bg-warning text-dark" : "bg-success")">
                                         @(f.IsChangeRequested ? "Changes requested" : "FYI")
                                     </span>
+
+                                    <!-- Acknowledge button -->
                                     @if (f.AcknowledgedAt == null)
                                     {
                                         <form asp-action="AcknowledgeFeedback" method="post" class="d-inline ms-2">
@@ -138,6 +210,7 @@
                                 </div>
                             </div>
                         }
+
                     }
                 </div>
             </div>

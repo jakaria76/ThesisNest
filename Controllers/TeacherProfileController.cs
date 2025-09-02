@@ -33,17 +33,11 @@ namespace ThesisNest.Controllers
             if (user == null) return NotFound();
 
             var profile = await _context.TeacherProfiles
-                .AsNoTracking()
                 .Include(p => p.Theses)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(t => t.UserId == user.Id);
 
             if (profile == null) return RedirectToAction(nameof(Create));
-
-            if (profile.Theses != null)
-            {
-                profile.OngoingThesisCount = profile.Theses.Count(t => t.Status == ThesisStatus.Ongoing);
-                profile.CompletedThesisCount = profile.Theses.Count(t => t.Status == ThesisStatus.Completed);
-            }
 
             ViewData["Departments"] = await _context.Departments
                 .AsNoTracking()
@@ -60,8 +54,8 @@ namespace ThesisNest.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return NotFound();
 
-            var exists = await _context.TeacherProfiles.AnyAsync(t => t.UserId == user.Id);
-            if (exists) return RedirectToAction(nameof(Edit));
+            if (await _context.TeacherProfiles.AnyAsync(t => t.UserId == user.Id))
+                return RedirectToAction(nameof(Edit));
 
             return View(new TeacherProfile
             {
@@ -99,7 +93,6 @@ namespace ThesisNest.Controllers
 
             _context.TeacherProfiles.Add(model);
             await _context.SaveChangesAsync();
-
             TempData["Success"] = "Profile created successfully!";
             return RedirectToAction(nameof(Index));
         }
@@ -126,7 +119,6 @@ namespace ThesisNest.Controllers
 
             var profile = await _context.TeacherProfiles
                 .FirstOrDefaultAsync(t => t.UserId == user.Id && t.Id == model.Id);
-
             if (profile == null)
             {
                 TempData["Error"] = "Profile not found.";
@@ -151,10 +143,8 @@ namespace ThesisNest.Controllers
             profile.IsPublicPhone = model.IsPublicPhone;
             profile.Bio = model.Bio;
             profile.ResearchSummary = model.ResearchSummary;
-
-            var newSlug = ToSlug(profile.FullName);
-            if (!string.Equals(newSlug, profile.Slug, StringComparison.OrdinalIgnoreCase))
-                profile.Slug = await MakeUniqueSlugAsync(newSlug, excludeId: profile.Id);
+            profile.Latitude = model.Latitude;
+            profile.Longitude = model.Longitude;
 
             if (removePhoto)
             {
@@ -165,15 +155,10 @@ namespace ThesisNest.Controllers
             else if (ProfileImageFile is { Length: > 0 })
             {
                 var (ok, msg) = await TryBindPhotoAsync(profile, ProfileImageFile);
-                if (!ok)
-                {
-                    ModelState.AddModelError("ProfileImage", msg!);
-                    return View(profile);
-                }
+                if (!ok) ModelState.AddModelError("ProfileImage", msg!);
             }
 
             profile.UpdatedAt = DateTime.UtcNow;
-
             await _context.SaveChangesAsync();
             TempData["Success"] = "Profile updated successfully!";
             return RedirectToAction(nameof(Index));
@@ -187,6 +172,7 @@ namespace ThesisNest.Controllers
             if (user == null) return NotFound();
 
             var profile = await _context.TeacherProfiles
+                .Include(t => t.Theses)
                 .FirstOrDefaultAsync(t => t.UserId == user.Id);
 
             if (profile == null)
@@ -195,15 +181,11 @@ namespace ThesisNest.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            var theses = await _context.Theses
-                .Where(t => t.TeacherProfileId == profile.Id)
-                .ToListAsync();
-
-            _context.Theses.RemoveRange(theses);
+            _context.Theses.RemoveRange(profile.Theses);
             _context.TeacherProfiles.Remove(profile);
 
             await _context.SaveChangesAsync();
-            TempData["Success"] = "Profile deleted.";
+            TempData["Success"] = "Profile deleted successfully!";
             return RedirectToAction(nameof(Create));
         }
 
@@ -211,108 +193,35 @@ namespace ThesisNest.Controllers
         [HttpGet]
         public async Task<IActionResult> Photo(int id)
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null) return Unauthorized();
+            var profile = await _context.TeacherProfiles
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.Id == id);
 
-            var p = await _context.TeacherProfiles.AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == id);
+            if (profile == null || profile.ProfileImage == null || string.IsNullOrEmpty(profile.ProfileImageContentType))
+                return File(System.IO.File.ReadAllBytes("wwwroot/images/default-user.png"), "image/png");
 
-            if (p == null) return NotFound();
-            if (p.UserId != user.Id && !User.IsInRole("Admin")) return Forbid();
-            if (p.ProfileImage == null || string.IsNullOrEmpty(p.ProfileImageContentType)) return NotFound();
-
-            Response.Headers["Cache-Control"] = "public,max-age=86400";
-            return File(p.ProfileImage, p.ProfileImageContentType);
+            return File(profile.ProfileImage, profile.ProfileImageContentType);
         }
 
-        // ========= Thesis ops =========
-        [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddThesis(string title, ThesisStatus status = ThesisStatus.Ongoing, int? departmentId = null)
+        // ========= DETAILS =========
+        [Authorize(Roles = "Teacher,Admin,Student")]
+        public async Task<IActionResult> Details(int id)
         {
-            if (string.IsNullOrWhiteSpace(title))
-            {
-                TempData["Error"] = "Title is required.";
-                return RedirectToAction(nameof(Index));
-            }
+            var profile = await _context.TeacherProfiles
+                .Include(t => t.Theses)
+                .FirstOrDefaultAsync(t => t.Id == id);
 
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null) return Unauthorized();
+            if (profile == null) return NotFound();
 
-            var profile = await _context.TeacherProfiles.FirstOrDefaultAsync(t => t.UserId == user.Id);
-            if (profile == null) return RedirectToAction(nameof(Create));
-
-            // Department আবশ্যক (valid id নিশ্চিত)
-            if (departmentId is null || !await _context.Departments.AnyAsync(d => d.Id == departmentId.Value))
-            {
-                TempData["Error"] = "Please select a valid department.";
-                return RedirectToAction(nameof(Index));
-            }
-
-            _context.Theses.Add(new Thesis
-            {
-                Title = title.Trim(),
-                TeacherProfileId = profile.Id,
-                DepartmentId = departmentId.Value, // int? -> int fix
-                Status = status,
-                CreatedAt = DateTime.UtcNow,
-                CompletedAt = status == ThesisStatus.Completed ? DateTime.UtcNow : null
-            });
-
-            await _context.SaveChangesAsync();
-            TempData["Success"] = "Thesis added.";
-            return RedirectToAction(nameof(Index));
+            ViewBag.CanEdit = User.IsInRole("Teacher") || User.IsInRole("Admin");
+            return View("TeacherDetails", profile);
         }
 
-        [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> SetThesisStatus(int thesisId, ThesisStatus status)
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null) return Unauthorized();
-
-            var th = await _context.Theses.FirstOrDefaultAsync(t => t.Id == thesisId);
-            if (th == null) return NotFound();
-
-            var myProfile = await _context.TeacherProfiles.AsNoTracking()
-                .FirstOrDefaultAsync(p => p.UserId == user.Id);
-
-            if (myProfile == null) return Forbid();
-            if (th.TeacherProfileId != myProfile.Id && !User.IsInRole("Admin")) return Forbid();
-
-            th.Status = status;
-            th.CompletedAt = status == ThesisStatus.Completed
-                ? th.CompletedAt ?? DateTime.UtcNow
-                : null;
-
-            await _context.SaveChangesAsync();
-            TempData["Success"] = "Thesis status updated.";
-            return RedirectToAction(nameof(Index));
-        }
-
-        [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteThesis(int thesisId)
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null) return Unauthorized();
-
-            var th = await _context.Theses.FirstOrDefaultAsync(t => t.Id == thesisId);
-            if (th == null) return NotFound();
-
-            var myProfile = await _context.TeacherProfiles.AsNoTracking()
-                .FirstOrDefaultAsync(p => p.UserId == user.Id);
-
-            if (myProfile == null) return Forbid();
-            if (th.TeacherProfileId != myProfile.Id && !User.IsInRole("Admin")) return Forbid();
-
-            _context.Theses.Remove(th);
-            await _context.SaveChangesAsync();
-            TempData["Success"] = "Thesis deleted.";
-            return RedirectToAction(nameof(Index));
-        }
-
-        // ========= Helpers =========
+        // ========= HELPERS =========
         private static string ToSlug(string? text)
         {
             if (string.IsNullOrWhiteSpace(text)) return Guid.NewGuid().ToString("n")[..8];
+
             var s = text.Trim().ToLowerInvariant();
             var sb = new StringBuilder(s.Length);
             foreach (var ch in s)
@@ -320,13 +229,15 @@ namespace ThesisNest.Controllers
                 if (char.IsLetterOrDigit(ch)) sb.Append(ch);
                 else if (char.IsWhiteSpace(ch) || ch == '-' || ch == '_') sb.Append('-');
             }
+
             var slug = Regex.Replace(sb.ToString(), "-{2,}", "-").Trim('-');
             return string.IsNullOrWhiteSpace(slug) ? Guid.NewGuid().ToString("n")[..8] : slug;
         }
 
         private async Task<string> MakeUniqueSlugAsync(string baseSlug, int? excludeId = null)
         {
-            var slug = baseSlug; var i = 2;
+            var slug = baseSlug;
+            var i = 2;
             while (true)
             {
                 var exists = await _context.TeacherProfiles
@@ -350,5 +261,7 @@ namespace ThesisNest.Controllers
             target.ProfileImageFileName = file.FileName;
             return (true, null);
         }
+        
+
     }
 }

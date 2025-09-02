@@ -88,6 +88,14 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3R1ZGVudFRoZXNpc1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[E:/3.2/ThesisNest/ThesisNest/Views/StudentThesis/PreviewVersion.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3R1ZGVudFRoZXNpc1xQcmV2aWV3VmVyc2lvbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/3.2/ThesisNest/ThesisNest/Views/StudentThesis/TeacherDetails.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3R1ZGVudFRoZXNpc1xUZWFjaGVyRGV0YWlscy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [E:/3.2/ThesisNest/ThesisNest/Views/StudentThesis/_ProposalStatusBadge.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3R1ZGVudFRoZXNpc1xfUHJvcG9zYWxTdGF0dXNCYWRnZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
@@ -96,12 +104,24 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGVhY2hlclByb2ZpbGVcQ3JlYXRlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[E:/3.2/ThesisNest/ThesisNest/Views/TeacherProfile/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGVhY2hlclByb2ZpbGVcRGV0YWlscy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [E:/3.2/ThesisNest/ThesisNest/Views/TeacherProfile/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGVhY2hlclByb2ZpbGVcRWRpdC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [E:/3.2/ThesisNest/ThesisNest/Views/TeacherProfile/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGVhY2hlclByb2ZpbGVcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/3.2/ThesisNest/ThesisNest/Views/ThesisReview/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGhlc2lzUmV2aWV3XEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/3.2/ThesisNest/ThesisNest/Views/ThesisReview/Preview.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGhlc2lzUmV2aWV3XFByZXZpZXcuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [E:/3.2/ThesisNest/ThesisNest/Views/_ViewImports.cshtml]

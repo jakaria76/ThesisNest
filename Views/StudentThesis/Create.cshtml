@@ -41,8 +41,10 @@
                         <span asp-validation-for="DepartmentId" class="text-danger"></span>
                     </div>
                     <div class="col-md-6">
-                        <label asp-for="TeacherProfileId" class="form-label">Supervisor ID</label>
-                        <input asp-for="TeacherProfileId" type="number" class="form-control" placeholder="Enter Supervisor ID" />
+                        <label asp-for="TeacherProfileId" class="form-label">Supervisor</label>
+                        <select asp-for="TeacherProfileId" asp-items="Model.Supervisors" class="form-select">
+                            <option value="">-- Select Supervisor --</option>
+                        </select>
                         <span asp-validation-for="TeacherProfileId" class="text-danger"></span>
                     </div>
                 </div>
@@ -62,7 +64,7 @@
 
                 <div class="mb-3">
                     <label asp-for="Note" class="form-label">Note (optional)</label>
-                    <textarea asp-for="Note" class="form-control" rows="3" placeholder="Any short note to your supervisor"></textarea>
+                    <textarea asp-for="Note" class="form-control" rows="3"></textarea>
                     <span asp-validation-for="Note" class="text-danger"></span>
                 </div>
 

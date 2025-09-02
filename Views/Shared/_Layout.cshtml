@@ -80,12 +80,10 @@
 
         /* ✅ Media query syntax fixed */
         @@media (max-width: 992px) {
-            .tn-logo img
-
-        {
-            height: 36px; /* মোবাইলে একটু ছোট */
-        }
-
+            .tn-logo img {
+                height: 36px;
+            }
+            /* মোবাইলে একটু ছোট */
         }
     </style>
 
@@ -99,8 +97,8 @@
             <aside id="tnSidebar" class="tn-sidebar">
                 <div class="tn-brand px-3 py-3">
                     <a href="@Url.Action("Index", "Home")" class="tn-logo" aria-label="ThesisNest Home">
-                        <!-- FIX: removed double .png; added clean attributes -->
-                        <img src="~/images/logo1.png.png" alt="ThesisNest" />
+                        <!-- FIX: single .png -->
+                        <img src="~/images/logo1.png" alt="ThesisNest" />
                     </a>
 
                     <button class="btn btn-sm btn-outline-secondary ms-auto d-none d-lg-inline-flex"
@@ -136,6 +134,11 @@
                            asp-controller="TeacherProfile" asp-action="Index" title="Teacher Profile" data-bs-toggle="tooltip">
                             <i class="bi bi-mortarboard"></i><span>Teacher Profile</span>
                         </a>
+                        <a class="tn-link @(currentPath.Contains("/thesisreview") ? "active" : "")"
+                           asp-controller="ThesisReview" asp-action="Index" title="Review Thesis" data-bs-toggle="tooltip">
+                            <i class="bi bi-search"></i><span>Review Thesis</span>
+                        </a>
+
                     }
                     else if (isStudent)
                     {
@@ -196,19 +199,25 @@
         <!-- ================ CONTENT ================ -->
         <div class="tn-content">
             <header class="tn-topbar d-flex align-items-center">
-                <button class="btn btn-outline-secondary d-inline-flex d-lg-none me-2"
-                        id="tnMobileToggle" type="button" aria-label="Open sidebar">
-                    <i class="bi bi-list"></i>
-                </button>
+                @* Mobile sidebar toggle: show only when signed in *@
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    <button class="btn btn-outline-secondary d-inline-flex d-lg-none me-2"
+                            id="tnMobileToggle" type="button" aria-label="Open sidebar">
+                        <i class="bi bi-list"></i>
+                    </button>
+                }
+
                 <h1 class="h5 m-0 flex-grow-1">@title</h1>
 
-                <!-- Dark/Light Mode Toggle -->
-                <button id="themeToggleBtn" class="theme-toggle-btn ms-3" title="Toggle Theme" aria-label="Toggle Theme">
-                    <i id="themeIcon" class="bi"></i>
-                </button>
-
-                <div class="ms-auto d-flex align-items-center gap-2 tn-auth">
-                    <partial name="_LoginPartial" />
+                <!-- Dark/Light Mode Toggle + Auth -->
+                <div class="d-flex align-items-center">
+                    <button id="themeToggleBtn" class="btn btn-outline-secondary me-3" title="Toggle Theme" aria-label="Toggle Theme">
+                        <i id="themeIcon" class="bi"></i>
+                    </button>
+                    <div class="d-flex align-items-center">
+                        <partial name="_LoginPartial" />
+                    </div>
                 </div>
             </header>
 

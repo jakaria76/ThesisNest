@@ -1,28 +1,34 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
-
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace ThesisNest.Models.ViewModels
 {
     public class ThesisCreateVm
     {
-        [Required, StringLength(200)] public string Title { get; set; } = "";
-        [Required, StringLength(4000, MinimumLength = 100)] public string Abstract { get; set; } = "";
-        [Required] public int DepartmentId { get; set; }
-        [Required] public int TeacherProfileId { get; set; }
-        public string? Keywords { get; set; }
+        [Required]
+        public string Title { get; set; } = string.Empty;
 
+        [Required]
+        public string Abstract { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Please attach your proposal file (PDF/DOCX).")]
-        public IFormFile File { get; set; } = null!;
+        [Required]
+        public int DepartmentId { get; set; }
+        public List<SelectListItem> Departments { get; set; } = new();
 
+        [Required]
+        public int TeacherProfileId { get; set; }
+        public List<SelectListItem> Supervisors { get; set; } = new();
 
-        [StringLength(500)] public string? Note { get; set; }
-        [Range(typeof(bool), "true", "true", ErrorMessage = "You must accept the declaration.")]
+        public string Keywords { get; set; } = string.Empty;
+
+        [Required]
+        public IFormFile? File { get; set; }
+
+        public string? Note { get; set; }
+
+        [Required]
         public bool IsDeclared { get; set; }
-
-
-        public IEnumerable<SelectListItem> Departments { get; set; } = new List<SelectListItem>();
-        public IEnumerable<SelectListItem> Supervisors { get; set; } = new List<SelectListItem>();
     }
 }

@@ -350,7 +350,6 @@ a, a.nav-link {
     color: var(--muted) !important;
 }
 
-
 .tn-badge, .tn-badge-success {
     display: inline-flex;
     align-items: center;
@@ -372,6 +371,7 @@ a, a.nav-link {
     color: var(--badge-success-fg);
     border: 1px solid var(--badge-success-border);
 }
+
 .tn-badge-date {
     background: var(--code-bg);
     color: var(--code-fg);
@@ -382,7 +382,6 @@ a, a.nav-link {
     font-weight: 600;
     white-space: nowrap;
 }
-
 
 .tn-code {
     color: var(--code-fg);
@@ -440,6 +439,7 @@ a, a.nav-link {
         grid-template-columns: 120px 1fr
     }
 }
+
 /* ==== Mobile avatar fix ==== */
 @media (max-width: 768px) {
     .tnp-headrow {
@@ -675,3 +675,51 @@ html[data-theme="dark"] .tn-thesis-actions .btn-link.text-danger {
     -webkit-overflow-scrolling: touch;
 }
 
+/* =========================
+   GLOBAL DARK-MODE FIXES
+   (applies to pages like "My Submissions"
+   where the table/card is NOT inside .tnp-block)
+   ========================= */
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .dropdown-menu,
+html[data-theme="dark"] .modal-content {
+    background-color: var(--bg-soft);
+    color: var(--text);
+    border-color: var(--border);
+}
+
+/* Unscoped table variables so generic .table gets themed */
+html[data-theme="dark"] .table {
+    --bs-table-bg: transparent; /* let card bg show through */
+    --bs-table-color: var(--text);
+    --bs-table-border-color: var(--border);
+    --bs-table-striped-bg: rgba(255,255,255,.04);
+    --bs-table-striped-color: var(--text);
+    --bs-table-hover-bg: rgba(255,255,255,.08);
+    --bs-table-hover-color: var(--text);
+}
+
+html[data-theme="dark"] thead th {
+    color: var(--muted-strong);
+    border-bottom-color: var(--border);
+}
+
+/* Outline button contrast on dark */
+html[data-theme="dark"] .btn-outline-secondary {
+    color: var(--text);
+    border-color: var(--border);
+}
+
+    html[data-theme="dark"] .btn-outline-secondary:hover,
+    html[data-theme="dark"] .btn-outline-secondary:focus {
+        background-color: var(--chip-bg);
+        color: var(--text-strong);
+        border-color: var(--border);
+    }
+
+/* Alerts softer in dark */
+html[data-theme="dark"] .alert {
+    background-color: rgba(255,255,255,.06);
+    color: var(--text);
+    border-color: var(--border);
+}
