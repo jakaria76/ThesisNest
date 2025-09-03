@@ -1,31 +1,9 @@
 ﻿@model ThesisNest.Models.ViewModels.ThesisIndexVm
-@using ThesisNest.Models
-
 @{
     ViewData["Title"] = "My Submissions";
-
-    string BadgeCls(ProposalStatus s) => s switch
-    {
-        ProposalStatus.Draft => "badge bg-secondary",
-        ProposalStatus.Submitted => "badge bg-primary",
-        ProposalStatus.UnderReview => "badge bg-info text-dark",
-        ProposalStatus.ChangesRequested => "badge bg-warning text-dark",
-        ProposalStatus.Approved => "badge bg-success",
-        ProposalStatus.Rejected => "badge bg-danger",
-        _ => "badge bg-light text-dark"
-    };
-
-    string ThesisBadgeCls(ThesisStatus? s) => s switch
-    {
-        ThesisStatus.Proposed => "badge bg-secondary",
-        ThesisStatus.Pending => "badge bg-secondary",
-        ThesisStatus.InProgress => "badge bg-info text-dark",
-        ThesisStatus.Completed => "badge bg-success",
-        ThesisStatus.Rejected => "badge bg-danger",
-        null => "badge bg-light text-dark",
-        _ => "badge bg-light text-dark"
-    };
 }
+
+<div class="container mt-3">
 
 <div class="container-xxl py-4">
     @if (TempData["Success"] != null)
@@ -74,7 +52,6 @@
                                 <td>@item.Title</td>
                                 <td>@item.Department</td>
                                 <td>
-                                    @* Teacher name clickable *@
                                     @if (item.TeacherId.HasValue)
                                     {
                                         <a asp-controller="StudentThesis"
@@ -88,21 +65,30 @@
                                         <span class="text-muted">N/A</span>
                                     }
                                 </td>
-                                <td><span class="@BadgeCls(item.ProposalStatus)">@item.ProposalStatus</span></td>
                                 <td>
-                                    @if (item.TeacherStatus.HasValue)
-                                    {
-                                        <span class="@ThesisBadgeCls(item.TeacherStatus)">@item.TeacherStatus</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted">Pending</span>
-                                    }
+                                    <span class="@BadgeCls(item.ProposalStatus)">
+                                        @item.ProposalStatus
+                                    </span>
                                 </td>
+                                    <td>
+                                        @if (item.TeacherStatus.HasValue)
+                                        {
+                                            <span class="@ThesisBadgeCls(item.TeacherStatus)">
+                                                @item.TeacherStatus
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-light text-dark">Pending</span>
+                                        }
+                                    </td>
+
                                 <td>@item.CurrentVersionNo</td>
                                 <td>@item.CreatedAtStr</td>
                                 <td class="text-end">
-                                    <a asp-controller="StudentThesis" asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">Details</a>
+                                    <a asp-controller="StudentThesis" asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">
+                                        Details
+                                    </a>
                                 </td>
                             </tr>
                         }
@@ -112,3 +98,28 @@
         </div>
     </div>
 </div>
+
+@functions {
+    private string BadgeCls(ThesisNest.Models.ProposalStatus status)
+    {
+        return status switch
+        {
+            ThesisNest.Models.ProposalStatus.Submitted => "badge bg-primary",
+            ThesisNest.Models.ProposalStatus.Draft => "badge bg-secondary",
+            ThesisNest.Models.ProposalStatus.Approved => "badge bg-success",
+            ThesisNest.Models.ProposalStatus.Rejected => "badge bg-danger",
+            _ => "badge bg-light text-dark"
+        };
+    }
+
+    private string ThesisBadgeCls(ThesisNest.Models.ThesisStatus? status)
+    {
+        return status switch
+        {
+            ThesisNest.Models.ThesisStatus.Proposed => "badge bg-warning",
+            ThesisNest.Models.ThesisStatus.InProgress => "badge bg-info",
+            ThesisNest.Models.ThesisStatus.Completed => "badge bg-success",
+            _ => "badge bg-light text-dark"
+        };
+    }
+}

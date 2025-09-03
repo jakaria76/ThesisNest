@@ -2,8 +2,8 @@
 {
     public enum ThesisStatus
     {
-        Proposed,    // Student uploaded, pending teacher review
-        Pending,     // Waiting for teacher
+        Pending,    // Student uploaded, pending teacher review
+        Proposed,      // Waiting for teacher
         InProgress,  // Teacher is reviewing
         Completed,   // Teacher approved
         Rejected     // Teacher rejected

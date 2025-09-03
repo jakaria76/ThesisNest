@@ -1,4 +1,7 @@
-﻿@model ThesisNest.Models.StudentProfile
+﻿@using ThesisNest.Models;
+
+@model ThesisNest.Models.StudentProfile
+
 @{
     ViewData["Title"] = "Create Student Profile";
     var placeholder = "https://via.placeholder.com/240x240.png?text=User";
@@ -16,17 +19,17 @@
             <!-- Photo + quick actions -->
             <div class="d-flex align-items-center gap-3 mb-4">
                 <img id="previewImg" src="@placeholder" class="rounded-circle shadow-sm"
-                     style="width:96px;height:96px;object-fit:cover" alt="photo" />
+                     style="width:96px;height:96px;object-fit:cover" alt="Profile Photo" />
                 <div class="flex-grow-1">
                     <label class="form-label">Profile Photo</label>
-                    <input type="file" name="ProfileImageFile" id="inpPhoto" class="form-control" accept="image/*" />
+                    <input asp-for="ProfileImage" type="file" name="ProfileImageFile" id="inpPhoto" class="form-control" accept="image/*" />
                     <div class="form-text">JPEG/PNG/WebP, max 2MB</div>
-                    <span class="text-danger" data-valmsg-for="ProfileImage"></span>
+                    <span asp-validation-for="ProfileImage" class="text-danger"></span>
                 </div>
             </div>
 
             <div class="row g-3">
-                <!-- Basic info -->
+                <!-- Basic Info -->
                 <div class="col-md-6">
                     <label asp-for="FullName" class="form-label">Full Name</label>
                     <input asp-for="FullName" class="form-control" />
@@ -50,7 +53,7 @@
 
                 <div class="col-md-6">
                     <label asp-for="Email" class="form-label">Email</label>
-                    <input asp-for="Email" class="form-control" />
+                    <input asp-for="Email" class="form-control" type="email" />
                 </div>
 
                 <div class="col-md-6">
@@ -58,7 +61,7 @@
                     <input asp-for="Address" class="form-control" />
                 </div>
 
-                <!-- Academic -->
+                <!-- Academic Info -->
                 <div class="col-md-6">
                     <label asp-for="University" class="form-label">University</label>
                     <input asp-for="University" class="form-control" />
@@ -84,7 +87,7 @@
                     <input asp-for="GPA" class="form-control" type="number" step="0.01" />
                 </div>
 
-                <!-- Thesis -->
+                <!-- Thesis Info -->
                 <div class="col-md-6">
                     <label asp-for="ThesisTitle" class="form-label">Thesis Title</label>
                     <input asp-for="ThesisTitle" class="form-control" />
@@ -118,14 +121,12 @@
                 <!-- Skills & Achievements -->
                 <div class="col-12">
                     <label asp-for="Skills" class="form-label">Skills</label>
-                    <textarea asp-for="Skills" class="form-control" rows="2"
-                              placeholder="e.g., C#, ASP.NET Core, SQL, Git"></textarea>
+                    <textarea asp-for="Skills" class="form-control" rows="2" placeholder="e.g., C#, ASP.NET Core, SQL, Git"></textarea>
                 </div>
 
                 <div class="col-12">
                     <label asp-for="Achievements" class="form-label">Achievements</label>
-                    <textarea asp-for="Achievements" class="form-control" rows="2"
-                              placeholder="e.g., Dean’s List, Hackathon Winner"></textarea>
+                    <textarea asp-for="Achievements" class="form-control" rows="2" placeholder="e.g., Dean’s List, Hackathon Winner"></textarea>
                 </div>
 
                 <!-- Social Links -->
@@ -156,7 +157,6 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        // Live photo preview + size check
         (function () {
             const inp = document.getElementById('inpPhoto');
             const img = document.getElementById('previewImg');
@@ -170,8 +170,7 @@
                     e.target.value = "";
                     return;
                 }
-                const url = URL.createObjectURL(f);
-                img.src = url;
+                img.src = URL.createObjectURL(f);
             });
         })();
     </script>

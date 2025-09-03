@@ -1,0 +1,129 @@
+﻿@model ThesisNest.ViewModels.StudentProfileViewModel
+@{
+    ViewData["Title"] = "Student Profile";
+}
+
+<div class="container mt-4">
+    <h2>Student Profile</h2>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-lg-4 text-center mb-4">
+            <img src="@(
+                 Model.ProfilePictureBase64 != null
+                     ? $"data:{Model.ProfilePictureContentType};base64,{Model.ProfilePictureBase64}"
+                     : "/images/default-user.png")"
+                 class="img-fluid rounded-circle mb-2" style="max-width:200px; max-height:200px;" />
+
+            <form asp-action="StudentProfile" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <div class="mb-2">
+                    <label>Update Profile Picture</label>
+                    <input asp-for="ProfilePicture" type="file" class="form-control" />
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Update Profile</button>
+            </form>
+        </div>
+
+        <div class="col-lg-8">
+            <ul class="nav nav-tabs" id="profileTab">
+                <li class="nav-item">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#personal">Personal Info</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#submissions">Thesis Submissions</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#actions">Actions</button>
+                </li>
+            </ul>
+
+            <div class="tab-content mt-3">
+                <div class="tab-pane fade show active" id="personal">
+                    <div class="row">
+                        <div class="col-md-6"><strong>Full Name:</strong> @Model.FullName</div>
+                        <div class="col-md-6"><strong>Roll Number:</strong> @Model.RollNumber</div>
+                        <div class="col-md-6"><strong>Email:</strong> @Model.Email</div>
+                        <div class="col-md-6"><strong>Phone:</strong> @Model.PhoneNumber</div>
+                        <div class="col-md-6"><strong>Department:</strong> @Model.Department</div>
+                        <div class="col-md-6"><strong>Program:</strong> @Model.Program</div>
+                        <div class="col-md-6"><strong>Year:</strong> @Model.Year</div>
+                        <div class="col-md-6"><strong>Semester:</strong> @Model.Semester</div>
+                        <div class="col-md-6"><strong>Enrollment Date:</strong> @Model.EnrollmentDate.ToShortDateString()</div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="submissions">
+                    <table class="table table-bordered table-striped mt-3">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Title</th>
+                                <th>Version</th>
+                                <th>Status</th>
+                                <th>Supervisor Feedback</th>
+                                <th>Download</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var t in Model.Submissions)
+                            {
+                                <tr>
+                                    <td>@t.SubmissionDate.ToShortDateString()</td>
+                                    <td>@t.Title</td>
+                                    <td>@t.Version</td>
+                                    <td class="@(
+                                        t.Status == "Approved" ? "text-success" :
+                                        t.Status == "Rejected" ? "text-danger" : "text-warning")">
+                                    @t.Status
+                                </td>
+                                <td>@t.SupervisorComments</td>
+                                <td>
+                                    @if (t.FileData != null)
+                                        {
+                                            <a asp-action="DownloadThesis" asp-route-id="@t.Id" class="btn btn-sm btn-success">Download</a>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="tab-pane fade" id="actions">
+                    <form asp-action="UploadThesis" method="post" enctype="multipart/form-data">
+                        @Html.AntiForgeryToken()
+                        <div class="mb-2">
+                            <label>Thesis Title</label>
+                            <input asp-for="NewThesisTitle" class="form-control" />
+                        </div>
+                        <div class="mb-2">
+                            <label>Thesis Abstract</label>
+                            <textarea asp-for="NewThesisAbstract" class="form-control" rows="4"></textarea>
+                        </div>
+                        <div class="mb-2">
+                            <label>Supervisor Name</label>
+                            <input asp-for="SupervisorName" class="form-control" />
+                        </div>
+                        <div class="mb-2">
+                            <label>Batch / Class</label>
+                            <input asp-for="Batch" class="form-control" />
+                        </div>
+                        <div class="mb-2">
+                            <label>Upload File</label>
+                            <input asp-for="NewThesisFile" type="file" class="form-control" />
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Submit / Resubmit Thesis</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

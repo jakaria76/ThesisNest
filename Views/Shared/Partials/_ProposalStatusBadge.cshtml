@@ -1,0 +1,32 @@
+﻿@model ThesisNest.Models.ProposalStatus
+
+@switch (Model)
+{
+    case ThesisNest.Models.ProposalStatus.Draft:
+        @:<span class="badge bg-secondary">Draft</span>
+        break;
+
+    case ThesisNest.Models.ProposalStatus.Submitted:
+        @:<span class="badge bg-primary">Submitted</span>
+        break;
+
+    case ThesisNest.Models.ProposalStatus.UnderReview:
+        @:<span class="badge bg-info text-dark">Under Review</span>
+        break;
+
+    case ThesisNest.Models.ProposalStatus.ChangesRequested:
+        @:<span class="badge bg-warning text-dark">Changes Requested</span>
+        break;
+
+    case ThesisNest.Models.ProposalStatus.Approved:
+        @:<span class="badge bg-success">Approved</span>
+        break;
+
+    case ThesisNest.Models.ProposalStatus.Rejected:
+        @:<span class="badge bg-danger">Rejected</span>
+        break;
+
+    default:
+        @:<span class="badge bg-light text-dark">Unknown</span>
+        break;
+}

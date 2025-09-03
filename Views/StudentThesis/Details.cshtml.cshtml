@@ -1,0 +1,124 @@
+﻿@model ThesisNest.Models.ViewModels.ThesisDetailsVm
+@using ThesisNest.Models
+@{
+    ViewData["Title"] = "Thesis Details";
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<div class="card shadow-sm mb-3">
+    <div class="card-body d-flex align-items-center">
+        <div class="flex-grow-1">
+            <h5 class="mb-1">@Model.Thesis.Title</h5>
+            <div class="text-muted small">@Model.Thesis.Department?.Name</div>
+        </div>
+        <div class="ms-3">
+            @await Html.PartialAsync("~/Views/Shared/Partials/_ProposalStatusBadge.cshtml", Model.Thesis.ProposalStatus)
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header"><strong>Versions</strong> <span class="text-muted small">(Latest: v@Model.Thesis.CurrentVersionNo)</span></div>
+            <div class="list-group list-group-flush">
+                @foreach (var v in Model.Versions)
+                {
+                    <div class="list-group-item d-flex align-items-center">
+                        <div class="me-3"><span class="badge bg-secondary">v@v.VersionNo</span></div>
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold">@v.FileName</div>
+                            <div class="text-muted small">@v.CreatedAt.ToLocalTime().ToString("dd MMM yyyy, hh:mm tt") • @((v.FileSize / 1024d / 1024d).ToString("0.00")) MB</div>
+                            @if (!string.IsNullOrEmpty(v.Comment))
+                            {
+                                <div class="small">Note: @v.Comment</div>
+                            }
+                        </div>
+                        <div class="ms-3 d-flex gap-2">
+                            <a class="btn btn-sm btn-outline-primary" asp-action="PreviewVersion" asp-route-id="@v.Id" target="_blank"><i class="bi bi-eye"></i> Preview</a>
+                            <a class="btn btn-sm btn-primary" asp-action="DownloadVersion" asp-route-id="@v.Id"><i class="bi bi-download"></i> Download</a>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="card shadow-sm mt-3">
+            <div class="card-header"><strong>Feedback</strong></div>
+            <div class="list-group list-group-flush">
+                @if (!Model.Feedbacks.Any())
+                {
+                    <div class="list-group-item text-muted">No feedback yet.</div>
+                }
+                else
+                {
+                    foreach (var f in Model.Feedbacks)
+                    {
+                        <div class="list-group-item">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1">
+                                    <div class="fw-semibold">Supervisor #@f.GivenByTeacherProfileId @if(f.IsChangeRequested){
+                                    <span class="badge bg-warning text-dark ms-2">Changes Requested</span>
+                                }
+    </div>
+                                <div class="text-muted small">@f.CreatedAt.ToLocalTime().ToString("dd MMM yyyy, hh:mm tt")</div>
+                            </div>
+                            <div>
+                                @if (f.AcknowledgedAt == null)
+                                {
+                                    <form asp-action="AcknowledgeFeedback" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@f.Id" />
+                                        <button class="btn btn-sm btn-outline-success" type="submit"><i class="bi bi-check2-circle me-1"></i> Acknowledge</button>
+                                    </form>
+                                }
+                                else
+                                {
+
+                                    <span class="badge bg-success">Acknowledged</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="mt-2">@f.Message</div>
+                    </div>
+                }
+                                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-header"><strong>Submit New Version</strong></div>
+            <div class="card-body">
+                <form asp-action="UploadVersion" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="thesisId" value="@Model.Thesis.Id" />
+                    <div class="mb-2"><input type="file" name="file" class="form-control" accept=".pdf,.docx" required /></div>
+                    <div class="mb-2"><textarea name="note" class="form-control" rows="2" placeholder="Note to supervisor (optional)"></textarea></div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" name="submit" value="draft" class="btn btn-outline-secondary">Upload as Draft</button>
+                        <button type="submit" name="submit" value="submit" class="btn btn-primary">Submit for Review</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mt-3">
+            <div class="card-header"><strong>Overview</strong></div>
+            <div class="card-body">
+                <div class="mb-2"><span class="text-muted">Proposal:</span> @await Html.PartialAsync("~/Views/Shared/Partials/_ProposalStatusBadge.cshtml", Model.Thesis.ProposalStatus)</div>
+                <div class="mb-2"><span class="text-muted">Supervisor:</span> @Model.Thesis.Supervisor?.FullName</div>
+                <div class="mb-2"><span class="text-muted">Keywords:</span> @(string.IsNullOrWhiteSpace(Model.Thesis.Keywords) ? "—" : Model.Thesis.Keywords)</div>
+                <div class="mb-2"><span class="text-muted">Created:</span> @Model.Thesis.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</div>
+            </div>
+        </div>
+    </div>
+</div>

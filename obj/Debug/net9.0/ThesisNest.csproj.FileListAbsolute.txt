@@ -161,6 +161,7 @@ E:\3.2\ThesisNest\ThesisNest\obj\Debug\net9.0\ThesisNest.MvcApplicationPartsAsse
 E:\3.2\ThesisNest\ThesisNest\obj\Debug\net9.0\ThesisNest.MvcApplicationPartsAssemblyInfo.cache
 E:\3.2\ThesisNest\ThesisNest\obj\Debug\net9.0\ThesisNest.RazorAssemblyInfo.cache
 E:\3.2\ThesisNest\ThesisNest\obj\Debug\net9.0\ThesisNest.RazorAssemblyInfo.cs
+E:\3.2\ThesisNest\ThesisNest\obj\Debug\net9.0\ThesisNest.sourcelink.json
 E:\3.2\ThesisNest\ThesisNest\obj\Debug\net9.0\rjimswa.dswa.cache.json
 E:\3.2\ThesisNest\ThesisNest\obj\Debug\net9.0\rjsmrazor.dswa.cache.json
 E:\3.2\ThesisNest\ThesisNest\obj\Debug\net9.0\rjsmcshtml.dswa.cache.json
@@ -230,6 +231,7 @@ E:\3.2\ThesisNest\ThesisNest\obj\Debug\net9.0\compressed\nezrqnk58p-muycvpuwrr.g
 E:\3.2\ThesisNest\ThesisNest\obj\Debug\net9.0\compressed\v0zgfp0y55-87fc7y1x7t.gz
 E:\3.2\ThesisNest\ThesisNest\obj\Debug\net9.0\compressed\yfc7ypekbg-mlv21k5csn.gz
 E:\3.2\ThesisNest\ThesisNest\obj\Debug\net9.0\compressed\g3knc87rt9-mscbuyblao.gz
+E:\3.2\ThesisNest\ThesisNest\obj\Debug\net9.0\compressed\348fxm5lu0-s9rb37ojs8.gz
 E:\3.2\ThesisNest\ThesisNest\obj\Debug\net9.0\compressed\1mqg5qa5ec-61n19gt1b8.gz
 E:\3.2\ThesisNest\ThesisNest\obj\Debug\net9.0\compressed\t6qoi1nmwk-3l4l63xkvn.gz
 E:\3.2\ThesisNest\ThesisNest\obj\Debug\net9.0\compressed\iimqlj5ztr-bqjiyaj88i.gz
@@ -303,6 +305,4 @@ E:\3.2\ThesisNest\ThesisNest\obj\Debug\net9.0\refint\ThesisNest.dll
 E:\3.2\ThesisNest\ThesisNest\obj\Debug\net9.0\ThesisNest.pdb
 E:\3.2\ThesisNest\ThesisNest\obj\Debug\net9.0\ThesisNest.genruntimeconfig.cache
 E:\3.2\ThesisNest\ThesisNest\obj\Debug\net9.0\ref\ThesisNest.dll
-E:\3.2\ThesisNest\ThesisNest\obj\Debug\net9.0\ThesisNest.sourcelink.json
-E:\3.2\ThesisNest\ThesisNest\obj\Debug\net9.0\compressed\348fxm5lu0-s9rb37ojs8.gz
 E:\3.2\ThesisNest\ThesisNest\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt

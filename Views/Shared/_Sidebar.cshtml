@@ -1,0 +1,41 @@
+﻿<aside class="sidebar" id="sidebar">
+    <div class="brand">
+        <span class="logo">A</span>
+        <span class="title">Admin</span>
+    </div>
+
+    <nav class="nav">
+        <a class="nav-link active" asp-controller="Home" asp-action="Index">
+            <i data-lucide="layout-dashboard"></i>
+            <span>Dashboard</span>
+        </a>
+
+        <div class="nav-section">Pages</div>
+        <a class="nav-link" asp-controller="Account" asp-action="Profile">
+            <i data-lucide="user"></i><span>Profile</span>
+        </a>
+        <a class="nav-link" asp-controller="Auth" asp-action="SignIn">
+            <i data-lucide="log-in"></i><span>Sign In</span>
+        </a>
+        <a class="nav-link" asp-controller="Auth" asp-action="SignUp">
+            <i data-lucide="user-plus"></i><span>Sign Up</span>
+        </a>
+
+        <div class="nav-section">Tools & Components</div>
+        <a class="nav-link" asp-controller="Ui" asp-action="Buttons">
+            <i data-lucide="square"></i><span>Buttons</span>
+        </a>
+        <a class="nav-link" asp-controller="Ui" asp-action="Forms">
+            <i data-lucide="edit-3"></i><span>Forms</span>
+        </a>
+        <a class="nav-link" asp-controller="Charts" asp-action="Index">
+            <i data-lucide="pie-chart"></i><span>Charts</span>
+        </a>
+    </nav>
+
+    <div class="sidebar-footer">
+        <a class="upgrade" href="#" title="Upgrade to Pro">
+            <i data-lucide="zap"></i><span>Upgrade to Pro</span>
+        </a>
+    </div>
+</aside>

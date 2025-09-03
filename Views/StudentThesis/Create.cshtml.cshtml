@@ -1,0 +1,98 @@
+﻿@model ThesisNest.Models.ViewModels.ThesisCreateVm
+@{
+    ViewData["Title"] = "Upload Proposal";
+}
+
+<div class="container-xxl py-4">
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="card shadow border-0">
+        <div class="card-header">
+            <h4 class="mb-0">Upload Thesis Proposal</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" asp-controller="StudentThesis" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label"></label>
+                    <input asp-for="Title" class="form-control" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Abstract" class="form-label"></label>
+                    <textarea asp-for="Abstract" class="form-control" rows="6"></textarea>
+                    <span asp-validation-for="Abstract" class="text-danger"></span>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="DepartmentId" class="form-label">Department</label>
+                        <select asp-for="DepartmentId" asp-items="Model.Departments" class="form-select">
+                            <option value="">-- Select Department --</option>
+                        </select>
+                        <span asp-validation-for="DepartmentId" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="TeacherProfileId" class="form-label">Supervisor</label>
+                        <select asp-for="TeacherProfileId" asp-items="Model.Supervisors" class="form-select">
+                            <option value="">-- Select Supervisor --</option>
+                        </select>
+                        <span asp-validation-for="TeacherProfileId" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3 mt-3">
+                    <label asp-for="Keywords" class="form-label"></label>
+                    <input asp-for="Keywords" class="form-control" placeholder="e.g., AI, Deep Learning, Optimization" />
+                    <span asp-validation-for="Keywords" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="File" class="form-label">Proposal File (PDF/DOCX, ≤ 20MB)</label>
+                    <input asp-for="File" type="file" class="form-control" />
+                    <span class="form-text">Only .pdf or .docx allowed.</span>
+                    <span asp-validation-for="File" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Note" class="form-label">Note (optional)</label>
+                    <textarea asp-for="Note" class="form-control" rows="3" placeholder="Any short note to your supervisor"></textarea>
+                    <span asp-validation-for="Note" class="text-danger"></span>
+                </div>
+
+                <div class="form-check mb-3">
+                    <input asp-for="IsDeclared" class="form-check-input" />
+                    <label asp-for="IsDeclared" class="form-check-label">
+                        I confirm this is my original work and complies with the guidelines.
+                    </label>
+                    <span asp-validation-for="IsDeclared" class="text-danger d-block"></span>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" name="submit" value="draft" class="btn btn-outline-secondary">
+                        Save Draft
+                    </button>
+                    <button type="submit" name="submit" value="submit" class="btn btn-primary">
+                        Submit for Review
+                    </button>
+                    @* If using Area, the Index link should include asp-area="Student" as well *@
+                    <a asp-action="Index" asp-controller="StudentThesis" class="btn btn-light">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

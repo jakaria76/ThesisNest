@@ -1,0 +1,37 @@
+﻿@model ThesisNest.Models.OtpVerifyViewModel
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h3 class="card-title text-center mb-4">Enter OTP</h3>
+
+                    <form asp-action="VerifyOtp" method="post">
+                        <input type="hidden" asp-for="PhoneNumber" />
+
+                        <div class="mb-3">
+                            <label asp-for="Otp" class="form-label"></label>
+                            <input asp-for="Otp" class="form-control" placeholder="Enter OTP" />
+                            <span asp-validation-for="Otp" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Verify OTP</button>
+                        </div>
+                    </form>
+
+                    <div class="text-center mt-3">
+                        <small>
+                            <a asp-action="PhoneLogin" asp-controller="Account">Back to Phone Login</a>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

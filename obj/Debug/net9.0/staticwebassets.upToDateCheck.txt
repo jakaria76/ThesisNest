@@ -1,6 +1,8 @@
 wwwroot\css\site.css
 wwwroot\css\theme.css
 wwwroot\favicon.ico
+wwwroot\images\logo.jpg.png
+wwwroot\images\logo.png
 wwwroot\images\logo1.png
 wwwroot\js\site.js
 wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css
@@ -63,7 +65,7 @@ wwwroot\lib\jquery\dist\jquery.slim.js
 wwwroot\lib\jquery\dist\jquery.slim.min.js
 wwwroot\lib\jquery\dist\jquery.slim.min.map
 wwwroot\lib\jquery\LICENSE.txt
-E:\3.2\ThesisNest\ThesisNest\wwwroot\lib\jquery\LICENSE.txt
+wwwroot\uploads\nbr_tin_certificate_161167474715.pdf
 E:\3.2\ThesisNest\ThesisNest\wwwroot\lib\jquery\dist\jquery.slim.min.map
 E:\3.2\ThesisNest\ThesisNest\wwwroot\lib\jquery\dist\jquery.slim.min.js
 E:\3.2\ThesisNest\ThesisNest\wwwroot\lib\jquery\dist\jquery.slim.js
@@ -123,6 +125,7 @@ E:\3.2\ThesisNest\ThesisNest\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.c
 E:\3.2\ThesisNest\ThesisNest\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css.map
 E:\3.2\ThesisNest\ThesisNest\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css
 E:\3.2\ThesisNest\ThesisNest\wwwroot\js\site.js
-E:\3.2\ThesisNest\ThesisNest\wwwroot\css\theme.css
 E:\3.2\ThesisNest\ThesisNest\wwwroot\favicon.ico
+E:\3.2\ThesisNest\ThesisNest\wwwroot\lib\jquery\LICENSE.txt
+E:\3.2\ThesisNest\ThesisNest\wwwroot\css\theme.css
 E:\3.2\ThesisNest\ThesisNest\wwwroot\css\site.css
