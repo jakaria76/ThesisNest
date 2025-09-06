@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ThesisNest.Data;
 
@@ -11,9 +12,11 @@ using ThesisNest.Data;
 namespace ThesisNest.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250903180926_AddTeacherDetails")]
+    partial class AddTeacherDetails
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -251,9 +254,6 @@ namespace ThesisNest.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Name")
-                        .IsUnique();
-
                     b.ToTable("Departments");
                 });
 
@@ -352,103 +352,6 @@ namespace ThesisNest.Migrations
                     b.ToTable("StudentProfiles");
                 });
 
-            modelBuilder.Entity("ThesisNest.Models.TeacherAchievement", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("IssuedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Issuer")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("TeacherProfileId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<string>("Url")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TeacherProfileId", "Title")
-                        .IsUnique();
-
-                    b.ToTable("TeacherAchievements");
-                });
-
-            modelBuilder.Entity("ThesisNest.Models.TeacherEducation", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("BoardOrUniversity")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Country")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<string>("Degree")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("FieldOfStudy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Institution")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("PassingYear")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Result")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("TeacherProfileId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TeacherProfileId", "Degree")
-                        .IsUnique();
-
-                    b.ToTable("TeacherEducations");
-                });
-
             modelBuilder.Entity("ThesisNest.Models.TeacherProfile", b =>
                 {
                     b.Property<int>("Id")
@@ -456,9 +359,6 @@ namespace ThesisNest.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ApplicationUserId")
-                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Bio")
                         .HasMaxLength(1000)
@@ -540,83 +440,15 @@ namespace ThesisNest.Migrations
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ApplicationUserId");
-
-                    b.HasIndex("Slug")
-                        .IsUnique();
 
                     b.HasIndex("UserId")
                         .IsUnique();
 
                     b.ToTable("TeacherProfiles", (string)null);
-                });
-
-            modelBuilder.Entity("ThesisNest.Models.TeacherPublication", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Abstract")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CoAuthors")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<string>("DOI")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Issue")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Pages")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("TeacherProfileId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<string>("Url")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("VenueName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("VenueType")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Volume")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("Year")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TeacherProfileId", "Title")
-                        .IsUnique();
-
-                    b.ToTable("TeacherPublications");
                 });
 
             modelBuilder.Entity("ThesisNest.Models.Thesis", b =>
@@ -819,54 +651,6 @@ namespace ThesisNest.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ThesisNest.Models.TeacherAchievement", b =>
-                {
-                    b.HasOne("ThesisNest.Models.TeacherProfile", "TeacherProfile")
-                        .WithMany("Achievements")
-                        .HasForeignKey("TeacherProfileId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("TeacherProfile");
-                });
-
-            modelBuilder.Entity("ThesisNest.Models.TeacherEducation", b =>
-                {
-                    b.HasOne("ThesisNest.Models.TeacherProfile", "TeacherProfile")
-                        .WithMany("Educations")
-                        .HasForeignKey("TeacherProfileId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("TeacherProfile");
-                });
-
-            modelBuilder.Entity("ThesisNest.Models.TeacherProfile", b =>
-                {
-                    b.HasOne("ApplicationUser", "ApplicationUser")
-                        .WithMany()
-                        .HasForeignKey("ApplicationUserId");
-
-                    b.HasOne("ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ApplicationUser");
-                });
-
-            modelBuilder.Entity("ThesisNest.Models.TeacherPublication", b =>
-                {
-                    b.HasOne("ThesisNest.Models.TeacherProfile", "TeacherProfile")
-                        .WithMany("Publications")
-                        .HasForeignKey("TeacherProfileId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("TeacherProfile");
-                });
-
             modelBuilder.Entity("ThesisNest.Models.Thesis", b =>
                 {
                     b.HasOne("ThesisNest.Models.Department", "Department")
@@ -923,12 +707,6 @@ namespace ThesisNest.Migrations
 
             modelBuilder.Entity("ThesisNest.Models.TeacherProfile", b =>
                 {
-                    b.Navigation("Achievements");
-
-                    b.Navigation("Educations");
-
-                    b.Navigation("Publications");
-
                     b.Navigation("Theses");
                 });
 

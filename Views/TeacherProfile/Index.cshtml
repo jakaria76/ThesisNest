@@ -1,218 +1,299 @@
 ﻿@model ThesisNest.Models.TeacherProfile
 @using ThesisNest.Models
+@inject IUrlHelper Url
 
 @{
-    ViewData["Title"] = "My Teacher Profile";
-
+    ViewData["Title"] = "Teacher Profile";
     var imgSrc = (Model?.ProfileImage != null && !string.IsNullOrEmpty(Model.ProfileImageContentType))
-        ? Url.Action("Photo", "TeacherProfile", new { id = Model.Id })
+        ? Url.Action("Photo", "TeacherProfile", new { id = Model!.Id })
         : "https://via.placeholder.com/240x240.png?text=User";
-
-    var departments = (IEnumerable<Department>)(ViewData["Departments"] ?? Enumerable.Empty<Department>());
+    var mapsKey = (string?)ViewBag.GoogleMapsApiKey ?? "";
+    var mapsLang = (string?)ViewBag.GoogleMapsLanguage ?? "en";
+    var mapsRegion = (string?)ViewBag.GoogleMapsRegion ?? "BD";
 }
 
 <div class="container-xxl py-4">
     @if (TempData["Success"] != null)
     {
-        <div class="alert alert-success shadow-sm">@TempData["Success"]</div>
+        <div class="alert alert-success">@TempData["Success"]</div>
     }
     @if (TempData["Error"] != null)
     {
-        <div class="alert alert-danger shadow-sm">@TempData["Error"]</div>
+        <div class="alert alert-danger">@TempData["Error"]</div>
     }
 
     @if (Model == null)
     {
         <div class="card border-0 shadow-sm p-4 text-center">
-            <div class="mb-2">No profile found.</div>
-            <a asp-action="Create" class="btn btn-primary">Create Profile</a>
+            <div class="mb-3">No profile found.</div>
+            <a class="btn btn-primary" href="@Url.Action("Create", "TeacherProfile")">Create your profile</a>
         </div>
     }
     else
     {
-        <div class="tn-profile card border-0 shadow-lg overflow-hidden">
+        <div class="card border-0 shadow-lg overflow-hidden">
 
             <!-- Banner -->
-            <div class="tnp-banner"></div>
+            <div style="height:110px;background:linear-gradient(135deg, rgba(59,130,246,.18), rgba(99,102,241,.18));border-bottom:1px solid var(--border);"></div>
 
             <!-- Header -->
-            <div class="tnp-header px-3 px-md-4 pb-3 pb-md-4">
-                <div class="d-flex align-items-center gap-3 gap-md-4 tnp-headrow">
-                    <div class="tnp-avatar-wrap">
-                        <img src="@imgSrc" class="tnp-avatar" alt="Profile" />
+            <div class="px-3 px-md-4 pb-3 pb-md-4 d-flex justify-content-between align-items-start">
+                <div class="d-flex align-items-center gap-3 gap-md-4">
+                    <div style="width:128px;height:128px;border-radius:999px;padding:3px;background:linear-gradient(135deg,#3b82f6,rgba(99,102,241,.9));flex-shrink:0;">
+                        <img src="@imgSrc" alt="Profile" style="width:100%;height:100%;border-radius:999px;object-fit:cover;border:3px solid var(--bg-soft);" />
                     </div>
                     <div class="flex-grow-1 min-w-0">
-                        <h2 class="tnp-name mb-1 text-truncate" title="@Model.FullName">@Model.FullName</h2>
-                        <div class="text-muted tn-dim">@Model.Designation</div>
-                        <div class="text-muted small tn-dim">@Model.Department</div>
-                        <div class="tnp-chipwrap d-flex flex-wrap gap-2 mt-2">
+                        <h2 class="mb-1 text-truncate" title="@Model.FullName">@Model.FullName</h2>
+                        <div class="text-muted">@Model.Designation</div>
+                        <div class="text-muted small">@Model.Department</div>
+                        <div class="d-flex flex-wrap gap-2 mt-2">
                             @if (!string.IsNullOrWhiteSpace(Model.Email))
                             {
-                                <a class="tnp-chip" href="mailto:@Model.Email"><i class="bi bi-envelope me-2"></i>@Model.Email</a>
+                                <span class="badge bg-light text-dark border"><i class="bi bi-envelope me-2"></i>@Model.Email</span>
                             }
                             @if (!string.IsNullOrWhiteSpace(Model.Phone))
                             {
-                                <a class="tnp-chip" href="tel:@Model.Phone"><i class="bi bi-telephone me-2"></i>@Model.Phone</a>
+                                <span class="badge bg-light text-dark border"><i class="bi bi-telephone me-2"></i>@Model.Phone</span>
                             }
                             @if (!string.IsNullOrWhiteSpace(Model.OfficeLocation))
                             {
-                                <span class="tnp-chip"><i class="bi bi-geo-alt me-2"></i>@Model.OfficeLocation</span>
+                                <span class="badge bg-light text-dark border"><i class="bi bi-geo-alt me-2"></i>@Model.OfficeLocation</span>
                             }
                         </div>
                     </div>
+                </div>
 
-                    <div class="ms-auto d-none d-md-block">
-                        <a asp-action="Edit" class="btn btn-primary me-2"><i class="bi bi-pencil-square me-1"></i>Edit</a>
-                        <form asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('Delete your profile?');">
-                            @Html.AntiForgeryToken()
-                            <button class="btn btn-outline-danger"><i class="bi bi-trash"></i> Delete</button>
-                        </form>
-                    </div>
+                <div class="d-flex gap-2 mt-2 align-items-center">
+                    <a class="btn btn-primary btn-sm" href="@Url.Action("Edit", "TeacherProfile", new { id = Model.Id })">
+                        <i class="bi bi-pencil"></i> Edit
+                    </a>
+                    <form asp-action="Delete" asp-controller="TeacherProfile" method="post" onsubmit="return confirm('Are you sure you want to delete this profile?');">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i> Delete</button>
+                    </form>
                 </div>
             </div>
 
             <!-- Body -->
-            <div class="tnp-body px-3 px-md-4">
+            <div class="px-3 px-md-4 pb-4">
                 <div class="row g-4">
 
-                    <!-- AT A GLANCE -->
+                    <!-- At a Glance -->
                     <div class="col-12 col-lg-6">
-                        <div class="tnp-block">
-                            <div class="tnp-block-title">At a Glance</div>
+                        <div class="p-3 border rounded-3 bg-light">
+                            <div class="text-uppercase fw-bold text-muted mb-3">At a Glance</div>
                             <div class="row g-3">
                                 <div class="col-6">
                                     <div class="card border-0 shadow-sm h-100 text-center p-3">
-                                        <div class="tn-subtitle">Ongoing Thesis</div>
+                                        <div class="text-muted fw-semibold">Ongoing Thesis</div>
                                         <div class="display-6 fw-bold">@Model.OngoingThesisCount</div>
                                     </div>
                                 </div>
                                 <div class="col-6">
                                     <div class="card border-0 shadow-sm h-100 text-center p-3">
-                                        <div class="tn-subtitle">Completed</div>
+                                        <div class="text-muted fw-semibold">Completed</div>
                                         <div class="display-6 fw-bold">@Model.CompletedThesisCount</div>
                                     </div>
                                 </div>
-
                                 <div class="col-12">
-                                    <div class="tn-alert d-flex align-items-center gap-2 small m-0">
-                                        <i class="bi bi-link-45deg"></i>
-                                        <div class="text-truncate"><strong>Slug:</strong> <code class="tn-code">@Model.Slug</code></div>
+                                    <div class="alert alert-secondary small mb-0">
+                                        <i class="bi bi-link-45deg"></i> <strong>Slug:</strong> <code>@Model.Slug</code>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- ABOUT + ACTIVITY -->
+                    <!-- Educational Background -->
+                    <div class="col-12">
+                        <div class="p-3 border rounded-3 bg-light">
+                            <div class="text-uppercase fw-bold text-muted mb-3">Educational Background</div>
+                            <div class="table-responsive">
+                                <table class="table align-middle m-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Degree</th>
+                                            <th>Institution</th>
+                                            <th>Board/University</th>
+                                            <th>Field</th>
+                                            <th>Year</th>
+                                            <th>Result</th>
+                                            <th>Country</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var e in (Model.Educations ?? Enumerable.Empty<TeacherEducation>()).OrderBy(x => x.Degree))
+                                        {
+                                            <tr>
+                                                <td>@e.Degree</td>
+                                                <td class="text-wrap">@e.Institution</td>
+                                                <td class="text-wrap">@e.BoardOrUniversity</td>
+                                                <td>@e.FieldOfStudy</td>
+                                                <td>@e.PassingYear</td>
+                                                <td>@e.Result</td>
+                                                <td>@e.Country</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Achievements -->
+                    <div class="col-12">
+                        <div class="p-3 border rounded-3 bg-light">
+                            <div class="text-uppercase fw-bold text-muted mb-3">Achievements</div>
+                            <ul class="list-group list-group-flush shadow-sm">
+                                @foreach (var a in (Model.Achievements ?? Enumerable.Empty<TeacherAchievement>()).OrderByDescending(x => x.IssuedOn ?? x.CreatedAt))
+                                {
+                                    <li class="list-group-item">
+                                        <div class="fw-semibold text-truncate">@a.Title</div>
+                                        <div class="small text-muted">
+                                            @a.Issuer
+                                            @if (a.IssuedOn.HasValue)
+                                            {
+                                                <span> • @a.IssuedOn.Value.ToString("yyyy-MM-dd")</span>
+                                            }
+                                            @if (!string.IsNullOrWhiteSpace(a.Url))
+                                            {
+                                                <span> • <a href="@a.Url" target="_blank" rel="noopener">Link</a></span>
+                                            }
+                                        </div>
+                                        @if (!string.IsNullOrWhiteSpace(a.Description))
+                                        {
+                                            <div class="small text-wrap mt-1">@a.Description</div>
+                                        }
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Publications -->
+                    <div class="col-12">
+                        <div class="p-3 border rounded-3 bg-light">
+                            <div class="text-uppercase fw-bold text-muted mb-3">Publications</div>
+                            <div class="table-responsive">
+                                <table class="table align-middle m-0">
+                                    <thead>
+                                        <tr><th>Title</th><th>Venue</th><th>Year</th><th>DOI / URL</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var p in (Model.Publications ?? Enumerable.Empty<TeacherPublication>()).OrderByDescending(x => x.Year).ThenByDescending(x => x.CreatedAt))
+                                        {
+                                            <tr>
+                                                <td class="text-wrap">
+                                                    <div class="fw-semibold">@p.Title</div>
+                                                    <div class="small text-muted">@p.CoAuthors</div>
+                                                </td>
+                                                <td>
+                                                    <div>@p.VenueType</div>
+                                                    <div class="small text-muted">@p.VenueName</div>
+                                                    @if (!string.IsNullOrWhiteSpace(p.Volume) || !string.IsNullOrWhiteSpace(p.Issue) || !string.IsNullOrWhiteSpace(p.Pages))
+                                                    {
+                                                        <div class="small text-muted">
+                                                            @p.Volume@((!string.IsNullOrWhiteSpace(p.Volume) && !string.IsNullOrWhiteSpace(p.Issue)) ? "(" + p.Issue + ")" : "")
+                                                            @if (!string.IsNullOrWhiteSpace(p.Pages))
+                                                            {
+                                                                <span>, pp. @p.Pages</span>
+                                                            }
+                                                        </div>
+                                                    }
+                                                </td>
+                                                <td>@p.Year</td>
+                                                <td class="small">
+                                                    @if (!string.IsNullOrWhiteSpace(p.DOI))
+                                                    {
+                                                        <div>@p.DOI</div>
+                                                    }
+                                                    @if (!string.IsNullOrWhiteSpace(p.Url))
+                                                    {
+                                                        <div><a href="@p.Url" target="_blank" rel="noopener">Link</a></div>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- About + Activity -->
                     <div class="col-12 col-lg-6">
-                        <div class="tnp-block">
-                            <div class="tnp-block-title">About</div>
-                            <dl class="tnp-dl">
-                                <dt>Bio</dt>
-                                <dd class="text-wrap">@Model.Bio</dd>
-                                <dt>Research</dt>
-                                <dd class="text-wrap">@Model.ResearchSummary</dd>
+                        <div class="p-3 border rounded-3 bg-light mb-3">
+                            <div class="text-uppercase fw-bold text-muted mb-3">About</div>
+                            <dl class="row">
+                                <dt class="col-sm-3">Bio</dt>
+                                <dd class="col-sm-9 text-wrap">@Model.Bio</dd>
+                                <dt class="col-sm-3">Research</dt>
+                                <dd class="col-sm-9 text-wrap">@Model.ResearchSummary</dd>
                             </dl>
                         </div>
-
-                        <div class="tnp-block">
-                            <div class="tnp-block-title">Activity</div>
-                            <ul class="list-group list-group-flush shadow-sm tnp-activity-list">
+                        <div class="p-3 border rounded-3 bg-light">
+                            <div class="text-uppercase fw-bold text-muted mb-3">Activity</div>
+                            <ul class="list-group list-group-flush shadow-sm">
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    Created at <span class="tn-badge-date">@Model.CreatedAt.ToLocalTime()</span>
+                                    Created at <span class="badge bg-secondary">@Model.CreatedAt.ToLocalTime()</span>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    Last updated <span class="tn-badge-date">@Model.UpdatedAt.ToLocalTime()</span>
+                                    Last updated <span class="badge bg-secondary">@Model.UpdatedAt.ToLocalTime()</span>
                                 </li>
                             </ul>
                         </div>
                     </div>
 
-                    <!-- CONTACT + GOOGLE MAP -->
-                    <div class="col-12">
-                        <div class="tnp-block">
-                            <div class="tnp-block-title">Contact & Office Location</div>
-                            <dl class="tnp-dl">
-                                <dt>Email</dt>
-                                <dd>@Model.Email</dd>
-                                <dt>Phone</dt>
-                                <dd>@Model.Phone</dd>
-                                <dt>Office</dt>
-                                <dd>@Model.OfficeLocation</dd>
-                                <dt>Visibility</dt>
-                                <dd>
-                                    Email: <strong>@(Model.IsPublicEmail ? "Public" : "Private")</strong>,
-                                    Phone: <strong>@(Model.IsPublicPhone ? "Public" : "Private")</strong>
-                                </dd>
+                    <!-- Contact + Map -->
+                    <div class="col-12 col-lg-6">
+                        <div class="p-3 border rounded-3 bg-light">
+                            <div class="text-uppercase fw-bold text-muted mb-3">Contact & Office Location</div>
+                            <dl class="row">
+                                <dt class="col-sm-4">Email</dt>
+                                <dd class="col-sm-8">@Model.Email</dd>
+                                <dt class="col-sm-4">Phone</dt>
+                                <dd class="col-sm-8">@Model.Phone</dd>
+                                <dt class="col-sm-4">Office</dt>
+                                <dd class="col-sm-8">@Model.OfficeLocation</dd>
+                                <dt class="col-sm-4">Visibility</dt>
+                                <dd class="col-sm-8">Email: <strong>@(Model.IsPublicEmail ? "Public" : "Private")</strong>, Phone: <strong>@(Model.IsPublicPhone ? "Public" : "Private")</strong></dd>
                             </dl>
 
-                            <!-- Latitude/Longitude Inputs -->
-                            <div class="row g-3 mb-3">
-                                <div class="col-md-3">
-                                    <label asp-for="Latitude" class="form-label">Latitude</label>
-                                    <input asp-for="Latitude" class="form-control" id="latBox" />
-                                </div>
-                                <div class="col-md-3">
-                                    <label asp-for="Longitude" class="form-label">Longitude</label>
-                                    <input asp-for="Longitude" class="form-control" id="lngBox" />
-                                </div>
+                            <!-- Map Controls -->
+                            <div class="tn-map-controls d-flex flex-wrap gap-2 mb-2">
+                                <input id="mapSearch" class="form-control form-control-sm" style="max-width:320px" placeholder="Search place..." />
+                                <button id="btnMyLocation" class="btn btn-sm btn-outline-primary" type="button" title="Use my location">
+                                    <i class="bi bi-geo"></i> My location
+                                </button>
+                                <button id="btnTraffic" class="btn btn-sm btn-outline-secondary" type="button" title="Toggle traffic">
+                                    <i class="bi bi-traffic-cone"></i> Traffic
+                                </button>
+                                <span class="small text-muted ms-auto">
+                                    <span id="latDisp">@Model?.Latitude?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? ""</span>,
+                                    <span id="lngDisp">@Model?.Longitude?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? ""</span>
+                                </span>
                             </div>
 
-                            <!-- GOOGLE MAP -->
+                            <!-- Google Map -->
                             <div id="map" style="width:100%;height:320px;border-radius:12px"></div>
-                            <div class="form-text">Marker drag করলে Latitude/Longitude আপডেট হবে।</div>
+                            <div id="mapError" class="text-danger small mt-2" style="display:none"></div>
                         </div>
                     </div>
 
-                    <!-- THESES -->
+                    <!-- Theses -->
                     <div class="col-12">
-                        <div class="tnp-block">
-                            <div class="tnp-block-title d-flex justify-content-between align-items-center flex-wrap gap-2">
-                                <span>Theses</span>
-                                <!-- Add Thesis Form -->
-                                <form asp-action="AddThesis" method="post" class="thesis-form">
-                                    @Html.AntiForgeryToken()
-                                    <input name="title" class="form-control" placeholder="Add thesis title..." required />
-                                    <select name="departmentId" class="form-select" required>
-                                        <option value="">Select department</option>
-                                        @foreach (var d in departments)
-                                        {
-                                            <option value="@d.Id">@d.Name</option>
-                                        }
-                                    </select>
-                                    <select name="status" class="form-select">
-                                        <option value="@((int)ThesisStatus.InProgress)">Ongoing</option>
-                                        <option value="@((int)ThesisStatus.Proposed)">Proposed</option>
-                                        <option value="@((int)ThesisStatus.Completed)">Completed</option>
-                                    </select>
-                                    <button class="btn btn-primary d-inline-flex align-items-center">
-                                        <i class="bi bi-plus-lg me-1"></i> Add
-                                    </button>
-                                </form>
-                            </div>
-
+                        <div class="p-3 border rounded-3 bg-light">
+                            <div class="text-uppercase fw-bold text-muted mb-3">Theses</div>
                             <div class="table-responsive">
                                 <table class="table align-middle m-0">
-                                    <thead>
-                                        <tr>
-                                            <th>Title</th>
-                                            <th>Status</th>
-                                            <th>Created</th>
-                                            <th class="text-end">Actions</th>
-                                        </tr>
-                                    </thead>
+                                    <thead><tr><th>Title</th><th>Status</th><th>Created</th></tr></thead>
                                     <tbody>
                                         @foreach (var t in (Model.Theses ?? Enumerable.Empty<Thesis>()).OrderByDescending(x => x.CreatedAt))
                                         {
                                             <tr>
                                                 <td class="text-wrap">@t.Title</td>
-                                                <td><span class="tn-badge-status tn-badge-@t.Status.ToString().ToLower()">@t.Status</span></td>
+                                                <td><span class="badge bg-outline">@t.Status</span></td>
                                                 <td>@t.CreatedAt.ToLocalTime()</td>
-                                                <td class="text-end">
-                                                    <div class="tn-thesis-actions d-flex flex-wrap gap-1 justify-content-end">
-                                                        <!-- Status buttons + delete -->
-                                                    </div>
-                                                </td>
                                             </tr>
                                         }
                                     </tbody>
@@ -224,281 +305,299 @@
                 </div>
             </div>
 
-            <!-- Footer for mobile -->
-            <div class="tnp-footer px-3 px-md-4 py-3 d-block d-md-none">
-                <div class="d-grid gap-2">
-                    <a asp-action="Edit" class="btn btn-primary"><i class="bi bi-pencil-square me-1"></i>Edit</a>
-                    <form asp-action="Delete" method="post" onsubmit="return confirm('Delete your profile?');">
-                        @Html.AntiForgeryToken()
-                        <button class="btn btn-outline-danger"><i class="bi bi-trash"></i> Delete</button>
-                    </form>
-                </div>
-            </div>
-
         </div>
     }
 </div>
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-    <script>
-        const LAT_INIT = parseFloat('@((Model.Latitude ?? 23.7639).ToString(System.Globalization.CultureInfo.InvariantCulture))');
-        const LNG_INIT = parseFloat('@((Model.Longitude ?? 90.4067).ToString(System.Globalization.CultureInfo.InvariantCulture))');
-        const latBox = document.getElementById('latBox');
-        const lngBox = document.getElementById('lngBox');
-
-        window.initMap = function () {
-            const start = { lat: isNaN(LAT_INIT) ? 23.7639 : LAT_INIT, lng: isNaN(LNG_INIT) ? 90.4067 : LNG_INIT };
-
-            const map = new google.maps.Map(document.getElementById('map'), {
-                center: start,
-                zoom: 15,
-                mapTypeControl: true,
-                mapTypeControlOptions: {
-                    style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
-                    position: google.maps.ControlPosition.TOP_RIGHT,
-                    mapTypeIds: ['roadmap', 'satellite', 'hybrid', 'terrain']
-                },
-                streetViewControl: true,
-                zoomControl: true,
-                fullscreenControl: true,
-                scaleControl: true
-            });
-
-            // Traffic, Transit, Bicycling layers
-            const trafficLayer = new google.maps.TrafficLayer();
-            trafficLayer.setMap(map);
-
-            const transitLayer = new google.maps.TransitLayer();
-            transitLayer.setMap(map);
-
-            const bikeLayer = new google.maps.BicyclingLayer();
-            bikeLayer.setMap(map);
-
-            // Marker
-            const marker = new google.maps.Marker({
-                position: start,
-                map,
-                draggable: true,
-                title: 'Drag to set office location'
-            });
-
-            // Update Lat/Lng boxes
-            latBox.value = start.lat.toFixed(6);
-            lngBox.value = start.lng.toFixed(6);
-
-            marker.addListener('dragend', () => {
-                const p = marker.getPosition();
-                latBox.value = p.lat().toFixed(6);
-                lngBox.value = p.lng().toFixed(6);
-            });
-
-            // Click on map → move marker
-            map.addListener('click', (e) => {
-                const pos = e.latLng;
-                marker.setPosition(pos);
-                latBox.value = pos.lat().toFixed(6);
-                lngBox.value = pos.lng().toFixed(6);
-            });
-
-            // Boxes → marker
-            function tryMove() {
-                const la = parseFloat(latBox.value), lo = parseFloat(lngBox.value);
-                if (!isNaN(la) && !isNaN(lo)) {
-                    const pos = new google.maps.LatLng(la, lo);
-                    marker.setPosition(pos);
-                    map.panTo(pos);
-                }
-            }
-            latBox.addEventListener('change', tryMove);
-            lngBox.addEventListener('change', tryMove);
-
-            // ===== Search Box =====
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.placeholder = 'Search location...';
-            input.style.cssText = 'box-sizing: border-box; border: 1px solid transparent; width: 240px; height: 32px; margin-top:10px; padding: 0 12px; border-radius: 3px; font-size: 14px; outline: none; text-overflow: ellipsis;';
-            map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-
-            const searchBox = new google.maps.places.SearchBox(input);
-            map.addListener('bounds_changed', () => searchBox.setBounds(map.getBounds()));
-
-            searchBox.addListener('places_changed', () => {
-                const places = searchBox.getPlaces();
-                if (!places || places.length === 0) return;
-
-                const place = places[0];
-                if (!place.geometry) return;
-
-                const pos = place.geometry.location;
-                marker.setPosition(pos);
-                map.panTo(pos);
-                latBox.value = pos.lat().toFixed(6);
-                lngBox.value = pos.lng().toFixed(6);
-            });
-        };
-    </script>
-
-    <script async defer
-            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD9KaHcf_Sw05ojlYSyvTr-ERgXgvSsXXo&callback=initMap&libraries=places">
-    </script>
-}
-
-
-
-
-
 @section Styles {
     <style>
-        /* Avatar + Banner */
-        .tnp-banner {
-            height: 110px;
-            background: linear-gradient(135deg, rgba(59,130,246,.18), rgba(99,102,241,.18));
-            border-bottom: 1px solid var(--border);
+        /* Prefer system theme on first load (if no saved choice) */
+        @@media (prefers-color-scheme: dark) {
+            : root:not([data-theme="light"])
+
+        {
+            --bg: #0b1220;
+            --bg-soft: #0f172a;
+            --text: #e5e7eb;
+            --muted: #9ca3af;
+            --border: #27324a;
+            --card: #0f1a2b;
+            --chip-bg: #0f1a2b;
+            --chip-text: #e5e7eb;
+            --table-stripe: #111a2c;
         }
 
-        .tnp-avatar-wrap {
-            width: 128px;
-            height: 128px;
-            border-radius: 999px;
-            padding: 3px;
-            background: linear-gradient(135deg,var(--accent),rgba(99,102,241,.9));
-            box-shadow: 0 8px 24px rgba(0,0,0,.15);
-            flex-shrink: 0;
         }
 
-        .tnp-avatar {
-            width: 100%;
-            height: 100%;
-            border-radius: 999px;
-            object-fit: cover;
-            border: 3px solid var(--bg-soft);
+        :root {
+            /* light */
+            --bg: #ffffff;
+            --bg-soft: #f8fafc;
+            --text: #111827;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --card: #ffffff;
+            --chip-bg: #f8fafc;
+            --chip-text: #111827;
+            --table-stripe: #f7f9fc;
+            /* transitions for nicer toggle */
+            --ease: 200ms ease;
         }
 
-        .tn-dim {
-            color: var(--muted) !important;
-        }
-
-        .tnp-name {
-            font-weight: 800;
-            letter-spacing: .2px;
-        }
-
-        .tn-subtitle {
-            color: var(--muted);
-            font-weight: 600;
-            font-size: .85rem;
-            letter-spacing: .3px;
-        }
-
-        .tnp-block {
-            background: var(--bg-soft);
-            border: 1px solid var(--border);
-            border-radius: 1rem;
-            padding: 1rem;
-            box-shadow: 0 4px 16px rgba(0,0,0,.06);
-        }
-
-        .tnp-block-title {
-            text-transform: uppercase;
-            font-weight: 800;
-            font-size: .9rem;
-            letter-spacing: .12rem;
-            color: var(--muted);
-            border-bottom: 1px dashed var(--border);
-            padding-bottom: .6rem;
-            margin-bottom: 1rem;
-        }
-
-        .tnp-dl {
-            display: grid;
-            grid-template-columns: 160px 1fr;
-            row-gap: .55rem;
-            column-gap: 1.25rem;
-        }
-
-        .tn-alert {
-            background: var(--bg-soft);
-            border: 1px solid var(--border);
-            color: var(--text);
-            border-radius: 10px;
-            padding: .5rem .75rem;
-        }
-
-        .tn-badge-date {
-            display: inline-block;
-            padding: .32rem .62rem;
-            border-radius: 8px;
-            font-size: .82rem;
-            font-weight: 700;
-            line-height: 1;
-            border: 1px solid var(--border);
-        }
-
-        .tn-badge-status {
-            display: inline-block;
-            padding: .28rem .6rem;
-            border-radius: 999px;
-            border: 1px solid var(--border);
-            font-weight: 700;
-            font-size: .75rem;
-        }
-
-        .tn-badge-proposed {
-            background: rgba(234,179,8,.18);
-        }
-
-        .tn-badge-ongoing {
-            background: rgba(59,130,246,.18);
-        }
-
-        .tn-badge-completed {
-            background: rgba(16,185,129,.22);
-        }
-
-        .tn-badge-cancelled {
-            background: rgba(239,68,68,.18);
-        }
-
-        /* Chips */
-        .tnp-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: .35rem;
-            border-radius: 999px;
-            padding: .42rem .8rem;
-            background: rgba(59,130,246,.14);
-            border: 1px solid rgba(59,130,246,.28);
-            text-decoration: none;
-            font-weight: 600;
-            color: var(--text);
-            max-width: 100%;
-        }
-
-            .tnp-chip:hover {
-                background: rgba(59,130,246,.22);
+            :root[data-theme="dark"] {
+                /* explicit dark, overrides media */
+                --bg: #0b1220;
+                --bg-soft: #0f172a;
+                --text: #e5e7eb;
+                --muted: #9ca3af;
+                --border: #27324a;
+                --card: #0f1a2b;
+                --chip-bg: #0f1a2b;
+                --chip-text: #e5e7eb;
+                --table-stripe: #111a2c;
             }
 
-        /* Theses form grid */
-        .thesis-form {
-            display: grid;
-            grid-template-columns: 1.2fr .8fr .8fr auto;
-            gap: .5rem;
-            align-items: center;
-            min-width: 0;
+        html, body {
+            background: var(--bg);
+            color: var(--text);
         }
 
-            .thesis-form .btn {
-                white-space: nowrap;
+        body, .card, .bg-light, .list-group-item, .dropdown-menu, .modal-content {
+            background-color: var(--card) !important;
+            color: var(--text);
+            transition: background-color var(--ease), color var(--ease), border-color var(--ease);
+        }
+
+        .border, .table, .table th, .table td, .list-group-item, .form-control, .form-select, .btn,
+        .dropdown-menu, .modal-content {
+            border-color: var(--border) !important;
+        }
+
+            .text-muted, .form-text, .small, .table .small {
+                color: var(--muted) !important;
             }
 
-        /* Actions */
-        .tn-thesis-actions form {
-            display: inline-flex;
+        /* chips/badges that used bg-light text-dark */
+        .badge.bg-light.text-dark.border,
+        .badge.bg-light {
+            background-color: var(--chip-bg) !important;
+            color: var(--chip-text) !important;
+            border-color: var(--border) !important;
         }
 
-        .tn-thesis-actions .btn {
-            white-space: nowrap;
+        /* tables */
+        .table thead th {
+            background-color: var(--bg-soft);
+            border-bottom-color: var(--border) !important;
+        }
+
+        .table tbody tr:nth-child(odd) {
+            background-color: var(--table-stripe);
+        }
+
+        /* inputs */
+        .form-control, .form-select {
+            background-color: var(--card);
+            color: var(--text);
+        }
+
+            .form-control::placeholder {
+                color: var(--muted);
+            }
+
+        /* buttons still use bootstrap’s palette but keep borders consistent */
+        .tn-map-controls .btn {
+            border-color: var(--border);
+        }
+
+        /* banner bottom border color uses --border (already in markup) */
+
+        /* optional: nicer focus ring in dark */
+        .form-control:focus, .form-select:focus, .btn:focus {
+            box-shadow: 0 0 0 .2rem rgba(59,130,246,.25);
         }
     </style>
 }
+
+
+@section Scripts {
+    <script>
+        (() => {
+          // ---------- Theme ----------
+          const root = document.documentElement;
+          const BTN = document.getElementById('themeToggle');
+
+          // read saved; if none, fall back to system
+          const saved = localStorage.getItem('tn-theme');
+          const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (saved === 'dark' || saved === 'light') {
+            root.setAttribute('data-theme', saved);
+          } else if (systemDark) {
+            root.setAttribute('data-theme', 'dark');
+          } // else light default via :root
+
+          // set icon
+          const setIcon = () => {
+            const isDark = root.getAttribute('data-theme') === 'dark';
+            // swap icon class (requires bootstrap-icons)
+            if (BTN) {
+              BTN.innerHTML = isDark
+                ? '<i class="bi bi-brightness-high"></i> Light'
+                : '<i class="bi bi-moon-stars"></i> Dark';
+            }
+            // live restyle map
+            if (window.__tn_map) {
+              window.__tn_map.setOptions({ styles: isDark ? darkStyle : null });
+            }
+          };
+          setIcon();
+
+          BTN?.addEventListener('click', () => {
+            const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            root.setAttribute('data-theme', next);
+            localStorage.setItem('tn-theme', next);
+            setIcon();
+          });
+
+          // also react if user changes system theme while page is open (when no saved choice)
+          if (!saved && window.matchMedia) {
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+              root.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+              setIcon();
+            });
+          }
+
+          // ---------- Google Map ----------
+          const latInit = parseFloat('@((Model?.Latitude ?? 23.7639).ToString(System.Globalization.CultureInfo.InvariantCulture))');
+          const lngInit = parseFloat('@((Model?.Longitude ?? 90.4067).ToString(System.Globalization.CultureInfo.InvariantCulture))');
+
+          // map dark style preset (kept global so theme switch can reuse)
+          window.darkStyle = [
+            { elementType: "geometry", stylers: [{ color: "#1b2434" }] },
+            { elementType: "labels.text.fill", stylers: [{ color: "#e5e7eb" }] },
+            { elementType: "labels.text.stroke", stylers: [{ color: "#1b2434" }] },
+            { featureType: "road", elementType: "geometry", stylers: [{ color: "#2a3446" }] },
+            { featureType: "water", elementType: "geometry", stylers: [{ color: "#0e1726" }] },
+            { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#cbd5e1" }] },
+            { featureType: "administrative", elementType: "geometry", stylers: [{ color: "#334155" }] }
+          ];
+
+          const $latDisp = document.getElementById('latDisp');
+          const $lngDisp = document.getElementById('lngDisp');
+          const $err = document.getElementById('mapError');
+
+          // init callback used by Google script tag
+          window.initTnMap = function () {
+            try {
+              const start = { lat: isFinite(latInit) ? latInit : 23.7639, lng: isFinite(lngInit) ? lngInit : 90.4067 };
+              const isDark = root.getAttribute('data-theme') === 'dark';
+
+              const map = new google.maps.Map(document.getElementById('map'), {
+                center: start,
+                zoom: 14,
+                mapTypeControl: true,
+                streetViewControl: true,
+                fullscreenControl: true,
+                styles: isDark ? darkStyle : null
+              });
+              window.__tn_map = map;
+
+              const marker = new google.maps.Marker({ position: start, map, draggable: true, title: "Office/Location" });
+              const geocoder = new google.maps.Geocoder();
+              const infowindow = new google.maps.InfoWindow({ content: 'Drag or click to set location' });
+              infowindow.open(map, marker);
+
+              const setLatLng = (pos) => {
+                marker.setPosition(pos);
+                map.panTo(pos);
+                if ($latDisp) $latDisp.textContent = (+pos.lat).toFixed(6);
+                if ($lngDisp) $lngDisp.textContent = (+pos.lng).toFixed(6);
+                // If used on Edit/Create, also update hidden inputs with same ids:
+                // document.getElementById('Latitude')?.setAttribute('value', (+pos.lat).toFixed(6));
+                // document.getElementById('Longitude')?.setAttribute('value', (+pos.lng).toFixed(6));
+              };
+
+              map.addListener('click', (e) => setLatLng(e.latLng.toJSON()));
+              marker.addListener('dragend', (e) => setLatLng(e.latLng.toJSON()));
+
+              // Traffic toggle
+              let trafficOn = false;
+              const trafficLayer = new google.maps.TrafficLayer();
+              document.getElementById('btnTraffic')?.addEventListener('click', () => {
+                trafficOn = !trafficOn;
+                trafficOn ? trafficLayer.setMap(map) : trafficLayer.setMap(null);
+              });
+
+              // My Location
+              document.getElementById('btnMyLocation')?.addEventListener('click', () => {
+                if (!navigator.geolocation) {
+                  if ($err) { $err.style.display = 'block'; $err.textContent = 'Geolocation not supported by your browser.'; }
+                  return;
+                }
+                navigator.geolocation.getCurrentPosition((pos) => {
+                  const p = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                  setLatLng(p);
+                  map.setZoom(16);
+                }, (err) => {
+                  if ($err) { $err.style.display = 'block'; $err.textContent = 'Unable to fetch location: ' + err.message; }
+                }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
+              });
+
+              // Places search
+              const input = document.getElementById('mapSearch');
+              if (input && google.maps.places) {
+                const ac = new google.maps.places.Autocomplete(input, { fields: ['geometry', 'name'] });
+                ac.addListener('place_changed', () => {
+                  const place = ac.getPlace();
+                  if (!place.geometry || !place.geometry.location) return;
+                  const p = place.geometry.location.toJSON();
+                  setLatLng(p);
+                  map.setZoom(16);
+                });
+              }
+
+              // Reverse geocode tooltip on drag end
+              marker.addListener('dragend', () => {
+                geocoder.geocode({ location: marker.getPosition() }, (results, status) => {
+                  if (status === 'OK' && results?.[0]) {
+                    infowindow.setContent(results[0].formatted_address);
+                    infowindow.open(map, marker);
+                  }
+                });
+              });
+            } catch (ex) {
+              if ($err) {
+                $err.style.display = 'block';
+                $err.textContent = 'Google Map failed to initialize: ' + (ex?.message || ex);
+              }
+              console.error(ex);
+            }
+          };
+
+          window.gm_authFailure = function () {
+            if ($err) {
+              $err.style.display = 'block';
+              $err.textContent = 'Google Maps authentication failed. Check API key, billing & restrictions.';
+            }
+          };
+        })();
+    </script>
+
+    @{
+        var mapsKey = (string?)ViewBag.GoogleMapsApiKey ?? "";
+        var mapsLang = (string?)ViewBag.GoogleMapsLanguage ?? "en";
+        var mapsRegion = (string?)ViewBag.GoogleMapsRegion ?? "BD";
+    }
+    @if (string.IsNullOrWhiteSpace(mapsKey))
+    {
+        <script>
+            document.getElementById('mapError')?.append("Google Maps API key missing. Set GoogleMaps:ApiKey in configuration.");
+            const errEl = document.getElementById('mapError'); if (errEl) errEl.style.display='block';
+        </script>
+    }
+    else
+    {
+        <script src="https://maps.googleapis.com/maps/api/js?key=@mapsKey&libraries=places&v=weekly&language=@mapsLang&region=@mapsRegion&callback=initTnMap" async defer></script>
+    }
+}
+

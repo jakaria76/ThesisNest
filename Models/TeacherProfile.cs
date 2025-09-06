@@ -3,18 +3,22 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.EntityFrameworkCore;
 
 namespace ThesisNest.Models
 {
     [Index(nameof(UserId), IsUnique = true)]
+    [Index(nameof(Slug), IsUnique = true)] // ensure unique slug
     [Table("TeacherProfiles")]
     public class TeacherProfile
     {
         [Key]
         public int Id { get; set; }
 
-        [Required, MaxLength(64)]
+        // Link to AspNetUsers.Id (Identity default: nvarchar(450))
+        [Required, MaxLength(450)]
+        [ForeignKey(nameof(ApplicationUser))] // optional: clarifies FK target
         public string UserId { get; set; } = string.Empty;
 
         [Required, MaxLength(120)]
@@ -26,6 +30,7 @@ namespace ThesisNest.Models
 
         [EmailAddress, MaxLength(120)] public string? Email { get; set; }
         [Phone, MaxLength(30)] public string? Phone { get; set; }
+
         public bool IsPublicEmail { get; set; } = true;
         public bool IsPublicPhone { get; set; } = false;
 
@@ -38,7 +43,8 @@ namespace ThesisNest.Models
         [MaxLength(100)] public string? ProfileImageContentType { get; set; }
         [MaxLength(255)] public string? ProfileImageFileName { get; set; }
 
-        [Required, MaxLength(140)] public string Slug { get; set; } = string.Empty;
+        [Required, MaxLength(140)]
+        public string Slug { get; set; } = string.Empty;
 
         [Required] public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         [Required] public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
@@ -49,7 +55,19 @@ namespace ThesisNest.Models
         [Timestamp]
         public byte[]? RowVersion { get; set; }
 
-        public virtual ICollection<Thesis> Theses { get; set; } = new List<Thesis>();
+        // ---------- Navigation ----------
+
+        // Backref; ValidateNever so the binder doesn't try to validate it
+        [ValidateNever]
+        public virtual ApplicationUser? ApplicationUser { get; set; }
+
+        // Child collections; ValidateNever to avoid deep validation errors
+        [ValidateNever] public virtual ICollection<Thesis> Theses { get; set; } = new List<Thesis>();
+        [ValidateNever] public virtual ICollection<TeacherEducation> Educations { get; set; } = new List<TeacherEducation>();
+        [ValidateNever] public virtual ICollection<TeacherAchievement> Achievements { get; set; } = new List<TeacherAchievement>();
+        [ValidateNever] public virtual ICollection<TeacherPublication> Publications { get; set; } = new List<TeacherPublication>();
+
+        // ---------- Computed ----------
 
         [NotMapped]
         public int OngoingThesisCount => Theses?.Count(t => t.Status == ThesisStatus.InProgress) ?? 0;
@@ -57,7 +75,12 @@ namespace ThesisNest.Models
         [NotMapped]
         public int CompletedThesisCount => Theses?.Count(t => t.Status == ThesisStatus.Completed) ?? 0;
 
+        // ---------- Location ----------
+
+        [Range(-90.0, 90.0, ErrorMessage = "Latitude must be between -90 and 90.")]
         public double? Latitude { get; set; }
+
+        [Range(-180.0, 180.0, ErrorMessage = "Longitude must be between -180 and 180.")]
         public double? Longitude { get; set; }
     }
 }
