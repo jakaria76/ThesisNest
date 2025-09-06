@@ -1,218 +1,241 @@
 ﻿@model ThesisNest.Models.TeacherProfile
 @{
     ViewData["Title"] = "Edit Teacher Profile";
-    var imgSrc = (Model?.ProfileImage != null && !string.IsNullOrEmpty(Model.ProfileImageContentType))
-        ? Url.Action("Photo", "TeacherProfile", new { id = Model.Id })
-        : "https://via.placeholder.com/240x240.png?text=User";
+    var imgSrc = Model?.ProfileImage != null && !string.IsNullOrEmpty(Model.ProfileImageContentType)
+        ? Url.Action("Photo", "TeacherProfile", new { id = Model!.Id })
+        : "https://via.placeholder.com/160x160.png?text=User";
 }
-<div class="container-xxl py-4">
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <h3 class="m-0">@ViewData["Title"]</h3>
-        <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Back to My Profile</a>
-    </div>
 
-    <form asp-action="Edit" method="post" enctype="multipart/form-data" class="card border-0 shadow-lg overflow-hidden">
+<div class="container-xxl py-4">
+    <h3>@ViewData["Title"]</h3>
+
+    <form asp-action="Edit" method="post" enctype="multipart/form-data">
         @Html.AntiForgeryToken()
         @Html.HiddenFor(m => m.Id)
+        @Html.ValidationSummary(false, "", new { @class = "text-danger" })
 
-        <div class="px-3 px-md-4 py-3 tnp-band tnp-band-edit">
-            <div class="row g-3 align-items-center">
-                <div class="col-12 col-md">
-                    <div class="small text-muted">
-                        <strong>Last updated:</strong> @Model.UpdatedAt.ToLocalTime() &nbsp;|&nbsp;
-                        <strong>Created:</strong> @Model.CreatedAt.ToLocalTime()
-                    </div>
+        <!-- Basic Info -->
+        <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <label asp-for="FullName" class="form-label"></label>
+                <input asp-for="FullName" class="form-control" />
+                <span asp-validation-for="FullName" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Designation" class="form-label"></label>
+                <input asp-for="Designation" class="form-control" />
+                <span asp-validation-for="Designation" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Department" class="form-label"></label>
+                <input asp-for="Department" class="form-control" />
+                <span asp-validation-for="Department" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="OfficeLocation" class="form-label"></label>
+                <input asp-for="OfficeLocation" class="form-control" />
+                <span asp-validation-for="OfficeLocation" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Phone" class="form-label"></label>
+                <input asp-for="Phone" class="form-control" />
+                <span asp-validation-for="Phone" class="text-danger"></span>
+            </div>
+            <div class="col-md-2 form-check mt-4">
+                <input asp-for="IsPublicEmail" class="form-check-input" type="checkbox" id="IsPublicEmail" />
+                <label class="form-check-label" for="IsPublicEmail">Email Public</label>
+            </div>
+            <div class="col-md-2 form-check mt-4">
+                <input asp-for="IsPublicPhone" class="form-check-input" type="checkbox" id="IsPublicPhone" />
+                <label class="form-check-label" for="IsPublicPhone">Phone Public</label>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Bio" class="form-label"></label>
+                <textarea asp-for="Bio" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Bio" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="ResearchSummary" class="form-label"></label>
+                <textarea asp-for="ResearchSummary" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="ResearchSummary" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-3">
+                <label asp-for="Latitude" class="form-label"></label>
+                <input asp-for="Latitude" class="form-control" type="number" step="0.0000001" />
+                <span asp-validation-for="Latitude" class="text-danger"></span>
+            </div>
+            <div class="col-md-3">
+                <label asp-for="Longitude" class="form-label"></label>
+                <input asp-for="Longitude" class="form-control" type="number" step="0.0000001" />
+                <span asp-validation-for="Longitude" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Profile Image</label>
+                <input type="file" name="ProfileImageFile" class="form-control" accept="image/*" />
+                <div class="form-check mt-2">
+                    <input type="checkbox" name="removePhoto" class="form-check-input" id="removePhoto">
+                    <label class="form-check-label" for="removePhoto">Remove current photo</label>
                 </div>
-                <div class="col-12 col-md-auto">
-                    <span class="badge tn-badge-success"><i class="bi bi-check2-circle me-1"></i> Live</span>
+                <div class="mt-2">
+                    <img src="@imgSrc" alt="Current photo" class="img-thumbnail" style="max-width: 160px;" />
                 </div>
             </div>
         </div>
 
-        <div class="card-body p-3 p-md-4">
-            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
-            <div class="row g-4">
-                <!-- Preview -->
-                <div class="col-lg-4">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-body text-center">
-                            <img id="previewImg" src="@imgSrc" class="rounded-3 shadow-sm tnp-photo-xl" alt="photo" />
-                            <h4 class="mb-0 fw-bold mt-2" id="previewName">@Model.FullName</h4>
-                            <div class="text-muted" id="previewDesig">@Model.Designation</div>
-                            <div class="text-muted small" id="previewDept">@Model.Department</div>
-
-                            <div class="row g-2 mt-3">
-                                <div class="col-6">
-                                    <div class="card border-0 shadow-sm">
-                                        <div class="card-body p-2 text-center">
-                                            <div class="small text-muted">Ongoing</div>
-                                            <div class="h5 m-0">@Model.OngoingThesisCount</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="card border-0 shadow-sm">
-                                        <div class="card-body p-2 text-center">
-                                            <div class="small text-muted">Completed</div>
-                                            <div class="h5 m-0">@Model.CompletedThesisCount</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="mt-3 small text-muted d-flex align-items-center justify-content-center gap-2 flex-wrap">
-                                <i class="bi bi-link-45deg"></i>
-                                <span>Slug: <code id="slugText" class="tn-code">@Model.Slug</code></span>
-                            </div>
-                        </div>
-                        <div class="card-footer small text-muted">
-                            Tip: নাম পাল্টালে slug auto-update হবে।
-                        </div>
+        <!-- Dynamic Sections -->
+        <h5>Educational Background</h5>
+        <div id="educationContainer">
+            @if (Model?.Educations != null)
+            {
+                for (int i = 0; i < Model.Educations.Count; i++)
+                {
+                    var e = Model.Educations.ElementAt(i);
+                    <div class="education-item mb-2 border p-2">
+                        <input type="hidden" name="Educations[@i].Id" value="@e.Id" />
+                        <input name="Educations[@i].Degree" class="form-control mb-1" value="@e.Degree" placeholder="Degree" />
+                        <input name="Educations[@i].Institution" class="form-control mb-1" value="@e.Institution" placeholder="Institution" />
+                        <input name="Educations[@i].BoardOrUniversity" class="form-control mb-1" value="@e.BoardOrUniversity" placeholder="Board/University" />
+                        <input name="Educations[@i].FieldOfStudy" class="form-control mb-1" value="@e.FieldOfStudy" placeholder="Field of Study" />
+                        <input name="Educations[@i].PassingYear" type="number" class="form-control mb-1" value="@(e.PassingYear)" placeholder="Year" />
+                        <input name="Educations[@i].Result" class="form-control mb-1" value="@e.Result" placeholder="Result" />
+                        <input name="Educations[@i].Country" class="form-control mb-1" value="@e.Country" placeholder="Country" />
+                        <button type="button" class="btn btn-danger btn-sm remove-edu">Remove</button>
                     </div>
-                </div>
+                }
+            }
+        </div>
+        <button type="button" class="btn btn-outline-primary mb-3" id="addEducation">+ Add Education</button>
 
-                <!-- Form -->
-                <div class="col-lg-8">
-                    <div class="row g-3">
-                        <div class="col-12">
-                            <label class="form-label">Change Photo</label>
-                            <div class="d-flex gap-2 flex-wrap">
-                                <input type="file" name="ProfileImageFile" id="inpPhoto" class="form-control" accept="image/*" />
-                                <div class="form-check d-flex align-items-center ms-1">
-                                    <input class="form-check-input" type="checkbox" name="removePhoto" id="removePhoto" />
-                                    <label class="form-check-label ms-2" for="removePhoto">Remove current photo</label>
-                                </div>
-                            </div>
-                            <div class="form-text">JPEG/PNG/WebP, max 2MB</div>
-                            <span class="text-danger" data-valmsg-for="ProfileImage"></span>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label asp-for="FullName" class="form-label"></label>
-                            <input asp-for="FullName" class="form-control" id="inpFullName" />
-                            <span asp-validation-for="FullName" class="text-danger"></span>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label asp-for="Designation" class="form-label"></label>
-                            <input asp-for="Designation" class="form-control" id="inpDesig" />
-                        </div>
-
-                        <div class="col-md-6">
-                            <label asp-for="Department" class="form-label"></label>
-                            <input asp-for="Department" class="form-control" id="inpDept" />
-                        </div>
-
-                        <div class="col-md-6">
-                            <label asp-for="OfficeLocation" class="form-label"></label>
-                            <input asp-for="OfficeLocation" class="form-control" />
-                        </div>
-
-                        <div class="col-md-6">
-                            <label asp-for="Email" class="form-label"></label>
-                            <input asp-for="Email" class="form-control" />
-                        </div>
-                        <div class="col-md-6">
-                            <label asp-for="Phone" class="form-label"></label>
-                            <input asp-for="Phone" class="form-control" />
-                        </div>
-
-                        <div class="col-12">
-                            <label asp-for="Bio" class="form-label"></label>
-                            <textarea asp-for="Bio" class="form-control" rows="3" id="inpBio"></textarea>
-                            <div class="d-flex justify-content-end small text-muted">
-                                <span><span id="bioCount">0</span>/1000</span>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <label asp-for="ResearchSummary" class="form-label">Research Summary</label>
-                            <textarea asp-for="ResearchSummary" class="form-control" rows="4" id="inpResearch"></textarea>
-                            <div class="d-flex justify-content-end small text-muted">
-                                <span><span id="resCount">0</span>/1500</span>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6 form-check ms-2">
-                            <input asp-for="IsPublicEmail" class="form-check-input" id="chkPublicEmail" />
-                            <label asp-for="IsPublicEmail" class="form-check-label"></label>
-                        </div>
-                        <div class="col-md-6 form-check ms-2">
-                            <input asp-for="IsPublicPhone" class="form-check-input" id="chkPublicPhone" />
-                            <label asp-for="IsPublicPhone" class="form-check-label"></label>
-                        </div>
-
-                        <div class="col-12">
-                            <div class="alert alert-warning border-0 shadow-sm small m-0">
-                                <i class="bi bi-exclamation-triangle me-1"></i> পরিবর্তনগুলো সেভ করার পরই প্রোফাইলে দেখা যাবে।
-                            </div>
-                        </div>
+        <h5>Achievements</h5>
+        <div id="achievementContainer">
+            @if (Model?.Achievements != null)
+            {
+                for (int i = 0; i < Model.Achievements.Count; i++)
+                {
+                    var a = Model.Achievements.ElementAt(i);
+                    <div class="achievement-item mb-2 border p-2">
+                        <input type="hidden" name="Achievements[@i].Id" value="@a.Id" />
+                        <input name="Achievements[@i].Title" class="form-control mb-1" value="@a.Title" placeholder="Title" />
+                        <input name="Achievements[@i].Issuer" class="form-control mb-1" value="@a.Issuer" placeholder="Issuer" />
+                        <input type="date" name="Achievements[@i].IssuedOn" class="form-control mb-1" value="@(a.IssuedOn?.ToString("yyyy-MM-dd"))" />
+                        <input name="Achievements[@i].Url" class="form-control mb-1" value="@a.Url" placeholder="URL (optional)" />
+                        <textarea name="Achievements[@i].Description" class="form-control mb-1" rows="2" placeholder="Description">@a.Description</textarea>
+                        <button type="button" class="btn btn-danger btn-sm remove-ach">Remove</button>
                     </div>
-                </div>
-            </div> <!-- /row -->
+                }
+            }
         </div>
+        <button type="button" class="btn btn-outline-primary mb-3" id="addAchievement">+ Add Achievement</button>
 
-        <div class="card-footer d-flex flex-wrap gap-2 justify-content-end">
-            <a asp-action="Index" class="btn btn-light">Cancel</a>
-            <button class="btn btn-primary" type="submit"><i class="bi bi-save2 me-1"></i> Update</button>
+        <h5>Publications</h5>
+        <div id="publicationContainer">
+            @if (Model?.Publications != null)
+            {
+                for (int i = 0; i < Model.Publications.Count; i++)
+                {
+                    var p = Model.Publications.ElementAt(i);
+                    <div class="publication-item mb-2 border p-2">
+                        <input type="hidden" name="Publications[@i].Id" value="@p.Id" />
+                        <input name="Publications[@i].Title" class="form-control mb-1" value="@p.Title" placeholder="Title" />
+                        <input name="Publications[@i].VenueType" class="form-control mb-1" value="@p.VenueType" placeholder="Venue Type (Journal/Conference/Book)" />
+                        <input name="Publications[@i].VenueName" class="form-control mb-1" value="@p.VenueName" placeholder="Venue Name" />
+                        <input name="Publications[@i].Year" type="number" class="form-control mb-1" value="@(p.Year)" placeholder="Year" />
+                        <input name="Publications[@i].Volume" class="form-control mb-1" value="@p.Volume" placeholder="Volume" />
+                        <input name="Publications[@i].Issue" class="form-control mb-1" value="@p.Issue" placeholder="Issue" />
+                        <input name="Publications[@i].Pages" class="form-control mb-1" value="@p.Pages" placeholder="Pages" />
+                        <input name="Publications[@i].DOI" class="form-control mb-1" value="@p.DOI" placeholder="DOI" />
+                        <input name="Publications[@i].Url" class="form-control mb-1" value="@p.Url" placeholder="URL" />
+                        <input name="Publications[@i].CoAuthors" class="form-control mb-1" value="@p.CoAuthors" placeholder="Co-authors" />
+                        <textarea name="Publications[@i].Abstract" class="form-control mb-1" rows="2" placeholder="Abstract">@p.Abstract</textarea>
+                        <button type="button" class="btn btn-danger btn-sm remove-pub">Remove</button>
+                    </div>
+                }
+            }
         </div>
+        <button type="button" class="btn btn-outline-primary mb-3" id="addPublication">+ Add Publication</button>
+
+        <button type="submit" class="btn btn-success">Update Profile</button>
     </form>
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
     <script>
-        (function () {
-            const toSlug = (t) => (t || "")
-                .toLowerCase()
-                .trim()
-                .replace(/[^a-z0-9\s-_]/g, "")
-                .replace(/[\s_]+/g, "-")
-                .replace(/-+/g, "-")
-                .replace(/^-|-$/g, "");
+        let eduIndex = @((Model?.Educations?.Count ?? 0));
+        let achIndex = @((Model?.Achievements?.Count ?? 0));
+        let pubIndex = @((Model?.Publications?.Count ?? 0));
 
-            const full = document.getElementById('inpFullName');
-            const desig = document.getElementById('inpDesig');
-            const dept  = document.getElementById('inpDept');
-            const bio   = document.getElementById('inpBio');
-            const res   = document.getElementById('inpResearch');
+        function eduBlock(i) {
+            return `
+            <div class="education-item mb-2 border p-2">
+                <input type="hidden" name="Educations[${i}].Id" value="0" />
+                <input name="Educations[${i}].Degree" class="form-control mb-1" placeholder="Degree" />
+                <input name="Educations[${i}].Institution" class="form-control mb-1" placeholder="Institution" />
+                <input name="Educations[${i}].BoardOrUniversity" class="form-control mb-1" placeholder="Board/University" />
+                <input name="Educations[${i}].FieldOfStudy" class="form-control mb-1" placeholder="Field of Study" />
+                <input name="Educations[${i}].PassingYear" type="number" class="form-control mb-1" placeholder="Year" />
+                <input name="Educations[${i}].Result" class="form-control mb-1" placeholder="Result" />
+                <input name="Educations[${i}].Country" class="form-control mb-1" placeholder="Country" />
+                <button type="button" class="btn btn-danger btn-sm remove-edu">Remove</button>
+            </div>`;
+        }
 
-            const pName = document.getElementById('previewName');
-            const pDes  = document.getElementById('previewDesig');
-            const pDep  = document.getElementById('previewDept');
-            const slugT = document.getElementById('slugText');
+        function achBlock(i) {
+            return `
+            <div class="achievement-item mb-2 border p-2">
+                <input type="hidden" name="Achievements[${i}].Id" value="0" />
+                <input name="Achievements[${i}].Title" class="form-control mb-1" placeholder="Title" />
+                <input name="Achievements[${i}].Issuer" class="form-control mb-1" placeholder="Issuer" />
+                <input type="date" name="Achievements[${i}].IssuedOn" class="form-control mb-1" />
+                <input name="Achievements[${i}].Url" class="form-control mb-1" placeholder="URL (optional)" />
+                <textarea name="Achievements[${i}].Description" class="form-control mb-1" rows="2" placeholder="Description"></textarea>
+                <button type="button" class="btn btn-danger btn-sm remove-ach">Remove</button>
+            </div>`;
+        }
 
-            function updatePreview() {
-                pName.textContent = full.value || "Your Name";
-                pDes.textContent  = desig.value || "";
-                pDep.textContent  = dept.value || "";
-                const s = toSlug(full.value);
-                if (s) slugT.textContent = s;
-                document.getElementById('bioCount').textContent = bio.value.length;
-                document.getElementById('resCount').textContent = res.value.length;
-            }
+        function pubBlock(i) {
+            return `
+            <div class="publication-item mb-2 border p-2">
+                <input type="hidden" name="Publications[${i}].Id" value="0" />
+                <input name="Publications[${i}].Title" class="form-control mb-1" placeholder="Title" />
+                <input name="Publications[${i}].VenueType" class="form-control mb-1" placeholder="Venue Type (Journal/Conference/Book)" />
+                <input name="Publications[${i}].VenueName" class="form-control mb-1" placeholder="Venue Name" />
+                <input name="Publications[${i}].Year" type="number" class="form-control mb-1" placeholder="Year" />
+                <input name="Publications[${i}].Volume" class="form-control mb-1" placeholder="Volume" />
+                <input name="Publications[${i}].Issue" class="form-control mb-1" placeholder="Issue" />
+                <input name="Publications[${i}].Pages" class="form-control mb-1" placeholder="Pages" />
+                <input name="Publications[${i}].DOI" class="form-control mb-1" placeholder="DOI" />
+                <input name="Publications[${i}].Url" class="form-control mb-1" placeholder="URL" />
+                <input name="Publications[${i}].CoAuthors" class="form-control mb-1" placeholder="Co-authors" />
+                <textarea name="Publications[${i}].Abstract" class="form-control mb-1" rows="2" placeholder="Abstract"></textarea>
+                <button type="button" class="btn btn-danger btn-sm remove-pub">Remove</button>
+            </div>`;
+        }
 
-            ['input', 'change'].forEach(evt => {
-                full.addEventListener(evt, updatePreview);
-                desig.addEventListener(evt, updatePreview);
-                dept.addEventListener(evt, updatePreview);
-                bio.addEventListener(evt, updatePreview);
-                res.addEventListener(evt, updatePreview);
-            });
+        const addEducationBtn = document.getElementById("addEducation");
+        const addAchievementBtn = document.getElementById("addAchievement");
+        const addPublicationBtn = document.getElementById("addPublication");
 
-            document.getElementById('inpPhoto')?.addEventListener('change', function (e) {
-                const f = e.target.files?.[0];
-                if (!f) return;
-                if (f.size > 2 * 1024 * 1024) {
-                    alert("Max 2MB image allowed.");
-                    e.target.value = "";
-                    return;
-                }
-                const url = URL.createObjectURL(f);
-                document.getElementById('previewImg').src = url;
-            });
+        if (addEducationBtn) addEducationBtn.addEventListener("click", () => {
+            document.getElementById("educationContainer").insertAdjacentHTML("beforeend", eduBlock(eduIndex++));
+        });
+        if (addAchievementBtn) addAchievementBtn.addEventListener("click", () => {
+            document.getElementById("achievementContainer").insertAdjacentHTML("beforeend", achBlock(achIndex++));
+        });
+        if (addPublicationBtn) addPublicationBtn.addEventListener("click", () => {
+            document.getElementById("publicationContainer").insertAdjacentHTML("beforeend", pubBlock(pubIndex++));
+        });
 
-            updatePreview();
-        })();
+        document.addEventListener("click", function (e) {
+            if (e.target.classList.contains("remove-edu")) e.target.closest(".education-item")?.remove();
+            if (e.target.classList.contains("remove-ach")) e.target.closest(".achievement-item")?.remove();
+            if (e.target.classList.contains("remove-pub")) e.target.closest(".publication-item")?.remove();
+        });
     </script>
 }
