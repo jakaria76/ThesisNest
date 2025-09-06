@@ -40,20 +40,8 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxMb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[E:/3.2/ThesisNest/ThesisNest/Views/Account/LoginWithPhone.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxMb2dpbldpdGhQaG9uZS5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
-[E:/3.2/ThesisNest/ThesisNest/Views/Account/PhoneLogin.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxQaG9uZUxvZ2luLmNzaHRtbA==
-build_metadata.AdditionalFiles.CssScope = 
-
 [E:/3.2/ThesisNest/ThesisNest/Views/Account/Register.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxSZWdpc3Rlci5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
-[E:/3.2/ThesisNest/ThesisNest/Views/Account/VerifyOtp.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxWZXJpZnlPdHAuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [E:/3.2/ThesisNest/ThesisNest/Views/Home/Index.cshtml]
