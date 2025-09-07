@@ -70,10 +70,10 @@ namespace ThesisNest.Models
         // ---------- Computed ----------
 
         [NotMapped]
-        public int OngoingThesisCount => Theses?.Count(t => t.Status == ThesisStatus.InProgress) ?? 0;
+        public int OngoingThesisCount => Theses?.Count(t => t.Status == ThesisStatus.Pending) ?? 0;
 
         [NotMapped]
-        public int CompletedThesisCount => Theses?.Count(t => t.Status == ThesisStatus.Completed) ?? 0;
+        public int CompletedThesisCount => Theses?.Count(t => t.Status == ThesisStatus.Accept) ?? 0;
 
         // ---------- Location ----------
 

@@ -1,0 +1,234 @@
+﻿@using System
+@using System.Globalization
+@model ThesisNest.ViewModels.PlagiarismResultViewModel
+@{
+    ViewData["Title"] = "Plagiarism Result";
+
+    var pct = Math.Min(100, Math.Max(0, Model.CombinedScore));
+    string riskLabel, riskClass;
+    if (pct >= 60) { riskLabel = "High Risk"; riskClass = "danger"; }
+    else if (pct >= 30) { riskLabel = "Medium Risk"; riskClass = "warning"; }
+    else { riskLabel = "Low Risk"; riskClass = "success"; }
+
+    var localPct = Math.Min(100, Math.Max(0, Model.LocalMaxSimilarity));
+    var bestLocal = Model.LocalBestMatchDocumentId == 0 ? "—" : $"Document ID {Model.LocalBestMatchDocumentId}";
+    var matchesSorted = Model.WebMatches.OrderByDescending(m => m.Score).ToList();
+}
+
+<style>
+    /* Minimal, theme-friendly tweaks (works in light & dark) */
+    .kpi-card {
+        border: 0;
+        background: var(--bs-body-bg);
+    }
+
+    .kpi-number {
+        font-weight: 800;
+        font-size: 1.6rem;
+    }
+
+    .kpi-sub {
+        font-size: .875rem;
+        color: var(--bs-secondary-color);
+    }
+
+    .progress.progress-thin {
+        height: .5rem;
+    }
+
+    .table-fixed th, .table-fixed td {
+        vertical-align: top;
+    }
+
+    .table-fixed .sentence, .table-fixed .snippet {
+        white-space: normal;
+        max-width: 520px;
+    }
+    @@media (max-width: 992px) {
+        .table-fixed .sentence, .table-fixed .snippet
+
+    {
+        max-width: 100%;
+    }
+
+    }
+</style>
+
+<header class="mb-3">
+    <h2 class="mb-1">Plagiarism Result — @Model.FileName</h2>
+    <div class="text-body-secondary">Processed at @DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm 'UTC'")</div>
+</header>
+
+<!-- KPIs -->
+<div class="row g-3 mb-4">
+    <div class="col-12 col-md-4">
+        <div class="card shadow-sm kpi-card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="kpi-sub">Combined similarity</div>
+                    <span class="badge bg-@riskClass">@riskLabel</span>
+                </div>
+                <div class="kpi-number my-1">@pct.ToString("0.00")%</div>
+                <div class="progress progress-thin">
+                    <div class="progress-bar bg-@riskClass" style="width:@pct%"></div>
+                </div>
+                <div class="small text-body-secondary mt-1">আপনার কেস অনুযায়ী থ্রেশহোল্ড টিউন করুন</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="card shadow-sm kpi-card">
+            <div class="card-body">
+                <div class="kpi-sub">Best local match</div>
+                <div class="d-flex align-items-baseline gap-2 my-1">
+                    <div class="kpi-number">@localPct.ToString("0.00")%</div>
+                    <span class="badge text-bg-secondary">@bestLocal</span>
+                </div>
+                <div class="progress progress-thin">
+                    <div class="progress-bar" style="width:@localPct%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="card shadow-sm kpi-card">
+            <div class="card-body">
+                <div class="kpi-sub">Web matches (sampled)</div>
+                <div class="kpi-number my-1">@matchesSorted.Count</div>
+                <div class="text-body-secondary">Long sentences (max 8) were checked</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toolbar -->
+<div class="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-3">
+    <div class="d-flex align-items-center gap-2">
+        <label class="form-label m-0">Min score:</label>
+        <input type="range" class="form-range" id="minScore" min="0" max="100" step="5" value="0" style="width:220px">
+        <span id="minScoreVal" class="badge text-bg-light border">0%</span>
+    </div>
+    <div class="d-flex gap-2">
+        <a class="btn btn-outline-secondary" asp-controller="Plagiarism" asp-action="Index">
+            <i class="bi bi-arrow-left me-1"></i>New check
+        </a>
+        <button class="btn btn-outline-primary" id="btnExportCsv" type="button">
+            <i class="bi bi-download me-1"></i>Export CSV
+        </button>
+        <button class="btn btn-outline-dark" onclick="window.print()" type="button">
+            <i class="bi bi-printer me-1"></i>Print
+        </button>
+    </div>
+</div>
+
+<!-- Matches -->
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-body-tertiary">
+        <strong><i class="bi bi-globe2 me-2"></i>Web matches</strong>
+    </div>
+    <div class="card-body p-0">
+        @if (matchesSorted.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-striped table-hover table-sm align-middle m-0 table-fixed" id="matchesTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:36%">Sentence</th>
+                            <th style="width:36%">Snippet</th>
+                            <th style="width:18%">URL</th>
+                            <th style="width:10%">Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var m in matchesSorted)
+                        {
+                            var score = Math.Min(100, Math.Max(0, m.Score));
+                            var host = "";
+                            try { host = new Uri(m.Url).Host; } catch { host = m.Url; }
+                            <tr data-score="@score.ToString("0.####", CultureInfo.InvariantCulture)">
+                                <td class="sentence">
+                                    <div class="fw-semibold">@m.Sentence</div>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary mt-1 copy-btn" data-copy="@m.Sentence">
+                                        <i class="bi bi-clipboard"></i> Copy
+                                    </button>
+                                </td>
+                                <td class="snippet"><em>@m.Snippet</em></td>
+                                <td class="url-col">
+                                    <a href="@m.Url" target="_blank" rel="noopener">
+                                        <i class="bi bi-box-arrow-up-right"></i> @host
+                                    </a>
+                                </td>
+                                <td>
+                                    <div class="fw-semibold">@score.ToString("0.00")%</div>
+                                    <div class="progress progress-thin mt-1">
+                                        <div class="progress-bar bg-@(score >= 65 ? "danger" : score >= 40 ? "warning" : "success")" style="width:@score%"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="p-4 text-body-secondary">No strong web matches found for sampled sentences.</div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Copy sentence
+        document.querySelectorAll('.copy-btn').forEach(btn=>{
+            btn.addEventListener('click', async () => {
+                try {
+                    await navigator.clipboard.writeText(btn.dataset.copy || '');
+                    btn.innerHTML = '<i class="bi bi-check2"></i> Copied';
+                    setTimeout(()=> btn.innerHTML = '<i class="bi bi-clipboard"></i> Copy', 1100);
+                } catch(e){ console.warn(e); }
+            });
+        });
+
+        // Score filter (locale-safe: parseFloat + data-score as invariant)
+        (function () {
+            const range = document.getElementById('minScore');
+            const val = document.getElementById('minScoreVal');
+            const tbody = document.querySelector('#matchesTable tbody');
+            const getRows = () => Array.from(tbody?.querySelectorAll('tr') || []);
+
+            function applyFilter() {
+                const min = parseFloat(range?.value || '0') || 0;
+                if (val) val.textContent = min + '%';
+                getRows().forEach(r => {
+                    const s = parseFloat(r.dataset.score || '0') || 0;
+                    r.style.display = (s >= min) ? '' : 'none';
+                });
+            }
+            range?.addEventListener('input', applyFilter);
+            range?.addEventListener('change', applyFilter);
+            applyFilter();
+        })();
+
+        // Export CSV (respects filter)
+        document.getElementById('btnExportCsv')?.addEventListener('click', () => {
+            const lines = [['Sentence','Snippet','URL','Score']];
+            document.querySelectorAll('#matchesTable tbody tr').forEach(tr=>{
+                if (tr.style.display === 'none') return;
+                const tds = tr.querySelectorAll('td');
+                const sentence = (tds[0]?.querySelector('.fw-semibold')?.textContent || '').replace(/\s+/g,' ').trim();
+                const snippet  = (tds[1]?.innerText || '').replace(/\s+/g,' ').trim();
+                const url      = (tds[2]?.querySelector('a')?.href || '').trim();
+                const score    = (tds[3]?.querySelector('.fw-semibold')?.textContent || '').trim();
+                lines.push([sentence, snippet, url, score]);
+            });
+            const csv = lines.map(r => r.map(v => `"${(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+            const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'plagiarism_web_matches.csv';
+            a.click();
+            URL.revokeObjectURL(a.href);
+        });
+    </script>
+}
