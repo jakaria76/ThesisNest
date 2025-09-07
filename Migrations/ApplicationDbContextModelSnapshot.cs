@@ -257,6 +257,33 @@ namespace ThesisNest.Migrations
                     b.ToTable("Departments");
                 });
 
+            modelBuilder.Entity("ThesisNest.Models.PlagiarismDocument", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<float>("CombinedScore")
+                        .HasColumnType("real");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TextContent")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PlagiarismDocuments");
+                });
+
             modelBuilder.Entity("ThesisNest.Models.StudentProfile", b =>
                 {
                     b.Property<int>("Id")

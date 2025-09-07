@@ -8,23 +8,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="NewFolder1\**" />
-    <Content Remove="NewFolder1\**" />
-    <EmbeddedResource Remove="NewFolder1\**" />
-    <None Remove="NewFolder1\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="AspNet.Security.OAuth.LinkedIn" Version="9.4.0" />
+    <PackageReference Include="DocumentFormat.OpenXml" Version="3.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="9.0.8" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="9.0.6" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.8" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="9.0.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.8">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.ML" Version="4.0.2" />
+    <PackageReference Include="PdfPig" Version="0.1.11" />
     <PackageReference Include="Twilio" Version="7.12.2" />
   </ItemGroup>
 

@@ -23,7 +23,7 @@ namespace ThesisNest.Models
         [ForeignKey(nameof(DepartmentId))] public Department Department { get; set; } = null!;
 
         // lifecycle + proposal
-        [Required] public ThesisStatus Status { get; set; } = ThesisStatus.Proposed;
+        [Required] public ThesisStatus Status { get; set; } = ThesisStatus.Pending;
         [Required] public ProposalStatus ProposalStatus { get; set; } = ProposalStatus.Draft;
 
         // proposal details

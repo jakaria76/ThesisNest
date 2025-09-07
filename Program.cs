@@ -7,9 +7,10 @@ using Microsoft.AspNetCore.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
+
 using ThesisNest.Data;
 using ThesisNest.Models;
-using Microsoft.Extensions.Options;
+using ThesisNest.Services; // <-- Plagiarism services
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,9 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
+// যদি SQLite ব্যবহার করতে চাও, উপরকার লাইন বদলে এটি দাও:
+// builder.Services.AddDbContext<ApplicationDbContext>(options =>
+//     options.UseSqlite(connectionString));
 
 // ------------------------
 // 3) Identity + Roles
@@ -212,10 +216,26 @@ builder.Services.AddControllersWithViews(options =>
 });
 builder.Services.AddRazorPages();
 
+// ------------------------
+// 8) Plagiarism Checker Services (NEW)
+// ------------------------
+builder.Services.AddScoped<IFileTextExtractor, FileTextExtractor>();
+builder.Services.AddSingleton<SimilarityService>();
+
+builder.Services.AddHttpClient();
+builder.Services.AddTransient<GoogleSearchService>(sp =>
+{
+    var http = sp.GetRequiredService<IHttpClientFactory>().CreateClient();
+    var cfg = sp.GetRequiredService<IConfiguration>();
+    var apiKey = cfg["GoogleCustomSearch:ApiKey"];
+    var cx = cfg["GoogleCustomSearch:Cx"];
+    return new GoogleSearchService(http, apiKey, cx);
+});
+
 var app = builder.Build();
 
 // ------------------------
-// 8) Middleware
+// 9) Middleware
 // ------------------------
 if (!app.Environment.IsDevelopment())
 {
@@ -242,7 +262,7 @@ app.UseAuthorization();
 app.UseStatusCodePages();
 
 // ------------------------
-// 9) Database Migration + Seed
+// 10) Database Migration + Seed
 // ------------------------
 using (var scope = app.Services.CreateScope())
 {
@@ -262,7 +282,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 // ------------------------
-// 10) Routes
+// 11) Routes
 // ------------------------
 app.MapControllerRoute(
     name: "areas",

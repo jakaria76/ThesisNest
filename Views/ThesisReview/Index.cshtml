@@ -2,134 +2,175 @@
 @using ThesisNest.Models
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
-<h2 class="mb-4">Review Thesis</h2>
+<style>
+    /* Theme-friendly tweaks (works in light & dark) */
+    .th-card {
+        background: var(--bs-body-bg);
+        border: 0;
+    }
 
-@if (!Model.Any())
-{
-    <div class="alert alert-warning text-center">
-        No theses found for your supervision.
-    </div>
-}
-else
-{
-    <div class="table-responsive">
-        <table class="table table-hover align-middle">
-            <thead class="table-dark">
-                <tr>
-                    <th>Student</th>
-                    <th>Title</th>
-                    <th>Department</th>
-                    <th>Latest Version</th>
-                    <th>Status</th>
-                    <th>Feedbacks</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var thesis in Model)
-                {
-                    var latest = thesis.Versions.OrderByDescending(v => v.VersionNo).FirstOrDefault();
+    .th-table thead th {
+        font-weight: 600;
+    }
+    /* ✅ Feedback box now adapts to theme */
+    .feedback-box {
+        background-color: var(--bs-tertiary-bg) !important;
+        color: var(--bs-body-color);
+        border-color: var(--bs-border-color) !important;
+    }
+</style>
+
+<div class="container-xxl my-5">
+    <h2 class="mb-4 d-flex align-items-center gap-2">
+        <i class="bi bi-journal-text"></i>
+        <span>Review Thesis</span>
+    </h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-warning text-center shadow-sm th-card">
+            <i class="bi bi-exclamation-triangle-fill me-1"></i>
+            No theses found for your supervision.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover table-striped align-middle th-table">
+                <thead class="bg-body-tertiary">
                     <tr>
-                        <td>@(thesis.Student?.FullName ?? "N/A")</td>
-                        <td>@thesis.Title</td>
-                        <td>@thesis.Department.Name</td>
-                        <td>
-                            @if (latest != null)
-                            {
-                                <div class="d-flex flex-column gap-1">
-                                    <a class="btn btn-sm btn-outline-primary"
-                                       href="@Url.Action("DownloadVersion", "ThesisReview", new { versionId = latest.Id })" target="_blank">
-                                        Download (v@latest.VersionNo)
-                                    </a>
-                                    <a class="btn btn-sm btn-outline-success"
-                                       href="@Url.Action("PreviewVersion", "ThesisReview", new { versionId = latest.Id })" target="_blank">
-                                        Preview
-                                    </a>
-                                </div>
-                            }
-                            else
-                            {
-                                <span class="text-muted">No files</span>
-                            }
-                        </td>
-                        <td>
-                            <form asp-action="SetStatus" method="post" class="d-flex gap-2 align-items-center">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="thesisId" value="@thesis.Id" />
-                                <select name="status" class="form-select form-select-sm w-auto">
-                                    @foreach (var s in Enum.GetValues(typeof(ThesisStatus)).Cast<ThesisStatus>())
-                                    {
-                                        <option value="@s" selected="@(s == thesis.Status ? "selected" : null)">@s</option>
-                                    }
-                                </select>
-                                <button type="submit" class="btn btn-sm btn-success">Update</button>
-                            </form>
-                        </td>
-                        <td>
-                            @if (thesis.Feedbacks.Any())
-                            {
-                                @foreach (var fb in thesis.Feedbacks.OrderByDescending(f => f.CreatedAt))
+                        <th>Student</th>
+                        <th>Title</th>
+                        <th>Department</th>
+                        <th>Latest Version</th>
+                        <th>Status</th>
+                        <th>Feedbacks</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var thesis in Model)
+                    {
+                        var latest = thesis.Versions.OrderByDescending(v => v.VersionNo).FirstOrDefault();
+                        <tr>
+                            <td class="text-nowrap">@((thesis.Student?.FullName) ?? "N/A")</td>
+                            <td>@thesis.Title</td>
+                            <td class="text-nowrap">@thesis.Department.Name</td>
+
+                            <td>
+                                @if (latest != null)
                                 {
-                                    <div class="p-2 mb-2 border rounded shadow-sm bg-light">
-                                        <div class="d-flex justify-content-between">
-                                            <strong>@(fb.GivenBy?.FullName ?? "Teacher")</strong>
-                                            <small class="text-muted">@fb.CreatedAt.ToString("yyyy-MM-dd HH:mm")</small>
-                                        </div>
-                                        <div>@fb.Message</div>
-                                        @if (fb.IsChangeRequested)
-                                        {
-                                            <span class="badge bg-warning text-dark mt-1">Change Requested</span>
-                                        }
+                                    <div class="d-grid gap-2">
+                                        <a class="btn btn-sm btn-outline-primary"
+                                           href="@Url.Action("DownloadVersion", "ThesisReview", new { versionId = latest.Id })" target="_blank">
+                                            <i class="bi bi-download me-1"></i> Download (v@latest.VersionNo)
+                                        </a>
+                                        <a class="btn btn-sm btn-outline-success"
+                                           href="@Url.Action("PreviewVersion", "ThesisReview", new { versionId = latest.Id })" target="_blank">
+                                            <i class="bi bi-eye me-1"></i> Preview
+                                        </a>
                                     </div>
                                 }
-                            }
-                            else
-                            {
-                                <span class="text-muted small">No feedback yet</span>
-                            }
-                        </td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-secondary mb-1 w-100" data-bs-toggle="modal" data-bs-target="#feedbackModal@thesis.Id">
-                                Add Feedback
-                            </button>
+                                else
+                                {
+                                    <span class="text-body-secondary">No files</span>
+                                }
+                            </td>
 
-                            <!-- Feedback Modal -->
-                            <div class="modal fade" id="feedbackModal@thesis.Id" tabindex="-1" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content">
-                                        <form asp-action="AddFeedback" method="post">
-                                            @Html.AntiForgeryToken()
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Add Feedback for "@thesis.Title"</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            <td>
+                                <form asp-action="SetStatus" method="post" class="d-flex gap-2 align-items-center">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="thesisId" value="@thesis.Id" />
+                                    <select name="status" class="form-select form-select-sm w-auto">
+                                        @foreach (var s in Enum.GetValues(typeof(ThesisStatus)).Cast<ThesisStatus>())
+                                        {
+                                            <option value="@s" selected="@(s == thesis.Status ? "selected" : null)">@s</option>
+                                        }
+                                    </select>
+                                    <button type="submit" class="btn btn-sm btn-success">
+                                        <i class="bi bi-check-circle me-1"></i> Update
+                                    </button>
+                                </form>
+                            </td>
+
+                            <td style="min-width: 280px;">
+                                @if (thesis.Feedbacks.Any())
+                                {
+                                    @foreach (var fb in thesis.Feedbacks.OrderByDescending(f => f.CreatedAt))
+                                    {
+                                        <!-- ✅ এই বক্সটাই আগে সাদা দেখাচ্ছিল -->
+                                        <div class="p-2 mb-2 rounded-3 border feedback-box">
+                                            <div class="d-flex justify-content-between">
+                                                <strong>@(fb.GivenBy?.FullName ?? "Teacher")</strong>
+                                                <small class="text-body-secondary">@fb.CreatedAt.ToString("yyyy-MM-dd HH:mm")</small>
                                             </div>
-                                            <div class="modal-body">
-                                                <input type="hidden" name="thesisId" value="@thesis.Id" />
-                                                <div class="mb-3">
-                                                    <textarea name="message" class="form-control" placeholder="Feedback message" rows="4" required></textarea>
+                                            <div class="mt-1">@fb.Message</div>
+                                            @if (fb.IsChangeRequested)
+                                            {
+                                                <span class="badge text-bg-warning mt-1">
+                                                    <i class="bi bi-exclamation-triangle-fill me-1"></i> Change Requested
+                                                </span>
+                                            }
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="text-body-secondary small">No feedback yet</span>
+                                }
+                            </td>
+
+                            <td class="text-nowrap">
+                                <button class="btn btn-sm btn-outline-secondary w-100"
+                                        data-bs-toggle="modal" data-bs-target="#feedbackModal@thesis.Id">
+                                    <i class="bi bi-plus-circle me-1"></i> Add Feedback
+                                </button>
+
+                                <!-- Feedback Modal -->
+                                <div class="modal fade" id="feedbackModal@thesis.Id" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <form asp-action="AddFeedback" method="post">
+                                                @Html.AntiForgeryToken()
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Add Feedback for "@thesis.Title"</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
-                                                <div class="form-check">
-                                                    <input type="checkbox" class="form-check-input" name="requestChanges" id="requestChanges@thesis.Id" />
-                                                    <label class="form-check-label" for="requestChanges@thesis.Id">Request Changes</label>
+                                                <div class="modal-body">
+                                                    <input type="hidden" name="thesisId" value="@thesis.Id" />
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Message</label>
+                                                        <textarea name="message" class="form-control" rows="4" placeholder="Feedback message" required></textarea>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input type="checkbox" class="form-check-input" name="requestChanges" id="requestChanges@thesis.Id" />
+                                                        <label class="form-check-label" for="requestChanges@thesis.Id">
+                                                            Request Changes
+                                                        </label>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="submit" class="btn btn-primary">Submit</button>
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                            </div>
-                                        </form>
+                                                <div class="modal-footer">
+                                                    <button type="submit" class="btn btn-primary">
+                                                        <i class="bi bi-send me-1"></i> Submit
+                                                    </button>
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                </div>
+                                            </form>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-}
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
 
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success mt-3">@TempData["Success"]</div>
-}
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success mt-3 th-card shadow-sm">
+            <i class="bi bi-check-circle-fill me-1"></i> @TempData["Success"]
+        </div>
+    }
+</div>

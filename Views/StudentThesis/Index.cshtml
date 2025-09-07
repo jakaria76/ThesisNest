@@ -116,9 +116,9 @@
     {
         return status switch
         {
-            ThesisNest.Models.ThesisStatus.Proposed => "badge bg-warning",
-            ThesisNest.Models.ThesisStatus.InProgress => "badge bg-info",
-            ThesisNest.Models.ThesisStatus.Completed => "badge bg-success",
+            ThesisNest.Models.ThesisStatus.Pending => "badge bg-warning",
+            ThesisNest.Models.ThesisStatus.Accept => "badge bg-info",
+            ThesisNest.Models.ThesisStatus.Rejected => "badge bg-success",
             _ => "badge bg-light text-dark"
         };
     }

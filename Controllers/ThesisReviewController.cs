@@ -150,7 +150,7 @@ namespace ThesisNest.Controllers
                 return Forbid();
 
             thesis.Status = status;
-            thesis.CompletedAt = status == ThesisStatus.Completed ? DateTime.UtcNow : null;
+            thesis.CompletedAt = status == ThesisStatus.Accept? DateTime.UtcNow : null;
             await _context.SaveChangesAsync();
 
             TempData["Success"] = "Thesis status updated!";

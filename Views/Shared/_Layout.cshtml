@@ -22,7 +22,7 @@
     <!-- THEME CSS -->
     <link rel="stylesheet" href="~/css/theme.css" asp-append-version="true" />
 
-    <!-- Your base CSS -->
+    <!-- Base CSS -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ThesisNest.styles.css" asp-append-version="true" />
 
@@ -48,14 +48,14 @@
             font-size: 1.2rem;
             cursor: pointer;
             color: var(--text);
-            padding: 0px;
+            padding: 0;
         }
 
         .tn-brand {
             display: flex;
-            align-items: flex-start; /* আগে center ছিল, এখন উপরে টেনে নেবে */
-            padding-top: 0; /* উপরের padding কমানো */
-            padding-bottom: 2rem; /* নিচে সামান্য space */
+            align-items: flex-start;
+            padding-top: 0;
+            padding-bottom: 2rem;
         }
 
         .tn-logo {
@@ -67,8 +67,8 @@
 
             /* ✅ Logo sizing: keep aspect ratio */
             .tn-logo img {
-                height: 70px; /* চাইলে 36–48px টিউন করতে পারো */
-                width: auto; /* স্ট্রেচিং বন্ধ */
+                height: 70px;
+                width: auto;
                 object-fit: contain;
                 display: block;
             }
@@ -78,26 +78,23 @@
             padding-left: 0;
         }
 
-        /* ✅ Media query syntax fixed */
+        /* ✅ Razor-escaped media query */
         @@media (max-width: 992px) {
             .tn-logo img {
                 height: 36px;
             }
-            /* মোবাইলে একটু ছোট */
         }
     </style>
-
 </head>
+
 <body class="tn-app">
     <div class="tn-layout">
-
         <!-- ================ SIDEBAR ================ -->
         @if (SignInManager.IsSignedIn(User))
         {
             <aside id="tnSidebar" class="tn-sidebar">
                 <div class="tn-brand px-3 py-3">
                     <a href="@Url.Action("Index", "Home")" class="tn-logo" aria-label="ThesisNest Home">
-                        <!-- FIX: single .png -->
                         <img src="~/images/logo1.png" alt="ThesisNest" />
                     </a>
 
@@ -120,7 +117,6 @@
                         var roles = currentUser != null
                         ? await UserManager.GetRolesAsync(currentUser)
                         : new List<string>();
-
                         bool isAdmin = roles.Contains("Admin");
                         bool isTeacher = roles.Contains("Teacher");
                         bool isStudent = roles.Contains("Student");
@@ -134,13 +130,23 @@
                            asp-controller="TeacherProfile" asp-action="Index" title="Teacher Profile" data-bs-toggle="tooltip">
                             <i class="bi bi-mortarboard"></i><span>Teacher Profile</span>
                         </a>
+
                         <a class="tn-link @(currentPath.Contains("/thesisreview") ? "active" : "")"
                            asp-controller="ThesisReview" asp-action="Index" title="Review Thesis" data-bs-toggle="tooltip">
                             <i class="bi bi-search"></i><span>Review Thesis</span>
                         </a>
-
                     }
-                    else if (isStudent)
+
+                    @* 🔍 Teacher-only: Plagiarism Checker *@
+                    @if (isTeacher)
+                    {
+                        <a class="tn-link @(currentPath.Contains("/plagiarism") ? "active" : "")"
+                           asp-controller="Plagiarism" asp-action="Index" title="Plagiarism Checker" data-bs-toggle="tooltip">
+                            <i class="bi bi-files"></i><span>Plagiarism Checker</span>
+                        </a>
+                    }
+
+                    @if (isStudent && !(isTeacher || isAdmin))
                     {
                         <a class="tn-link @(currentPath.Contains("/studentprofile") ? "active" : "")"
                            asp-controller="StudentProfile" asp-action="Index" title="Student Profile" data-bs-toggle="tooltip">
