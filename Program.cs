@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -21,14 +20,24 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddUserSecrets<Program>(optional: true);
 
 // ------------------------
-// 2) Connection String & DbContext
+// 2) Db Provider Selection (SQL Server if available; else SQLite)
 // ------------------------
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+string? sqlServerConn = builder.Configuration.GetConnectionString("DefaultConnection");
+bool useSqlServer = !string.IsNullOrWhiteSpace(sqlServerConn);
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
-// SQLite হলে উপরের লাইন বদলে UseSqlite দিন
+{
+    if (useSqlServer)
+    {
+        options.UseSqlServer(sqlServerConn!);
+    }
+    else
+    {
+        // Local dev fallback
+        options.UseSqlite(builder.Configuration.GetConnectionString("SqliteConnection")
+                         ?? "Data Source=thesisnest.db");
+    }
+});
 
 // ------------------------
 // 3) Identity + Roles
@@ -65,12 +74,13 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 builder.Services.ConfigureExternalCookie(options =>
 {
+    // External providers need cross-site cookies
     options.Cookie.SameSite = SameSiteMode.None;
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 });
 
 // ------------------------
-// 5) Authentication Providers
+// 5) Authentication Providers (Google + GitHub)
 // ------------------------
 builder.Services
     .AddAuthentication()
@@ -114,10 +124,11 @@ builder.Services
                 using var userJson = JsonDocument.Parse(await userRes.Content.ReadAsStringAsync());
                 context.RunClaimActions(userJson.RootElement);
 
+                // Fallback: fetch primary verified email if not present
                 var hasEmail = context.Identity!.HasClaim(c => c.Type == ClaimTypes.Email);
                 if (!hasEmail)
                 {
-                    using var emailsReq = new HttpRequestMessage(HttpMethod.Get, "https://github.com/user/emails");
+                    using var emailsReq = new HttpRequestMessage(HttpMethod.Get, "https://api.github.com/user/emails");
                     emailsReq.Headers.Authorization = new AuthenticationHeaderValue("Bearer", context.AccessToken);
                     emailsReq.Headers.UserAgent.ParseAdd("ThesisNestApp/1.0");
 
@@ -145,8 +156,6 @@ builder.Services
 // 6) Options (Google Maps, ICE)
 // ------------------------
 builder.Services.Configure<GoogleMapsOptions>(builder.Configuration.GetSection("GoogleMaps"));
-
-// 🔹 MERGED: ICE/TURN config binding for /rtc/ice
 builder.Services.Configure<IceOptions>(builder.Configuration.GetSection("Ice"));
 
 // ------------------------
@@ -157,6 +166,11 @@ builder.Services.AddControllersWithViews(options =>
     options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
 });
 builder.Services.AddRazorPages();
+
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+}
 
 // ------------------------
 // 8) Plagiarism Checker Services
@@ -192,6 +206,7 @@ if (!app.Environment.IsDevelopment())
 else
 {
     app.UseDeveloperExceptionPage();
+    app.UseMigrationsEndPoint(); // nice EF error page
 }
 
 app.UseHttpsRedirection();
@@ -209,23 +224,35 @@ app.UseAuthorization();
 app.UseStatusCodePages();
 
 // ------------------------
-// 11) Database Migration + Seed
+// 11) Database Migration + Seed (with clear diagnostics)
 // ------------------------
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var db = services.GetRequiredService<ApplicationDbContext>();
-    await db.Database.MigrateAsync();
 
-    var departments = new[] { "CSE", "EEE", "CV", "ME", "TE", "Arch", "IP" };
-    foreach (var deptName in departments)
+    try
     {
-        if (!await db.Departments.AnyAsync(d => d.Name == deptName))
-            db.Departments.Add(new Department { Name = deptName });
-    }
-    await db.SaveChangesAsync();
+        await db.Database.MigrateAsync();
 
-    await SeedData.InitializeAsync(services);
+        var departments = new[] { "CSE", "EEE", "CV", "ME", "TE", "Arch", "IP" };
+        foreach (var deptName in departments)
+        {
+            if (!await db.Departments.AnyAsync(d => d.Name == deptName))
+                db.Departments.Add(new Department { Name = deptName });
+        }
+        await db.SaveChangesAsync();
+
+        await SeedData.InitializeAsync(services);
+    }
+    catch (Exception ex)
+    {
+        var provider = useSqlServer ? "SQL Server" : "SQLite";
+        Console.WriteLine($"[DB-INIT-ERROR] Provider={provider}");
+        Console.WriteLine($"[DB-INIT-ERROR] DefaultConnection={(sqlServerConn ?? "(null)")} ");
+        Console.WriteLine(ex);
+        throw; // keep behavior: fail fast so misconfig isn’t silent
+    }
 }
 
 // ------------------------
@@ -261,7 +288,6 @@ public sealed class GoogleMapsOptions
     public string? ApiKey { get; set; }
 }
 
-// For TURN/STUN config binding from appsettings.json: "Ice": { "IceServers": [ ... ] }
 public sealed class IceOptions
 {
     public List<IceServer> IceServers { get; set; } = new();

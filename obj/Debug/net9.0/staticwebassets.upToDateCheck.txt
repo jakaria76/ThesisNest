@@ -68,6 +68,8 @@ wwwroot\lib\jquery\LICENSE.txt
 wwwroot\uploads\nbr_tin_certificate_161167474715.pdf
 wwwroot\js\comm.js
 wwwroot\lib\signalr\signalr.min.js
+wwwroot\uploads\threads\3\20250908163913038_fd87c8616195427d927ed20dba25a81e.pdf
+wwwroot\uploads\threads\3\20250908163924158_2726aaea523a43e18087ddaa1779a7da.jpg
 E:\3.2\ThesisNest\ThesisNest\wwwroot\lib\jquery\dist\jquery.slim.min.map
 E:\3.2\ThesisNest\ThesisNest\wwwroot\lib\jquery\dist\jquery.slim.min.js
 E:\3.2\ThesisNest\ThesisNest\wwwroot\lib\jquery\dist\jquery.slim.js
