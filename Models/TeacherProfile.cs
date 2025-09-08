@@ -9,16 +9,15 @@ using Microsoft.EntityFrameworkCore;
 namespace ThesisNest.Models
 {
     [Index(nameof(UserId), IsUnique = true)]
-    [Index(nameof(Slug), IsUnique = true)] // ensure unique slug
+    [Index(nameof(Slug), IsUnique = true)]
     [Table("TeacherProfiles")]
     public class TeacherProfile
     {
         [Key]
         public int Id { get; set; }
 
-        // Link to AspNetUsers.Id (Identity default: nvarchar(450))
+        // FK to AspNetUsers.Id (nvarchar(450))
         [Required, MaxLength(450)]
-        [ForeignKey(nameof(ApplicationUser))] // optional: clarifies FK target
         public string UserId { get; set; } = string.Empty;
 
         [Required, MaxLength(120)]
@@ -57,18 +56,15 @@ namespace ThesisNest.Models
 
         // ---------- Navigation ----------
 
-        // Backref; ValidateNever so the binder doesn't try to validate it
         [ValidateNever]
         public virtual ApplicationUser? ApplicationUser { get; set; }
 
-        // Child collections; ValidateNever to avoid deep validation errors
         [ValidateNever] public virtual ICollection<Thesis> Theses { get; set; } = new List<Thesis>();
         [ValidateNever] public virtual ICollection<TeacherEducation> Educations { get; set; } = new List<TeacherEducation>();
         [ValidateNever] public virtual ICollection<TeacherAchievement> Achievements { get; set; } = new List<TeacherAchievement>();
         [ValidateNever] public virtual ICollection<TeacherPublication> Publications { get; set; } = new List<TeacherPublication>();
 
         // ---------- Computed ----------
-
         [NotMapped]
         public int OngoingThesisCount => Theses?.Count(t => t.Status == ThesisStatus.Pending) ?? 0;
 
@@ -76,7 +72,6 @@ namespace ThesisNest.Models
         public int CompletedThesisCount => Theses?.Count(t => t.Status == ThesisStatus.Accept) ?? 0;
 
         // ---------- Location ----------
-
         [Range(-90.0, 90.0, ErrorMessage = "Latitude must be between -90 and 90.")]
         public double? Latitude { get; set; }
 
