@@ -236,6 +236,74 @@ namespace ThesisNest.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("ThesisNest.Models.CallSession", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("EndedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("StartedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("StartedByUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ThreadId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ThreadId", "StartedAt");
+
+                    b.ToTable("CallSessions");
+                });
+
+            modelBuilder.Entity("ThesisNest.Models.CommunicationThread", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsEnabled")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<int>("StudentProfileId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TeacherProfileId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ThesisId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StudentProfileId");
+
+                    b.HasIndex("TeacherProfileId", "StudentProfileId")
+                        .IsUnique();
+
+                    b.ToTable("CommunicationThreads");
+                });
+
             modelBuilder.Entity("ThesisNest.Models.Department", b =>
                 {
                     b.Property<int>("Id")
@@ -255,6 +323,43 @@ namespace ThesisNest.Migrations
                         .IsUnique();
 
                     b.ToTable("Departments");
+                });
+
+            modelBuilder.Entity("ThesisNest.Models.Message", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("SenderId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("SenderUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("SentAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<int>("ThreadId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SenderId");
+
+                    b.HasIndex("ThreadId", "SentAt");
+
+                    b.ToTable("Messages", (string)null);
                 });
 
             modelBuilder.Entity("ThesisNest.Models.PlagiarismDocument", b =>
@@ -663,7 +768,9 @@ namespace ThesisNest.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<int>("CurrentVersionNo")
                         .HasColumnType("int");
@@ -718,7 +825,9 @@ namespace ThesisNest.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<int?>("GivenById")
                         .HasColumnType("int");
@@ -741,7 +850,7 @@ namespace ThesisNest.Migrations
 
                     b.HasIndex("GivenById");
 
-                    b.HasIndex("ThesisId");
+                    b.HasIndex("ThesisId", "CreatedAt");
 
                     b.ToTable("ThesisFeedbacks");
                 });
@@ -767,7 +876,9 @@ namespace ThesisNest.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<byte[]>("FileData")
                         .IsRequired()
@@ -844,6 +955,53 @@ namespace ThesisNest.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("ThesisNest.Models.CallSession", b =>
+                {
+                    b.HasOne("ThesisNest.Models.CommunicationThread", "Thread")
+                        .WithMany("Calls")
+                        .HasForeignKey("ThreadId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Thread");
+                });
+
+            modelBuilder.Entity("ThesisNest.Models.CommunicationThread", b =>
+                {
+                    b.HasOne("ThesisNest.Models.StudentProfile", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentProfileId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ThesisNest.Models.TeacherProfile", "Teacher")
+                        .WithMany()
+                        .HasForeignKey("TeacherProfileId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Student");
+
+                    b.Navigation("Teacher");
+                });
+
+            modelBuilder.Entity("ThesisNest.Models.Message", b =>
+                {
+                    b.HasOne("ApplicationUser", "Sender")
+                        .WithMany()
+                        .HasForeignKey("SenderId");
+
+                    b.HasOne("ThesisNest.Models.CommunicationThread", "Thread")
+                        .WithMany("Messages")
+                        .HasForeignKey("ThreadId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Sender");
+
+                    b.Navigation("Thread");
                 });
 
             modelBuilder.Entity("ThesisNest.Models.TeacherAchievement", b =>
@@ -946,6 +1104,13 @@ namespace ThesisNest.Migrations
                         .IsRequired();
 
                     b.Navigation("Thesis");
+                });
+
+            modelBuilder.Entity("ThesisNest.Models.CommunicationThread", b =>
+                {
+                    b.Navigation("Calls");
+
+                    b.Navigation("Messages");
                 });
 
             modelBuilder.Entity("ThesisNest.Models.TeacherProfile", b =>

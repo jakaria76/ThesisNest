@@ -1,0 +1,272 @@
+﻿@model ThesisNest.Models.VideoRoomVm
+@{
+    ViewData["Title"] = "Video Room";
+}
+
+@section Styles {
+    <style>
+        .room-wrap {
+            gap: 1rem;
+        }
+
+        .video-shell {
+            border: 1px solid var(--bs-border-color);
+            border-radius: .5rem;
+            overflow: hidden;
+        }
+
+        .badge-role {
+            margin-left: .5rem;
+        }
+
+        /* Chat card */
+        .chat-card {
+            border: 1px solid var(--bs-border-color);
+            border-radius: .5rem;
+            background: var(--bs-body-bg);
+        }
+
+        .chat-head {
+            padding: .75rem 1rem;
+            border-bottom: 1px solid var(--bs-border-color);
+        }
+
+        .chat-body {
+            height: 50vh;
+            overflow: auto;
+            padding: 1rem;
+        }
+
+        .chat-foot {
+            border-top: 1px solid var(--bs-border-color);
+            padding: .5rem;
+        }
+
+            .chat-foot .input-group > .form-control {
+                border-top-left-radius: .5rem;
+                border-bottom-left-radius: .5rem;
+            }
+
+            .chat-foot .btn {
+                border-top-right-radius: .5rem;
+                border-bottom-right-radius: .5rem;
+            }
+
+        @@media (min-width: 992px) {
+            .chat-body
+
+        {
+            height: calc(100vh - 320px);
+        }
+
+        }
+
+        /* Bubbles (Comm.addMsgToUi চাইলে ব্যবহার করতে পারবে) */
+        .msg {
+            max-width: 85%;
+            margin-bottom: .5rem;
+            padding: .5rem .75rem;
+            border: 1px solid var(--bs-border-color);
+            border-radius: .5rem;
+            background: var(--bs-body-bg);
+        }
+
+            .msg.me {
+                margin-left: auto;
+                background: rgba(13,110,253,.08);
+            }
+            /* my side */
+            .msg .meta {
+                font-size: .75rem;
+                color: var(--bs-secondary-color);
+            }
+
+            .msg .name {
+                font-weight: 600;
+                margin-right: .5rem;
+            }
+    </style>
+}
+
+<div class="container py-3">
+    <h4 class="mb-3">
+        Video Room — @Model.TeacherName ↔ @Model.StudentName
+        <span class="badge @(Model.IsTeacher ? "bg-primary" : "bg-success") badge-role">
+            @(Model.IsTeacher ? "Teacher" : "Student")
+        </span>
+    </h4>
+
+    <div class="row room-wrap">
+        <!-- ========== VIDEO AREA ========== -->
+        <div class="col-12 col-lg-8">
+            <div class="ratio ratio-16x9 video-shell position-relative">
+                <video id="remote" autoplay playsinline class="w-100 h-100"></video>
+                <video id="local" autoplay playsinline muted
+                       class="w-25 h-25 position-absolute bottom-0 end-0 m-2 border rounded"></video>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2 mt-3">
+                <button id="btnStartVideo" class="btn btn-success">🎥 Start Video</button>
+                <button id="btnStartAudio" class="btn btn-secondary">🔊 Start Audio</button>
+                <button id="btnEnd" class="btn btn-outline-danger">⛔ End Call</button>
+                <a class="btn btn-light" asp-controller="Home" asp-action="Index">Back</a>
+            </div>
+            <div class="form-text mt-2">
+                Communication is available only when the thesis status is <strong>Accept</strong>.
+            </div>
+        </div>
+
+        <!-- ========== CHAT AREA ========== -->
+        <div class="col-12 col-lg-4">
+            <div class="chat-card d-flex flex-column">
+                <div class="chat-head d-flex align-items-center gap-2">
+                    <strong>Messages</strong>
+                    <div class="ms-auto d-flex align-items-center gap-1">
+                        <button id="btnEmoji" class="btn btn-sm btn-outline-secondary" title="Emoji"><i class="bi bi-emoji-smile"></i></button>
+                        <button id="btnAttach" class="btn btn-sm btn-outline-secondary" title="Attach file"><i class="bi bi-paperclip"></i></button>
+                        <button id="btnMic" class="btn btn-sm btn-outline-secondary" title="Record audio"><i class="bi bi-mic"></i></button>
+                        <button id="btnCam" class="btn btn-sm btn-outline-secondary" title="Record video"><i class="bi bi-camera-video"></i></button>
+                        <button id="btnReload" class="btn btn-sm btn-outline-secondary" title="Reload"><i class="bi bi-arrow-repeat"></i></button>
+                    </div>
+                </div>
+
+                <div id="chat-messages"
+                     class="chat-body"
+                     data-is-teacher="@Model.IsTeacher"
+                     data-teachername="@Model.TeacherName"
+                     data-studentname="@Model.StudentName">
+                    <!-- messages will be appended here -->
+                </div>
+
+                <div class="chat-foot">
+                    <!-- emoji picker (from _Layout) -->
+                    <emoji-picker id="emojiPicker" style="display:none;max-height:220px"></emoji-picker>
+                    <!-- hidden file input -->
+                    <input id="fileInput" type="file" class="d-none"
+                           accept="image/*,audio/*,video/*,.pdf,.txt,.doc,.docx,.xls,.xlsx,.zip" />
+
+                    <div class="input-group">
+                        <textarea id="txtMsg" class="form-control" rows="1"
+                                  placeholder="Type a message… (Drag & drop files here)" maxlength="4000"></textarea>
+                        <button id="btnSend" class="btn btn-primary" title="Send"><i class="bi bi-send"></i></button>
+                    </div>
+                    <div class="small text-muted mt-1">
+                        Press <kbd>Enter</kbd> to send. Shift+Enter inserts a newline.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+          const threadId = @Model.ThreadId;
+
+          // -------- guards ----------
+          if (!window.Comm) {
+            console.error("Comm helper not found. Ensure SignalR & ~/js/comm.js are loaded in _Layout.");
+            alert("Communication scripts not loaded.");
+            return;
+          }
+
+          // -------- join + load ----------
+          (async () => {
+            try {
+              await Comm.joinThread(threadId);
+              await Comm.loadMessages?.();
+            } catch (e) {
+              console.error(e);
+              alert("Failed to join the room. Are you a participant?");
+            }
+          })();
+
+          // -------- call controls ----------
+          document.getElementById('btnStartVideo')?.addEventListener('click', () => Comm.startCall(true));
+          document.getElementById('btnStartAudio')?.addEventListener('click', () => Comm.startCall(false));
+          document.getElementById('btnEnd')?.addEventListener('click', () => Comm.endCall());
+
+          // -------- chat controls ----------
+          const $txt = document.getElementById('txtMsg');
+          const $send = document.getElementById('btnSend');
+          const $reload = document.getElementById('btnReload');
+          const $emojiBtn = document.getElementById('btnEmoji');
+          const $picker = document.getElementById('emojiPicker');
+          const $attachBtn = document.getElementById('btnAttach');
+          const $fileInput = document.getElementById('fileInput');
+          const $micBtn = document.getElementById('btnMic');
+          const $camBtn = document.getElementById('btnCam');
+          const $dropArea = document.getElementById('chat-messages');
+
+          async function doSend() {
+            const t = ($txt.value || "").trim();
+            if (!t) return;
+            $send.disabled = true;
+            try {
+              await Comm.sendMessage(t);
+              $txt.value = "";
+              $txt.focus();
+            } catch (err) {
+              console.error(err);
+              alert("Failed to send message.");
+            } finally {
+              $send.disabled = false;
+            }
+          }
+
+          $send?.addEventListener('click', doSend);
+          $txt?.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); doSend(); }
+          });
+          $reload?.addEventListener('click', () => Comm.loadMessages && Comm.loadMessages());
+
+          // emoji
+          $emojiBtn?.addEventListener('click', () => {
+            if (!$picker) return;
+            $picker.style.display = $picker.style.display === 'none' ? '' : 'none';
+          });
+          $picker?.addEventListener('emoji-click', (e) => {
+            const unicode = e.detail?.unicode || "";
+            $txt.value += unicode;
+            $txt.focus();
+          });
+
+          // file attach
+          $attachBtn?.addEventListener('click', () => $fileInput.click());
+          $fileInput?.addEventListener('change', async (e) => {
+            const f = e.target.files && e.target.files[0];
+            if (!f) return;
+            if (typeof Comm.sendAttachment !== 'function') {
+              alert("Attachment sending isn't implemented yet in comm.js");
+              e.target.value = "";
+              return;
+            }
+            try { await Comm.sendAttachment(f); } catch (err) { console.error(err); alert("Failed to upload."); }
+            e.target.value = "";
+          });
+
+          // drag & drop to message list
+          ['dragenter','dragover'].forEach(ev => $dropArea?.addEventListener(ev, evt => {
+            evt.preventDefault(); evt.dataTransfer.dropEffect = 'copy';
+          }));
+          $dropArea?.addEventListener('drop', async (evt) => {
+            evt.preventDefault();
+            if (typeof Comm.sendAttachment !== 'function') { alert("Attachment sending isn't implemented yet."); return; }
+            const files = evt.dataTransfer?.files;
+            if (!files || !files.length) return;
+            for (const f of files) { try { await Comm.sendAttachment(f); } catch (e) { console.error(e); } }
+          });
+
+          // audio / video record
+          $micBtn?.addEventListener('click', async () => {
+            if (typeof Comm.startAudioRecord !== 'function') return alert("Audio record isn't implemented yet.");
+            try { await Comm.startAudioRecord(); } catch (e) { console.error(e); alert("Failed to start audio record."); }
+          });
+          $camBtn?.addEventListener('click', async () => {
+            if (typeof Comm.startVideoRecord !== 'function') return alert("Video record isn't implemented yet.");
+            try { await Comm.startVideoRecord(); } catch (e) { console.error(e); alert("Failed to start video record."); }
+          });
+        })();
+    </script>
+}

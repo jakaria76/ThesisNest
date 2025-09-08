@@ -4,13 +4,14 @@ using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
 
 using ThesisNest.Data;
 using ThesisNest.Models;
-using ThesisNest.Services; // <-- Plagiarism services
+using ThesisNest.Services; // Plagiarism services
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,9 +28,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
-// যদি SQLite ব্যবহার করতে চাও, উপরকার লাইন বদলে এটি দাও:
-// builder.Services.AddDbContext<ApplicationDbContext>(options =>
-//     options.UseSqlite(connectionString));
+// SQLite হলে উপরের লাইন বদলে UseSqlite দিন
 
 // ------------------------
 // 3) Identity + Roles
@@ -82,65 +81,6 @@ builder.Services
         options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
         options.SaveTokens = true;
     })
-    .AddOAuth("LinkedIn", options =>
-    {
-        options.SignInScheme = IdentityConstants.ExternalScheme;
-        options.ClientId = builder.Configuration["Authentication:LinkedIn:ClientId"];
-        options.ClientSecret = builder.Configuration["Authentication:LinkedIn:ClientSecret"];
-        options.CallbackPath = new PathString("/signin-linkedin");
-
-        options.AuthorizationEndpoint = "https://www.linkedin.com/oauth/v2/authorization";
-        options.TokenEndpoint = "https://www.linkedin.com/oauth/v2/accessToken";
-        options.UserInformationEndpoint = "https://api.linkedin.com/v2/me";
-
-        options.Scope.Add("r_liteprofile");
-        options.Scope.Add("r_emailaddress");
-        options.SaveTokens = true;
-
-        options.Events = new OAuthEvents
-        {
-            OnCreatingTicket = async context =>
-            {
-                using var profileReq = new HttpRequestMessage(HttpMethod.Get, options.UserInformationEndpoint);
-                profileReq.Headers.Authorization = new AuthenticationHeaderValue("Bearer", context.AccessToken);
-                profileReq.Headers.Add("X-Restli-Protocol-Version", "2.0.0");
-
-                using var profileRes = await context.Backchannel.SendAsync(profileReq);
-                profileRes.EnsureSuccessStatusCode();
-
-                using var profileJson = JsonDocument.Parse(await profileRes.Content.ReadAsStringAsync());
-                var root = profileJson.RootElement;
-
-                var id = root.GetProperty("id").GetString() ?? string.Empty;
-                var firstName = root.TryGetProperty("localizedFirstName", out var fn) ? fn.GetString() ?? "" : "";
-                var lastName = root.TryGetProperty("localizedLastName", out var ln) ? ln.GetString() ?? "" : "";
-
-                context.Identity!.AddClaim(new Claim(ClaimTypes.NameIdentifier, id));
-                context.Identity!.AddClaim(new Claim(ClaimTypes.Name, $"{firstName} {lastName}".Trim()));
-
-                using var emailReq = new HttpRequestMessage(
-                    HttpMethod.Get,
-                    "https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))"
-                );
-                emailReq.Headers.Authorization = new AuthenticationHeaderValue("Bearer", context.AccessToken);
-                emailReq.Headers.Add("X-Restli-Protocol-Version", "2.0.0");
-
-                using var emailRes = await context.Backchannel.SendAsync(emailReq);
-                emailRes.EnsureSuccessStatusCode();
-
-                using var emailJson = JsonDocument.Parse(await emailRes.Content.ReadAsStringAsync());
-                var elements = emailJson.RootElement.GetProperty("elements");
-                if (elements.GetArrayLength() > 0 &&
-                    elements[0].TryGetProperty("handle~", out var handle) &&
-                    handle.TryGetProperty("emailAddress", out var emailProp))
-                {
-                    var email = emailProp.GetString();
-                    if (!string.IsNullOrWhiteSpace(email))
-                        context.Identity!.AddClaim(new Claim(ClaimTypes.Email, email!));
-                }
-            }
-        };
-    })
     .AddOAuth("GitHub", options =>
     {
         options.SignInScheme = IdentityConstants.ExternalScheme;
@@ -177,7 +117,7 @@ builder.Services
                 var hasEmail = context.Identity!.HasClaim(c => c.Type == ClaimTypes.Email);
                 if (!hasEmail)
                 {
-                    using var emailsReq = new HttpRequestMessage(HttpMethod.Get, "https://api.github.com/user/emails");
+                    using var emailsReq = new HttpRequestMessage(HttpMethod.Get, "https://github.com/user/emails");
                     emailsReq.Headers.Authorization = new AuthenticationHeaderValue("Bearer", context.AccessToken);
                     emailsReq.Headers.UserAgent.ParseAdd("ThesisNestApp/1.0");
 
@@ -202,10 +142,12 @@ builder.Services
     });
 
 // ------------------------
-// 6) Google Maps Options
+// 6) Options (Google Maps, ICE)
 // ------------------------
-builder.Services.Configure<GoogleMapsOptions>(
-    builder.Configuration.GetSection("GoogleMaps"));
+builder.Services.Configure<GoogleMapsOptions>(builder.Configuration.GetSection("GoogleMaps"));
+
+// 🔹 MERGED: ICE/TURN config binding for /rtc/ice
+builder.Services.Configure<IceOptions>(builder.Configuration.GetSection("Ice"));
 
 // ------------------------
 // 7) MVC + Razor Pages
@@ -217,7 +159,7 @@ builder.Services.AddControllersWithViews(options =>
 builder.Services.AddRazorPages();
 
 // ------------------------
-// 8) Plagiarism Checker Services (NEW)
+// 8) Plagiarism Checker Services
 // ------------------------
 builder.Services.AddScoped<IFileTextExtractor, FileTextExtractor>();
 builder.Services.AddSingleton<SimilarityService>();
@@ -232,10 +174,15 @@ builder.Services.AddTransient<GoogleSearchService>(sp =>
     return new GoogleSearchService(http, apiKey, cx);
 });
 
+// ------------------------
+// 9) Real-time: SignalR
+// ------------------------
+builder.Services.AddSignalR();
+
 var app = builder.Build();
 
 // ------------------------
-// 9) Middleware
+// 10) Middleware
 // ------------------------
 if (!app.Environment.IsDevelopment())
 {
@@ -262,7 +209,7 @@ app.UseAuthorization();
 app.UseStatusCodePages();
 
 // ------------------------
-// 10) Database Migration + Seed
+// 11) Database Migration + Seed
 // ------------------------
 using (var scope = app.Services.CreateScope())
 {
@@ -282,8 +229,10 @@ using (var scope = app.Services.CreateScope())
 }
 
 // ------------------------
-// 11) Routes
+// 12) Endpoints (MapHub + Minimal API)
 // ------------------------
+app.MapHub<ThesisNest.Hubs.CommunicationHub>("/hubs/comm");
+
 app.MapControllerRoute(
     name: "areas",
     pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
@@ -294,12 +243,33 @@ app.MapControllerRoute(
 
 app.MapRazorPages();
 
+// 🔹 Minimal API: serve ICE servers to comm.js
+//    If you want to protect it, add .RequireAuthorization()
+app.MapGet("/rtc/ice", (IOptions<IceOptions> opt) =>
+{
+    var ice = opt.Value?.IceServers ?? new List<IceServer>();
+    return Results.Json(new { iceServers = ice });
+});
+
 app.Run();
 
 // ------------------------
-// Google Maps Options Class
+// Options classes
 // ------------------------
 public sealed class GoogleMapsOptions
 {
     public string? ApiKey { get; set; }
+}
+
+// For TURN/STUN config binding from appsettings.json: "Ice": { "IceServers": [ ... ] }
+public sealed class IceOptions
+{
+    public List<IceServer> IceServers { get; set; } = new();
+}
+
+public sealed class IceServer
+{
+    public List<string> Urls { get; set; } = new(); // e.g. ["stun:stun.l.google.com:19302", "turn:turn.example.com:3478"]
+    public string? Username { get; set; }
+    public string? Credential { get; set; }
 }
