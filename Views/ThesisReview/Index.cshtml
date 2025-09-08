@@ -98,7 +98,6 @@
                                 {
                                     @foreach (var fb in thesis.Feedbacks.OrderByDescending(f => f.CreatedAt))
                                     {
-                                        <!-- ✅ এই বক্সটাই আগে সাদা দেখাচ্ছিল -->
                                         <div class="p-2 mb-2 rounded-3 border feedback-box">
                                             <div class="d-flex justify-content-between">
                                                 <strong>@(fb.GivenBy?.FullName ?? "Teacher")</strong>
@@ -120,11 +119,23 @@
                                 }
                             </td>
 
-                            <td class="text-nowrap">
-                                <button class="btn btn-sm btn-outline-secondary w-100"
-                                        data-bs-toggle="modal" data-bs-target="#feedbackModal@thesis.Id">
-                                    <i class="bi bi-plus-circle me-1"></i> Add Feedback
-                                </button>
+                            <td class="text-nowrap" style="min-width: 210px;">
+                                <div class="d-grid gap-2">
+                                    @* ✅ Communication button: only when Accept + StudentProfileId present *@
+                                    @if (thesis.Status == ThesisStatus.Accept && thesis.StudentProfileId != null)
+                                    {
+                                        <a class="btn btn-sm btn-outline-primary"
+                                           asp-controller="Video" asp-action="WithStudent"
+                                           asp-route-studentProfileId="@thesis.StudentProfileId">
+                                            <i class="bi bi-camera-video me-1"></i> Open Room
+                                        </a>
+                                    }
+
+                                    <button class="btn btn-sm btn-outline-secondary"
+                                            data-bs-toggle="modal" data-bs-target="#feedbackModal@thesis.Id">
+                                        <i class="bi bi-plus-circle me-1"></i> Add Feedback
+                                    </button>
+                                </div>
 
                                 <!-- Feedback Modal -->
                                 <div class="modal fade" id="feedbackModal@thesis.Id" tabindex="-1" aria-hidden="true">

@@ -670,3 +670,5 @@ E:\3.2\ThesisNest\ThesisNest\bin\Debug\net9.0\UglyToad.PdfPig.Tokenization.dll
 E:\3.2\ThesisNest\ThesisNest\bin\Debug\net9.0\UglyToad.PdfPig.Tokens.dll
 E:\3.2\ThesisNest\ThesisNest\bin\Debug\net9.0\UglyToad.PdfPig.dll
 E:\3.2\ThesisNest\ThesisNest\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt
+E:\3.2\ThesisNest\ThesisNest\obj\Debug\net9.0\compressed\2311f9dh70-ucgz9wt2gz.gz
+E:\3.2\ThesisNest\ThesisNest\obj\Debug\net9.0\compressed\ixglth8kxs-smtayy40ld.gz

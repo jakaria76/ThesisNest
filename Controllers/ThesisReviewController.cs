@@ -63,6 +63,8 @@ namespace ThesisNest.Controllers
             if (version == null) return NotFound();
 
             var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
             var roles = await _userManager.GetRolesAsync(user);
             bool isAdmin = roles.Contains("Admin");
 
@@ -88,8 +90,22 @@ namespace ThesisNest.Controllers
             if (version == null || version.FileData == null)
             {
                 TempData["Error"] = "File not found.";
-                return RedirectToAction("Index");
+                return RedirectToAction(nameof(Index));
             }
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            var roles = await _userManager.GetRolesAsync(user);
+            bool isAdmin = roles.Contains("Admin");
+
+            int? teacherId = await _context.TeacherProfiles
+                .Where(p => p.UserId == user.Id)
+                .Select(p => (int?)p.Id)
+                .FirstOrDefaultAsync();
+
+            if (!isAdmin && (teacherId == null || version.Thesis.TeacherProfileId != teacherId.Value))
+                return Forbid();
 
             string fileType;
             if (version.FileName.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
@@ -127,6 +143,20 @@ namespace ThesisNest.Controllers
             if (version == null || version.FileData == null)
                 return NotFound();
 
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            var roles = await _userManager.GetRolesAsync(user);
+            bool isAdmin = roles.Contains("Admin");
+
+            int? teacherId = await _context.TeacherProfiles
+                .Where(p => p.UserId == user.Id)
+                .Select(p => (int?)p.Id)
+                .FirstOrDefaultAsync();
+
+            if (!isAdmin && (teacherId == null || version.Thesis.TeacherProfileId != teacherId.Value))
+                return Forbid();
+
             return File(version.FileData, version.ContentType, version.FileName, enableRangeProcessing: true);
         }
 
@@ -138,6 +168,8 @@ namespace ThesisNest.Controllers
             if (thesis == null) return NotFound();
 
             var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
             var roles = await _userManager.GetRolesAsync(user);
             bool isAdmin = roles.Contains("Admin");
 
@@ -150,7 +182,40 @@ namespace ThesisNest.Controllers
                 return Forbid();
 
             thesis.Status = status;
-            thesis.CompletedAt = status == ThesisStatus.Accept? DateTime.UtcNow : null;
+            thesis.CompletedAt = status == ThesisStatus.Accept ? DateTime.UtcNow : null;
+
+            // Enable/Disable communication thread based on status
+            if (thesis.StudentProfileId.HasValue)
+            {
+                var thread = await _context.CommunicationThreads
+                    .FirstOrDefaultAsync(x =>
+                        x.TeacherProfileId == thesis.TeacherProfileId &&
+                        x.StudentProfileId == thesis.StudentProfileId.Value);
+
+                if (status == ThesisStatus.Accept)
+                {
+                    if (thread == null)
+                    {
+                        _context.CommunicationThreads.Add(new CommunicationThread
+                        {
+                            TeacherProfileId = thesis.TeacherProfileId,
+                            StudentProfileId = thesis.StudentProfileId.Value,
+                            ThesisId = thesis.Id,
+                            IsEnabled = true
+                        });
+                    }
+                    else
+                    {
+                        thread.IsEnabled = true;
+                        if (thread.ThesisId == null) thread.ThesisId = thesis.Id;
+                    }
+                }
+                else
+                {
+                    if (thread != null) thread.IsEnabled = false;
+                }
+            }
+
             await _context.SaveChangesAsync();
 
             TempData["Success"] = "Thesis status updated!";
@@ -158,6 +223,7 @@ namespace ThesisNest.Controllers
         }
 
         // ===== Add Feedback =====
+        [Authorize(Roles = "Teacher")]
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> AddFeedback(int thesisId, string message, bool requestChanges = false)
         {
@@ -165,15 +231,14 @@ namespace ThesisNest.Controllers
             if (thesis == null) return NotFound();
 
             var user = await _userManager.GetUserAsync(User);
-            var roles = await _userManager.GetRolesAsync(user);
-            bool isAdmin = roles.Contains("Admin");
+            if (user == null) return Unauthorized();
 
             int? teacherId = await _context.TeacherProfiles
                 .Where(p => p.UserId == user.Id)
                 .Select(p => (int?)p.Id)
                 .FirstOrDefaultAsync();
 
-            if (!isAdmin && (teacherId == null || thesis.TeacherProfileId != teacherId.Value))
+            if (teacherId == null || thesis.TeacherProfileId != teacherId.Value)
                 return Forbid();
 
             var feedback = new ThesisFeedback
@@ -190,6 +255,5 @@ namespace ThesisNest.Controllers
             TempData["Success"] = "Feedback submitted!";
             return RedirectToAction(nameof(Index));
         }
-        
     }
 }
