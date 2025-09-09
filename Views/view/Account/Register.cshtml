@@ -1,0 +1,98 @@
+﻿@* @model ThesisNest.Models.User
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="container mt-5" style="max-width: 400px;">
+    <div class="card shadow-sm" style="border-radius: 15px;">
+        <div class="card-body">
+            <!-- Top-left logo/title with custom font & color -->
+            <h4 class="mb-4 text-start" style="font-family: 'Arial Black', sans-serif; font-size: 24px; color: #1a73e8;">
+                ThesisNest
+            </h4>
+
+            <h3 class="card-title text-center mb-4">Create Account</h3>
+
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger">@ViewBag.Error</div>
+            }
+
+            <!-- Register Form -->
+            <form asp-action="Register" method="post">
+                <!-- Full Name -->
+                <div class="mb-3">
+                    <label asp-for="FullName" class="form-label">Full Name</label>
+                    <input asp-for="FullName" class="form-control" placeholder="Full Name" required />
+                </div>
+
+                <!-- Email -->
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label">Email</label>
+                    <input asp-for="Email" type="email" class="form-control" placeholder="Email address" required />
+                </div>
+
+                <!-- Contact Number -->
+                <div class="mb-3">
+                    <label asp-for="ContactNumber" class="form-label">Contact Number</label>
+                    <input asp-for="ContactNumber" class="form-control" placeholder="Contact Number" />
+                </div>
+
+
+                <!-- Password with Show/Hide Icon -->
+                <div class="mb-3">
+                    <label asp-for="PasswordHash" class="form-label">Password</label>
+                    <div class="input-group">
+                        <input asp-for="PasswordHash" type="password" class="form-control" placeholder="Password" id="regPassword" required />
+                        <span class="input-group-text" id="toggleRegPassword" style="cursor: pointer;">
+                            <i class="bi bi-eye"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Role -->
+                <div class="mb-3">
+                    <label asp-for="Role" class="form-label">Role</label>
+                    <select asp-for="Role" class="form-select" required>
+                        <option value="Student">Student</option>
+                        <option value="Supervisor">Supervisor</option>
+                    </select>
+                </div>
+
+                <!-- Custom Blue Button -->
+                <button type="submit" class="btn btn-primary w-100">Register</button>
+            </form>
+
+            <!-- Login Link -->
+            <div class="text-center mt-3">
+                <p>
+                    Already have an account?
+                    <a asp-controller="Account" asp-action="Login">Login here</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap Icons CDN -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+<!-- JavaScript for Show/Hide password -->
+<script>
+    const toggleRegPassword = document.getElementById('toggleRegPassword');
+    const regPasswordField = document.getElementById('regPassword');
+    const regIcon = toggleRegPassword.querySelector('i');
+
+    toggleRegPassword.addEventListener('click', () => {
+        if (regPasswordField.type === 'password') {
+            regPasswordField.type = 'text';
+            regIcon.classList.remove('bi-eye');
+            regIcon.classList.add('bi-eye-slash');
+        } else {
+            regPasswordField.type = 'password';
+            regIcon.classList.remove('bi-eye-slash');
+            regIcon.classList.add('bi-eye');
+        }
+    });
+</script>
+ *@

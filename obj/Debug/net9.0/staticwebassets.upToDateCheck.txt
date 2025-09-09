@@ -73,6 +73,7 @@ wwwroot\uploads\threads\3\20250908163924158_2726aaea523a43e18087ddaa1779a7da.jpg
 D:\3.2\SD\ThesisNest\wwwroot\css\site.css
 D:\3.2\SD\ThesisNest\wwwroot\css\theme.css
 D:\3.2\SD\ThesisNest\wwwroot\favicon.ico
+D:\3.2\SD\ThesisNest\wwwroot\lib\signalr\signalr.min.js
 D:\3.2\SD\ThesisNest\wwwroot\js\comm.js
 D:\3.2\SD\ThesisNest\wwwroot\js\site.js
 D:\3.2\SD\ThesisNest\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css
@@ -134,4 +135,3 @@ D:\3.2\SD\ThesisNest\wwwroot\lib\jquery\dist\jquery.slim.js
 D:\3.2\SD\ThesisNest\wwwroot\lib\jquery\dist\jquery.slim.min.js
 D:\3.2\SD\ThesisNest\wwwroot\lib\jquery\dist\jquery.slim.min.map
 D:\3.2\SD\ThesisNest\wwwroot\lib\jquery\LICENSE.txt
-D:\3.2\SD\ThesisNest\wwwroot\lib\signalr\signalr.min.js

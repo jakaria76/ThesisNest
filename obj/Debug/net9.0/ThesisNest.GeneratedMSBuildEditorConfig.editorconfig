@@ -168,6 +168,74 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVmlkZW9cUm9vbS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/3.2/SD/ThesisNest/Views/view/Account/Login.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3Ncdmlld1xBY2NvdW50XExvZ2luLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/3.2/SD/ThesisNest/Views/view/Account/Register.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3Ncdmlld1xBY2NvdW50XFJlZ2lzdGVyLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/3.2/SD/ThesisNest/Views/view/Admin/AddDepartment.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3Ncdmlld1xBZG1pblxBZGREZXBhcnRtZW50LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/3.2/SD/ThesisNest/Views/view/Admin/CreateUser.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3Ncdmlld1xBZG1pblxDcmVhdGVVc2VyLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/3.2/SD/ThesisNest/Views/view/Admin/Departments.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3Ncdmlld1xBZG1pblxEZXBhcnRtZW50cy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/3.2/SD/ThesisNest/Views/view/Admin/EditDepartment.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3Ncdmlld1xBZG1pblxFZGl0RGVwYXJ0bWVudC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/3.2/SD/ThesisNest/Views/view/Admin/EditRole.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3Ncdmlld1xBZG1pblxFZGl0Um9sZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/3.2/SD/ThesisNest/Views/view/Admin/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3Ncdmlld1xBZG1pblxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/3.2/SD/ThesisNest/Views/view/Admin/ManageUsers.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3Ncdmlld1xBZG1pblxNYW5hZ2VVc2Vycy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/3.2/SD/ThesisNest/Views/view/Admin/PendingSupervisors.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3Ncdmlld1xBZG1pblxQZW5kaW5nU3VwZXJ2aXNvcnMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/3.2/SD/ThesisNest/Views/view/Admin/Profile.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3Ncdmlld1xBZG1pblxQcm9maWxlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/3.2/SD/ThesisNest/Views/view/Admin/Reports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3Ncdmlld1xBZG1pblxSZXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/3.2/SD/ThesisNest/Views/view/Admin/Settings.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3Ncdmlld1xBZG1pblxTZXR0aW5ncy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/3.2/SD/ThesisNest/Views/view/Home/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3Ncdmlld1xIb21lXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/3.2/SD/ThesisNest/Views/view/Home/Privacy.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3Ncdmlld1xIb21lXFByaXZhY3kuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/3.2/SD/ThesisNest/Views/view/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3Ncdmlld1xfVmlld0ltcG9ydHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/3.2/SD/ThesisNest/Views/view/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3Ncdmlld1xfVmlld1N0YXJ0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/3.2/SD/ThesisNest/Views/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 

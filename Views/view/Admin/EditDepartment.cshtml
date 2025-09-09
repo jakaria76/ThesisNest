@@ -1,0 +1,18 @@
+﻿@model ThesisNest.Models.Department
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Edit Department";
+}
+
+<h2>Edit Department</h2>
+
+<form asp-action="EditDepartment" method="post">
+    <input type="hidden" asp-for="Id" />
+    <div class="form-group">
+        <label>Department Name</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Update</button>
+    <a asp-action="Departments" class="btn btn-secondary">Cancel</a>
+</form>
