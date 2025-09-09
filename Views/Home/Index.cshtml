@@ -1,8 +1,137 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿@model ThesisNest.ViewModels.DashboardViewModel
+@{
+    ViewData["Title"] = "Home";
+    }
 
-<div class="text-center">
+@* <div class="text-center">
     <h1 class="display-4">Welcome</h1>
     <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+</div> *@
+
+@if (User.Identity?.IsAuthenticated ?? false)
+{
+    <section class="container my-4">
+        @if (Model.StudentProfile != null)
+        {
+            <h2 class="mb-4">Student Dashboard</h2>
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">@Model.StudentProfile.FullName</h5>
+                    <p class="card-text">@Model.StudentProfile.Department</p>
+                    <p class="card-text">Thesis Status: @(Model.StudentProfile.ThesisStatus ?? "N/A")</p>
+                </div>
+            </div>
+            @if (Model.ThesisUpload != null)
+            {
+                <div class="card mb-4">
+                    <div class="card-header">Upload Proposal</div>
+                    <div class="card-body">
+                        <form asp-controller="StudentThesis" asp-action="Create" enctype="multipart/form-data" method="post">
+                            <div class="mb-3">
+                                <label asp-for="ThesisUpload.Title" class="form-label"></label>
+                                <input asp-for="ThesisUpload.Title" class="form-control" />
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="ThesisUpload.Abstract" class="form-label"></label>
+                                <textarea asp-for="ThesisUpload.Abstract" class="form-control"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="ThesisUpload.DepartmentId" class="form-label"></label>
+                                <select asp-for="ThesisUpload.DepartmentId" asp-items="Model.ThesisUpload.Departments" class="form-select"></select>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="ThesisUpload.TeacherProfileId" class="form-label">Supervisor</label>
+                                <select asp-for="ThesisUpload.TeacherProfileId" asp-items="Model.ThesisUpload.Supervisors" class="form-select"></select>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="ThesisUpload.File" class="form-label"></label>
+                                <input asp-for="ThesisUpload.File" class="form-control" />
+                            </div>
+                            <div class="form-check mb-3">
+                                <input asp-for="ThesisUpload.IsDeclared" class="form-check-input" />
+                                <label asp-for="ThesisUpload.IsDeclared" class="form-check-label"></label>
+                            </div>
+                            <input type="hidden" name="submit" value="submit" />
+                            <button type="submit" class="btn btn-primary">Upload</button>
+                        </form>
+                    </div>
+                </div>
+            }
+        }
+        else if (Model.TeacherProfile != null)
+        {
+            <h2 class="mb-4">Teacher Dashboard</h2>
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">@Model.TeacherProfile.FullName</h5>
+                    <p class="card-text">@Model.TeacherProfile.Department</p>
+                    <p class="card-text">Ongoing Thesis: @Model.TeacherProfile.OngoingThesisCount</p>
+                    <p class="card-text">Completed Thesis: @Model.TeacherProfile.CompletedThesisCount</p>
+                </div>
+            </div>
+        }
+
+        <div class="row">
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h3 class="h5">Collaborate</h3>
+                        <ul class="list-unstyled mb-0">
+                            @foreach (var link in Model.CollaborationLinks)
+                            {
+                                <li><a href="@link.Url" target="_blank">@link.Title</a></li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h3 class="h5">Stay Organized</h3>
+                        <ul class="list-unstyled mb-0">
+                            @foreach (var task in Model.Tasks)
+                            {
+                                <li>@task</li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+else
+{
+    <section class="py-5 text-center bg-light text-dark rounded-3 mb-5">
+        <div class="container">
+            <h1 class="display-4 fw-bold mb-3">Welcome to ThesisNest</h1>
+            <p class="lead mb-4">
+                Manage thesis proposals, collaborate with advisers and stay on track
+                throughout your research journey.
+            </p>
+            <a asp-controller="Account" asp-action="Login" class="btn btn-primary btn-lg me-2">Sign in</a>
+            <a asp-controller="Account" asp-action="Register" class="btn btn-outline-secondary btn-lg" style="color: black;">Register</a>
+
+        </div>
+    </section>
+    <section class="container mb-5">
+        <div class="row g-4">
+            <div class="col-md-4 text-center">
+                <i class="bi bi-cloud-upload display-4 text-primary mb-3"></i>
+                <h2 class="h5">Upload Proposals</h2>
+                <p>Submit your thesis proposals and track their review status in real time.</p>
+            </div>
+            <div class="col-md-4 text-center">
+                <i class="bi bi-chat-dots display-4 text-primary mb-3"></i>
+                <h2 class="h5">Collaborate</h2>
+                <p>Receive feedback from advisers and discuss revisions with ease.</p>
+            </div>
+            <div class="col-md-4 text-center">
+                <i class="bi bi-bar-chart display-4 text-primary mb-3"></i>
+                <h2 class="h5">Stay Organized</h2>
+                <p>Keep all documents in one place and never miss important deadlines.</p>
+            </div>
+        </div>
+    </section>
+}

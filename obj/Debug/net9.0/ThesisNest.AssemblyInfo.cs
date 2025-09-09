@@ -16,7 +16,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ThesisNest")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+07c02e250e5602e52bbe369c6af38f954df081b0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+453af35bd0ff09e05b164b128ace6244c3c55aae")]
 [assembly: System.Reflection.AssemblyProductAttribute("ThesisNest")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ThesisNest")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
