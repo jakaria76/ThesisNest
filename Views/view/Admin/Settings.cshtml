@@ -1,0 +1,32 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "System Settings";
+}
+
+<h2>System Settings</h2>
+
+<table class="table table-bordered mt-3">
+    <thead>
+        <tr>
+            <th>Setting Name</th>
+            <th>Value</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var s in Model)
+        {
+            <tr>
+                <td>@s.Name</td>
+                <td>
+                    <form asp-action="UpdateSetting" method="post" class="d-flex">
+                        <input type="hidden" name="id" value="@s.Id" />
+                        <input type="text" name="value" value="@s.Value" class="form-control me-2" />
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,59 @@
+﻿@model IEnumerable<ThesisNest.Models.StudentProfile>
+@{
+    ViewData["Title"] = "Student Management";
+}
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h2>Student Management</h2>
+    <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add Student</a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-warning">No students found.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Dept</th>
+                    <th>StudentId</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var s in Model)
+                {
+                    <tr>
+                        <td>@s.Id</td>
+                        <td>@s.FullName</td>
+                        <td>@s.Email</td>
+                        <td>@s.PhoneNumber</td>
+                        <td>@s.Department</td>
+                        <td>@s.StudentId</td>
+                        <td class="text-end">
+                            <a asp-action="Edit" asp-route-id="@s.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+
+                            <form asp-action="Delete" asp-route-id="@s.Id" method="post" class="d-inline"
+                                  onsubmit="return confirm('Delete STUDENT PROFILE (not user)?');">
+                                @Html.AntiForgeryToken()
+                                <button class="btn btn-sm btn-outline-danger">Delete</button>
+                            </form>
+
+                            <form asp-action="DeleteAccount" asp-route-id="@s.Id" method="post" class="d-inline"
+                                  onsubmit="return confirm('Delete STUDENT USER ACCOUNT? This is permanent.');">
+                                @Html.AntiForgeryToken()
+                                <button class="btn btn-sm btn-danger"><i class="bi bi-person-x"></i> Delete Account</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

@@ -1,0 +1,57 @@
+﻿@model IEnumerable<ThesisNest.Models.TeacherProfile>
+@{
+    ViewData["Title"] = "Teacher Management";
+}
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h2>Teacher Management</h2>
+    <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add Teacher</a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-warning">No teachers found.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Dept</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var t in Model)
+                {
+                    <tr>
+                        <td>@t.Id</td>
+                        <td>@t.FullName</td>
+                        <td>@t.Email</td>
+                        <td>@t.Phone</td>
+                        <td>@t.Department</td>
+                        <td class="text-end">
+                            <a asp-action="Edit" asp-route-id="@t.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+
+                            <form asp-action="Delete" asp-route-id="@t.Id" method="post" class="d-inline"
+                                  onsubmit="return confirm('Delete TEACHER PROFILE (not user)?');">
+                                @Html.AntiForgeryToken()
+                                <button class="btn btn-sm btn-outline-danger">Delete</button>
+                            </form>
+
+                            <form asp-action="DeleteAccount" asp-route-id="@t.Id" method="post" class="d-inline"
+                                  onsubmit="return confirm('Delete TEACHER USER ACCOUNT? This is permanent.');">
+                                @Html.AntiForgeryToken()
+                                <button class="btn btn-sm btn-danger"><i class="bi bi-person-x"></i> Delete Account</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

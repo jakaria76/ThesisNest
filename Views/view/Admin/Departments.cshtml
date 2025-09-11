@@ -1,0 +1,31 @@
+﻿@model IEnumerable<ThesisNest.Models.Department>
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Departments";
+}
+
+<h2>Departments</h2>
+<a class="btn btn-success" asp-action="AddDepartment">➕ Add Department</a>
+
+<table class="table table-striped mt-3">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Department Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var dept in Model)
+        {
+            <tr>
+                <td>@dept.Id</td>
+                <td>@dept.Name</td>
+                <td>
+                    <a class="btn btn-primary btn-sm" asp-action="EditDepartment" asp-route-id="@dept.Id">Edit</a>
+                    <a class="btn btn-danger btn-sm" asp-action="DeleteDepartment" asp-route-id="@dept.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

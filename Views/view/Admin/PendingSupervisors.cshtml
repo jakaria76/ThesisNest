@@ -1,0 +1,40 @@
+﻿@* @model IEnumerable<ThesisNest.Models.User>
+
+@{
+    ViewData["Title"] = "Pending Supervisors";
+}
+
+<div class="container mt-5">
+    <h2>Pending Supervisors</h2>
+
+    @if (!Model.Any())
+    {
+        <p>No supervisors pending approval.</p>
+    }
+    else
+    {
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var sup in Model)
+                {
+                    <tr>
+                        <td>@sup.FullName</td>
+                        <td>@sup.Email</td>
+                        <td>
+                            <a asp-controller="Admin" asp-action="Approve" asp-route-id="@sup.Id" class="btn btn-success btn-sm">Approve</a>
+                            <a asp-controller="Admin" asp-action="Reject" asp-route-id="@sup.Id" class="btn btn-danger btn-sm">Reject</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+ *@
