@@ -1,0 +1,103 @@
+﻿@model IEnumerable<ThesisNest.Models.ThesisVersion>
+@{
+    ViewData["Title"] = "Proposal Manage";
+    var page = (int)(ViewBag.Page ?? 1);
+    var pageSize = (int)(ViewBag.PageSize ?? 20);
+    var total = (int)(ViewBag.Total ?? 0);
+    var totalPages = (int)Math.Ceiling(total / (double)pageSize);
+    var departments = ViewBag.Departments as List<ThesisNest.Models.Department> ?? new();
+    string q = Context.Request.Query["q"];
+    string deptId = Context.Request.Query["deptId"];
+}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <h2 class="m-0"><i class="bi bi-file-earmark-text"></i> Proposal Manage</h2>
+  <form method="get" class="d-flex align-items-center gap-2">
+    <input name="q" value="@q" class="form-control" placeholder="Search student / title / email" />
+    <select name="deptId" class="form-select" style="max-width:220px">
+      <option value="">All Departments</option>
+            @foreach (var d in departments)
+            {
+                var isSelected = (deptId == d.Id.ToString());
+                <option value="@d.Id" selected="@(isSelected ? "selected" : null)">
+                    @d.Name
+                </option>
+            }
+
+    </select>
+    <button class="btn btn-outline-primary"><i class="bi bi-search"></i> Filter</button>
+  </form>
+</div>
+
+@if (!Model.Any())
+{
+  <div class="alert alert-warning">No proposals found.</div>
+}
+else
+{
+  <div class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>Title</th>
+          <th>Student</th>
+          <th>Department</th>
+          <th>Version</th>
+          <th>File</th>
+          <th>Uploaded</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+      @foreach (var v in Model)
+      {
+        var t = v.Thesis;
+        <tr>
+          <td>@v.Id</td>
+          <td>@t?.Title</td>
+          <td>
+            @t?.Student?.FullName
+            <div class="text-muted small">@t?.Student?.Email</div>
+          </td>
+          <td>@t?.Department?.Name</td>
+          <td>@v.VersionNo</td>
+          <td>
+            <span class="badge bg-secondary">@System.IO.Path.GetExtension(v.FileName)</span>
+            <div class="small text-muted">@v.FileName</div>
+          </td>
+          <td class="text-nowrap">@v.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+          <td class="text-end">
+            <a asp-action="Preview" asp-route-versionId="@v.Id" class="btn btn-sm btn-outline-primary">
+              <i class="bi bi-eye"></i> Preview
+            </a>
+            <a asp-action="Download" asp-route-versionId="@v.Id" class="btn btn-sm btn-outline-success">
+              <i class="bi bi-download"></i> Download
+            </a>
+          </td>
+        </tr>
+      }
+      </tbody>
+    </table>
+  </div>
+
+  @if (totalPages > 1)
+  {
+    <nav class="mt-3">
+      <ul class="pagination">
+        <li class="page-item @(page == 1 ? "disabled" : "")">
+          <a class="page-link" href="?q=@q&deptId=@deptId&page=@(page-1)&pageSize=@pageSize">Prev</a>
+        </li>
+        @for (int p = 1; p <= totalPages; p++)
+        {
+          <li class="page-item @(p==page ? "active" : "")">
+            <a class="page-link" href="?q=@q&deptId=@deptId&page=@p&pageSize=@pageSize">@p</a>
+          </li>
+        }
+        <li class="page-item @(page == totalPages ? "disabled" : "")">
+          <a class="page-link" href="?q=@q&deptId=@deptId&page=@(page+1)&pageSize=@pageSize">Next</a>
+        </li>
+      </ul>
+    </nav>
+  }
+}
