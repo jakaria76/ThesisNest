@@ -100,6 +100,38 @@
               </a>
           }
 
+           @if (isAdmin)
+            {
+                <div class="tn-section mt-3">Admin</div>
+
+                        <a class="tn-link @(currentPath.Contains("/adminteacher") ? "active" : "")"
+                           asp-controller="AdminTeacher" asp-action="Index" title="Teacher Management" data-bs-toggle="tooltip">
+                            <i class="bi bi-people"></i><span>Teacher Management</span>
+                        </a>
+
+                        <a class="tn-link @(currentPath.Contains("/adminstudent") ? "active" : "")"
+                           asp-controller="AdminStudent" asp-action="Index" title="Student Management" data-bs-toggle="tooltip">
+                            <i class="bi bi-person-badge"></i><span>Student Management</span>
+                        </a>
+             }
+
+                    @if (isAdmin)
+                    {
+                        <div class="tn-section mt-3">Admin</div>
+
+                        <a class="tn-link @(currentPath.Contains("/adminproposal") ? "active" : "")"
+                           asp-controller="AdminProposal" asp-action="Index" title="Proposal Manage" data-bs-toggle="tooltip">
+                            <i class="bi bi-file-earmark-text"></i><span>Proposal Manage</span>
+                        </a>
+
+                       
+                    }
+
+
+}
+
+
+
           @if (isTeacher)
           {
               <a class="tn-link @(currentPath.Contains("/plagiarism") ? "active" : "")"
