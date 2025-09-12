@@ -1,86 +1,171 @@
-//using Microsoft.AspNetCore.Authorization;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
+using Microsoft.Extensions.Logging;
 using ThesisNest.Data;
 using ThesisNest.Models;
-using ThesisNest.Models.ViewModels;
-using ThesisNest.ViewModels;
+using ThesisNest.Models.ViewModels.Home;
 
 namespace ThesisNest.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ApplicationDbContext _db;
+        private readonly UserManager<ApplicationUser> _um;
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public HomeController(
+            ILogger<HomeController> logger,
+            ApplicationDbContext db,
+            UserManager<ApplicationUser> um)
         {
             _logger = logger;
-            _context = context;
-            _userManager = userManager;
+            _db = db;
+            _um = um;
         }
 
+        // =========================
+        // Role-aware Home (uses HomeVm)
+        // =========================
         public async Task<IActionResult> Index()
         {
-            var vm = new DashboardViewModel();
+            var vm = new HomeVm();
+            var user = await _um.GetUserAsync(User);
+            vm.UserFullName = user?.FullName ?? user?.UserName;
 
-            if (User.Identity?.IsAuthenticated ?? false)
+            if (user == null)
             {
-                var user = await _userManager.GetUserAsync(User);
-                if (user != null)
+                vm.Notices = GetPublicNotices();
+                vm.Deadlines = GetPublicDeadlines();
+                return View(vm);
+            }
+
+            var roles = await _um.GetRolesAsync(user);
+            bool isAdmin = roles.Contains("Admin");
+            bool isTeacher = roles.Contains("Teacher");
+            bool isStudent = roles.Contains("Student");
+
+            vm.Role = isAdmin ? "Admin" : isTeacher ? "Teacher" : isStudent ? "Student" : "User";
+            vm.Notices = GetNoticesForAll();
+            vm.Deadlines = GetDeadlinesForAll();
+
+            // ----- Student block -----
+            if (isStudent)
+            {
+                var sp = await _db.StudentProfiles.AsNoTracking()
+                    .FirstOrDefaultAsync(s => s.UserId == user.Id);
+                vm.StudentProfileId = sp?.Id;
+
+                if (sp != null)
                 {
-                    if (await _userManager.IsInRoleAsync(user, "Student"))
-                    {
-                        vm.StudentProfile = await _context.StudentProfiles.AsNoTracking()
-                            .FirstOrDefaultAsync(p => p.UserId == user.Id);
+                    vm.MyTotalSubmissions = await _db.ThesisVersions
+                        .CountAsync(v => v.Thesis.StudentProfileId == sp.Id);
 
-                        vm.ThesisUpload = new ThesisCreateVm
-                        {
-                            Departments = await _context.Departments.AsNoTracking()
-                                .Select(d => new SelectListItem { Value = d.Id.ToString(), Text = d.Name }).ToListAsync(),
-                            Supervisors = await _context.TeacherProfiles.AsNoTracking()
-                                .Select(t => new SelectListItem { Value = t.Id.ToString(), Text = t.FullName }).ToListAsync(),
-                            IsDeclared = true
-                        };
+                    var myThesis = await _db.Theses
+                        .Include(t => t.Feedbacks)
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(t => t.StudentProfileId == sp.Id);
 
-                        vm.Tasks.Add("Submit draft proposal");
-                        vm.Tasks.Add("Meet with supervisor");
-                    }
-                    else if (await _userManager.IsInRoleAsync(user, "Teacher"))
-                    {
-                        vm.TeacherProfile = await _context.TeacherProfiles.AsNoTracking()
-                            .Include(t => t.Theses)
-                            .FirstOrDefaultAsync(t => t.UserId == user.Id);
+                    vm.MyProposalStatus = myThesis?.Status.ToString();
+                    vm.MyFeedbackCount = myThesis?.Feedbacks?.Count ?? 0;
 
-                        vm.Tasks.Add("Review student proposals");
-                        vm.Tasks.Add("Update research blog");
-                    }
+                    vm.MyRecentActivities = await _db.ThesisFeedbacks
+                        .Where(f => f.Thesis.StudentProfileId == sp.Id)
+                        .OrderByDescending(f => f.CreatedAt).Take(5)
+                        .Select(f => new ActivityItem(
+                            "New feedback",
+                            f.Message,
+                            f.CreatedAt,
+                            Url.Action("Index", "StudentThesis")
+                        )).ToListAsync();
                 }
             }
 
-            vm.CollaborationLinks.AddRange(new[]
+            // ----- Teacher block -----
+            if (isTeacher)
             {
-                new DashboardLink { Title = "GOOGLE SCHOLAR", Url = "https://scholar.google.com/" },
-                new DashboardLink { Title = "READ a PAPER", Url = "https://dspace.mit.edu/bitstream/handle/1721.1/120609/1088413444-MIT.pdf" }
-            });
+                var tpId = await _db.TeacherProfiles
+                    .Where(t => t.UserId == user.Id)
+                    .Select(t => (int?)t.Id).FirstOrDefaultAsync();
+                vm.TeacherProfileId = tpId;
+
+                if (tpId != null)
+                {
+                    vm.PendingReviews = await _db.Theses
+                        .CountAsync(t => t.TeacherProfileId == tpId && t.Status == ThesisStatus.Pending);
+
+                    vm.OngoingCount = await _db.Theses
+                        .CountAsync(t => t.TeacherProfileId == tpId && t.Status == ThesisStatus.Pending);
+
+                    vm.CompletedCount = await _db.Theses
+                        .CountAsync(t => t.TeacherProfileId == tpId && t.Status == ThesisStatus.Accept);
+
+                    vm.TeacherRecent = await _db.ThesisVersions
+                        .Where(v => v.Thesis.TeacherProfileId == tpId)
+                        .OrderByDescending(v => v.Id).Take(5)
+                        .Select(v => new ActivityItem(
+                            "New submission",
+                            v.FileName,
+                            v.CreatedAt,
+                            Url.Action("Index", "ThesisReview")
+                        )).ToListAsync();
+                }
+            }
+
+            // ----- Admin block -----
+            if (isAdmin)
+            {
+                vm.TotalStudents = await _db.StudentProfiles.CountAsync();
+                vm.TotalTeachers = await _db.TeacherProfiles.CountAsync();
+
+                var weekAgo = DateTime.UtcNow.AddDays(-7);
+                vm.ProposalsThisWeek = await _db.ThesisVersions.CountAsync(v => v.CreatedAt >= weekAgo);
+
+                vm.SiteRecent = await _db.ThesisVersions
+                    .OrderByDescending(v => v.Id).Take(7)
+                    .Select(v => new ActivityItem(
+                        "Uploaded proposal",
+                        v.FileName,
+                        v.CreatedAt,
+                        Url.Action("Index", "AdminProposal")
+                    )).ToListAsync();
+            }
 
             return View(vm);
         }
+
+        // =========================
+        // Privacy (Admin/Teacher only)
+        // =========================
         [Authorize(Roles = "Admin,Teacher")]
         public IActionResult Privacy()
         {
             return View();
         }
 
+        // =========================
+        // Error
+        // =========================
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
+        // ===== Notices/Deadlines helpers (replace with DB later) =====
+        private List<NoticeItem> GetPublicNotices() => new()
+        {
+            new("Welcome to ThesisNest", Url.Action("Login","Account"), null)
+        };
+        private List<NoticeItem> GetNoticesForAll() => GetPublicNotices();
+
+        private List<DeadlineItem> GetPublicDeadlines() => new();
+        private List<DeadlineItem> GetDeadlinesForAll() => new();
     }
 }
