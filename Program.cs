@@ -1,16 +1,19 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿// Program.cs
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
 
 using ThesisNest.Data;
+using ThesisNest.Hubs;
 using ThesisNest.Models;
-using ThesisNest.Services; // Plagiarism services
+using ThesisNest.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +23,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddUserSecrets<Program>(optional: true);
 
 // ------------------------
-// 2) Db Provider Selection (SQL Server if available; else SQLite)
+// 2) Db Provider Selection
 // ------------------------
 string? sqlServerConn = builder.Configuration.GetConnectionString("DefaultConnection");
 bool useSqlServer = !string.IsNullOrWhiteSpace(sqlServerConn);
@@ -28,15 +31,9 @@ bool useSqlServer = !string.IsNullOrWhiteSpace(sqlServerConn);
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     if (useSqlServer)
-    {
         options.UseSqlServer(sqlServerConn!);
-    }
     else
-    {
-        // Local dev fallback
-        options.UseSqlite(builder.Configuration.GetConnectionString("SqliteConnection")
-                         ?? "Data Source=thesisnest.db");
-    }
+        options.UseSqlite(builder.Configuration.GetConnectionString("SqliteConnection") ?? "Data Source=thesisnest.db");
 });
 
 // ------------------------
@@ -46,13 +43,11 @@ builder.Services
     .AddDefaultIdentity<ApplicationUser>(options =>
     {
         options.SignIn.RequireConfirmedAccount = false;
-
         options.Password.RequireDigit = false;
         options.Password.RequireLowercase = false;
         options.Password.RequireUppercase = false;
         options.Password.RequireNonAlphanumeric = false;
         options.Password.RequiredLength = 6;
-
         options.User.RequireUniqueEmail = true;
     })
     .AddRoles<IdentityRole>()
@@ -74,13 +69,12 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 builder.Services.ConfigureExternalCookie(options =>
 {
-    // External providers need cross-site cookies
     options.Cookie.SameSite = SameSiteMode.None;
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 });
 
 // ------------------------
-// 5) Authentication Providers (Google + GitHub)
+// 5) External Auth (Google + GitHub) – optional
 // ------------------------
 builder.Services
     .AddAuthentication()
@@ -124,9 +118,7 @@ builder.Services
                 using var userJson = JsonDocument.Parse(await userRes.Content.ReadAsStringAsync());
                 context.RunClaimActions(userJson.RootElement);
 
-                // Fallback: fetch primary verified email if not present
-                var hasEmail = context.Identity!.HasClaim(c => c.Type == ClaimTypes.Email);
-                if (!hasEmail)
+                if (!context.Identity!.HasClaim(c => c.Type == ClaimTypes.Email))
                 {
                     using var emailsReq = new HttpRequestMessage(HttpMethod.Get, "https://api.github.com/user/emails");
                     emailsReq.Headers.Authorization = new AuthenticationHeaderValue("Bearer", context.AccessToken);
@@ -159,44 +151,84 @@ builder.Services.Configure<GoogleMapsOptions>(builder.Configuration.GetSection("
 builder.Services.Configure<IceOptions>(builder.Configuration.GetSection("Ice"));
 
 // ------------------------
-// 7) MVC + Razor Pages
+// 7) MVC + Razor Pages (+ Controllers)
 // ------------------------
-builder.Services.AddControllersWithViews(options =>
+builder.Services.AddControllersWithViews(o =>
 {
-    options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
+    o.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
 });
 builder.Services.AddRazorPages();
 
-if (builder.Environment.IsDevelopment())
-{
-    builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-}
-
 // ------------------------
-// 8) Plagiarism Checker Services
+// 8) Misc Services (optional)
 // ------------------------
 builder.Services.AddScoped<IFileTextExtractor, FileTextExtractor>();
 builder.Services.AddSingleton<SimilarityService>();
-
 builder.Services.AddHttpClient();
 builder.Services.AddTransient<GoogleSearchService>(sp =>
 {
     var http = sp.GetRequiredService<IHttpClientFactory>().CreateClient();
     var cfg = sp.GetRequiredService<IConfiguration>();
-    var apiKey = cfg["GoogleCustomSearch:ApiKey"];
-    var cx = cfg["GoogleCustomSearch:Cx"];
-    return new GoogleSearchService(http, apiKey, cx);
+    return new GoogleSearchService(http, cfg["GoogleCustomSearch:ApiKey"], cfg["GoogleCustomSearch:Cx"]);
 });
 
 // ------------------------
-// 9) Real-time: SignalR
+// 9) SignalR
 // ------------------------
 builder.Services.AddSignalR();
 
+// ------------------------
+// 10) CORS (wide open dev policy)
+// ------------------------
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", p => p
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials()
+        .SetIsOriginAllowed(_ => true));
+});
+
+// ------------------------
+// 11) Hugging Face HttpClient
+// ------------------------
+builder.Services.AddHttpClient("HuggingFace", (sp, client) =>
+{
+    var cfg = sp.GetRequiredService<IConfiguration>();
+    var token = cfg["HuggingFace:ApiToken"];
+    client.BaseAddress = new Uri("https://api-inference.huggingface.co/");
+    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+    if (!string.IsNullOrWhiteSpace(token))
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+});
+
+
+builder.Services.AddSingleton<BackgroundOpenAIQueue>();
+builder.Services.AddHostedService<OpenAIWorker>();
+
+// ------------------------
+// 12) Groq HttpClient
+// ------------------------
+builder.Services.AddHttpClient("Groq", (sp, client) =>
+{
+    var cfg = sp.GetRequiredService<IConfiguration>();
+    var token = cfg["Groq:ApiKey"];
+    client.BaseAddress = new Uri("https://api.groq.com/openai/v1/");
+    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+    if (!string.IsNullOrWhiteSpace(token))
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+});
+
+builder.Services.AddScoped<GroqService>();
+
+// ------------------------
+// 13) Build app
+// ------------------------
 var app = builder.Build();
 
 // ------------------------
-// 10) Middleware
+// 14) Middleware
 // ------------------------
 if (!app.Environment.IsDevelopment())
 {
@@ -206,7 +238,7 @@ if (!app.Environment.IsDevelopment())
 else
 {
     app.UseDeveloperExceptionPage();
-    app.UseMigrationsEndPoint(); // nice EF error page
+    app.UseMigrationsEndPoint();
 }
 
 app.UseHttpsRedirection();
@@ -219,12 +251,14 @@ app.UseCookiePolicy(new CookiePolicyOptions
 });
 
 app.UseRouting();
+app.UseCors("AllowAll");
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseStatusCodePages();
 
 // ------------------------
-// 11) Database Migration + Seed (with clear diagnostics)
+// 15) Database Migration + Seed
 // ------------------------
 using (var scope = app.Services.CreateScope())
 {
@@ -251,14 +285,17 @@ using (var scope = app.Services.CreateScope())
         Console.WriteLine($"[DB-INIT-ERROR] Provider={provider}");
         Console.WriteLine($"[DB-INIT-ERROR] DefaultConnection={(sqlServerConn ?? "(null)")} ");
         Console.WriteLine(ex);
-        throw; // keep behavior: fail fast so misconfig isn’t silent
+        throw;
     }
 }
 
 // ------------------------
-// 12) Endpoints (MapHub + Minimal API)
+// 16) Endpoints
 // ------------------------
+app.MapControllers(); // Controllers (e.g., DiagController)
+
 app.MapHub<ThesisNest.Hubs.CommunicationHub>("/hubs/comm");
+app.MapHub<ChatHub>("/chathub");
 
 app.MapControllerRoute(
     name: "areas",
@@ -270,8 +307,7 @@ app.MapControllerRoute(
 
 app.MapRazorPages();
 
-// 🔹 Minimal API: serve ICE servers to comm.js
-//    If you want to protect it, add .RequireAuthorization()
+// Optional: ICE config endpoint
 app.MapGet("/rtc/ice", (IOptions<IceOptions> opt) =>
 {
     var ice = opt.Value?.IceServers ?? new List<IceServer>();
@@ -281,7 +317,7 @@ app.MapGet("/rtc/ice", (IOptions<IceOptions> opt) =>
 app.Run();
 
 // ------------------------
-// Options classes
+// Option Classes
 // ------------------------
 public sealed class GoogleMapsOptions
 {
@@ -295,7 +331,7 @@ public sealed class IceOptions
 
 public sealed class IceServer
 {
-    public List<string> Urls { get; set; } = new(); // e.g. ["stun:stun.l.google.com:19302", "turn:turn.example.com:3478"]
+    public List<string> Urls { get; set; } = new();
     public string? Username { get; set; }
     public string? Credential { get; set; }
 }

@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using ThesisNest.Models;
-// ⚠️ Twilio টাইপ কনফ্লিক্ট এড়াতে এটা ব্যবহার করবেন না:
-// using Twilio.TwiML.Messaging;
 
 namespace ThesisNest.Data
 {
@@ -31,9 +29,11 @@ namespace ThesisNest.Data
 
         // ========= COMMUNICATION =========
         public DbSet<CommunicationThread> CommunicationThreads { get; set; } = default!;
-        // Fully-qualify to avoid any ambiguity (e.g., Twilio):
-        public DbSet<ThesisNest.Models.Message> Messages { get; set; } = default!;
+        public DbSet<Message> Messages { get; set; } = default!;
         public DbSet<CallSession> CallSessions { get; set; } = default!;
+
+        // ========= CHAT =========
+        public DbSet<ChatMessage> ChatMessages { get; set; } = default!;
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -142,7 +142,7 @@ namespace ThesisNest.Data
             // ===== ThesisFeedback =====
             builder.Entity<ThesisFeedback>(e =>
             {
-                e.HasIndex(f => new { f.ThesisId, f.CreatedAt });   // তালিকা দেখাতে সুবিধা
+                e.HasIndex(f => new { f.ThesisId, f.CreatedAt });
                 e.Property(f => f.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
                 e.HasOne(f => f.Thesis)
                  .WithMany(t => t.Feedbacks)
@@ -151,8 +151,6 @@ namespace ThesisNest.Data
             });
 
             // ========= COMMUNICATION =========
-
-            // ----- CommunicationThread -----
             builder.Entity<CommunicationThread>(e =>
             {
                 e.HasIndex(t => new { t.TeacherProfileId, t.StudentProfileId }).IsUnique();
@@ -169,8 +167,7 @@ namespace ThesisNest.Data
                  .OnDelete(DeleteBehavior.Restrict);
             });
 
-            // ----- Message (fully-qualified) -----
-            builder.Entity<ThesisNest.Models.Message>(e =>
+            builder.Entity<Message>(e =>
             {
                 e.ToTable("Messages");
                 e.HasIndex(m => new { m.ThreadId, m.SentAt });
@@ -183,7 +180,6 @@ namespace ThesisNest.Data
                  .OnDelete(DeleteBehavior.Cascade);
             });
 
-            // ----- CallSession -----
             builder.Entity<CallSession>(e =>
             {
                 e.HasIndex(c => new { c.ThreadId, c.StartedAt });
@@ -192,6 +188,24 @@ namespace ThesisNest.Data
                  .WithMany(t => t.Calls)
                  .HasForeignKey(c => c.ThreadId)
                  .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // ===== ChatMessage =====
+            builder.Entity<ChatMessage>(e =>
+            {
+                e.Property(c => c.Message)
+                    .HasMaxLength(4000)
+                    .IsRequired();
+
+                e.Property(c => c.Timestamp)
+                    .HasDefaultValueSql("GETUTCDATE()");
+
+                e.Property(c => c.User)
+                    .HasMaxLength(255)
+                    .IsRequired();
+
+                e.Property(c => c.FromBot)
+                    .HasDefaultValue(false);
             });
         }
     }

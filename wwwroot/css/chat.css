@@ -1,0 +1,212 @@
+﻿/* THEME (auto via html[data-theme]) */
+:root {
+    --chat-surface: #ffffff;
+    --chat-surface-2: #f8f9fa;
+    --chat-text: #212529;
+    --chat-border: #dee2e6;
+    --chat-left-bg: #ffffff;
+    --chat-scroll-thumb: #adb5bd;
+    --chat-scroll-thumb-hover: #6c757d;
+}
+
+html[data-theme="dark"] {
+    --chat-surface: #0f1420;
+    --chat-surface-2: #151b2c;
+    --chat-text: #e6e8ee;
+    --chat-border: #2c3446;
+    --chat-left-bg: #0b1020;
+    --chat-scroll-thumb: #3a435a;
+    --chat-scroll-thumb-hover: #536081;
+}
+
+.chat-shell {
+    border-radius: 1rem;
+    overflow: hidden;
+    background: var(--chat-surface);
+}
+
+    .chat-shell .card-header, .chat-shell .card-footer {
+        background: var(--chat-surface);
+        border-color: var(--chat-border);
+    }
+
+/* Body area keeps fixed height; only messages scroll */
+.chat-body {
+    min-height: 60vh;
+    max-height: 75vh;
+}
+
+.chat-right {
+    min-height: 0;
+    display: flex;
+}
+
+/* Conversations */
+.chat-left {
+    flex: 0 0 280px;
+    max-width: 320px;
+    min-height: 0;
+    max-height: 70vh;
+    overflow: auto;
+    background: var(--chat-left-bg);
+    border: 1px solid var(--chat-border);
+    border-radius: .75rem;
+    padding: 1rem;
+}
+
+/* Offcanvas on mobile */
+@media (max-width: 767.98px) {
+    .chat-left {
+        position: fixed;
+        left: .75rem;
+        top: 5.25rem;
+        bottom: .75rem;
+        width: min(85vw,360px);
+        z-index: 2001;
+        transform: translateX(-120%);
+        transition: transform .25s ease;
+        box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+
+        .chat-left.open {
+            transform: translateX(0);
+        }
+
+    .chat-mask {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,.35);
+        display: none;
+        z-index: 2000;
+    }
+
+        .chat-mask.show {
+            display: block;
+        }
+}
+
+/* Messages panel: content anchored to bottom */
+.chat-messages {
+    display: flex;
+    flex-direction: column; /* normal flow, no justify-end */
+    background: var(--chat-surface-2);
+    color: var(--chat-text);
+    border: 1px solid var(--chat-border);
+    border-radius: .75rem;
+    padding: 1rem 1rem .75rem;
+    height: 100%;
+    min-height: 0;
+    max-height: calc(75vh - 86px); /* চাইলে 65vh করতে পারো */
+    overflow: auto;
+    overscroll-behavior: contain; /* mobile bounce কমে */
+}
+
+
+/* Composer stays fixed within chat-right */
+.chat-composer {
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    background: var(--chat-surface);
+    border-top: 1px solid var(--chat-border);
+    padding-top: .5rem;
+    margin-top: .5rem;
+    display: flex;
+    gap: .5rem;
+}
+
+/* Conversations list items */
+.conversation {
+    padding: .5rem .75rem;
+    border: 1px solid var(--chat-border);
+    border-radius: .5rem;
+    background: transparent;
+    color: var(--chat-text);
+    transition: .2s;
+    cursor: pointer;
+}
+
+    .conversation + .conversation {
+        margin-top: .5rem;
+    }
+
+    .conversation:hover {
+        background: var(--bs-primary-bg-subtle);
+    }
+
+    .conversation.active {
+        background: var(--bs-primary);
+        color: #fff;
+        border-color: var(--bs-primary);
+    }
+
+/* Scrollbars */
+.chat-left::-webkit-scrollbar, .chat-messages::-webkit-scrollbar {
+    width: 8px;
+}
+
+.chat-left::-webkit-scrollbar-thumb, .chat-messages::-webkit-scrollbar-thumb {
+    background: var(--chat-scroll-thumb);
+    border-radius: 4px;
+}
+
+    .chat-left::-webkit-scrollbar-thumb:hover, .chat-messages::-webkit-scrollbar-thumb:hover {
+        background: var(--chat-scroll-thumb-hover);
+    }
+
+/* ===== User (right) vs Bot (left) ===== */
+#messages > .message {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: .75rem;
+}
+
+    #messages > .message.user {
+        align-items: flex-end;
+    }
+
+    #messages > .message .message-header {
+        font-size: .875rem;
+        opacity: .75;
+    }
+
+    #messages > .message.user .message-header {
+        align-self: flex-end;
+        text-align: right;
+    }
+
+    #messages > .message.bot .message-header {
+        align-self: flex-start;
+        text-align: left;
+    }
+
+    #messages > .message .message-body {
+        max-width: min(80%, 640px);
+        padding: .6rem .8rem;
+        border: 1px solid var(--chat-border);
+        background: var(--chat-surface);
+        color: var(--chat-text);
+        border-radius: .75rem;
+        line-height: 1.35;
+        word-wrap: break-word;
+        word-break: break-word;
+    }
+
+    #messages > .message.user .message-body {
+        align-self: flex-end;
+        background: var(--bs-primary);
+        border-color: var(--bs-primary);
+        color: #fff;
+        border-bottom-right-radius: .2rem;
+    }
+
+    #messages > .message.bot .message-body {
+        align-self: flex-start;
+        background: var(--chat-surface-2);
+        border-bottom-left-radius: .2rem;
+    }
+
+    #messages > .message.message-failed .message-body {
+        outline: 2px dashed #dc3545;
+    }
