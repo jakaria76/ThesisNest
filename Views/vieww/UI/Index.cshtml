@@ -1,0 +1,71 @@
+﻿@model IEnumerable<ThesisNest.Models.modell.UIModel>
+@{
+    ViewData["Title"] = "Users";
+}
+
+<h1 class="mb-4">User List</h1>
+
+<form class="mb-3" method="get" asp-action="Index">
+    <div class="input-group">
+        <input type="text" name="searchString" value="@ViewBag.SearchString" class="form-control" placeholder="Search by Name or Email" />
+        <button class="btn btn-primary" type="submit">Search</button>
+    </div>
+</form>
+
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Profile</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.Id</td>
+                <td>
+                    @if (!string.IsNullOrEmpty(user.ProfilePicture))
+                    {
+                        <img src="@user.ProfilePicture" width="50" class="rounded-circle" />
+                    }
+                </td>
+                <td>@user.Name</td>
+                <td>@user.Email</td>
+                <td>@user.Role</td>
+                <td>
+                    <form asp-action="ToggleActive" method="post">
+                        <input type="hidden" name="id" value="@user.Id" />
+                        <button type="submit" class="btn btn-sm @(user.IsActive ? "btn-success" : "btn-secondary")">
+                            @(user.IsActive ? "Active" : "Inactive")
+                        </button>
+                    </form>
+                </td>
+                <td>
+                    <a class="btn btn-sm btn-info" asp-action="Details" asp-route-id="@user.Id">View</a>
+                    <a class="btn btn-sm btn-warning" asp-action="Edit" asp-route-id="@user.Id">Edit</a>
+                    <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@user.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<nav>
+    <ul class="pagination">
+        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+        {
+            <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                <a class="page-link" href="@Url.Action("Index", new { pageNumber = i, searchString = ViewBag.SearchString })">@i</a>
+            </li>
+        }
+    </ul>
+</nav>
+
+<a class="btn btn-primary mt-3" asp-action="Create">Add New User</a>
+<a class="btn btn-success mt-3" asp-action="ExportCsv">Export CSV</a>

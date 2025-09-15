@@ -34,6 +34,7 @@ namespace ThesisNest.Data
 
         // ========= CHAT =========
         public DbSet<ChatMessage> ChatMessages { get; set; } = default!;
+        public IEnumerable<object> UIModels { get; internal set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
