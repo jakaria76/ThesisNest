@@ -1,10 +1,10 @@
-﻿// wwwroot/js/chat.js
-(function () {
+﻿(function () {
     const connection = new signalR.HubConnectionBuilder()
         .withUrl("/chathub")
         .withAutomaticReconnect()
         .build();
 
+    // --- Elements ---
     const messagesEl = document.getElementById('messages');
     const typingEl = document.getElementById('typingIndicator');
     const nameInput = document.getElementById('userName');
@@ -16,7 +16,7 @@
     const nowIso = () => new Date().toISOString();
     const fmtTime = iso => new Date(iso).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 
-    // Safe linkifier
+    // --- Safe linkifier ---
     const urlRegex = /\b(https?:\/\/[^\s<>()]+[^\s<>().,!?)]|\bwww\.[^\s<>()]+)\b/g;
     function buildSafeNodes(text) {
         const out = []; let last = 0, m;
@@ -35,13 +35,16 @@
         return out;
     }
 
-    // keep scrolled to bottom (messages area anchored)
+    // --- UI helpers ---
     function scrollBottom() {
         requestAnimationFrame(() => { messagesEl.scrollTop = messagesEl.scrollHeight; });
     }
-    function setUiEnabled(v) { msgInput.disabled = !v; sendBtn.disabled = !v; if (v) msgInput.focus(); }
+    function setUiEnabled(v) {
+        if (msgInput) msgInput.disabled = !v;
+        if (sendBtn) sendBtn.disabled = !v;
+        if (v && msgInput) msgInput.focus();
+    }
 
-    // Add message (RIGHT = user, LEFT = bot)
     function addMessage({ user, message, time, isBot = false, optimisticId = null }) {
         const wrap = document.createElement('div');
         wrap.className = `message ${isBot ? 'bot' : 'user'} mb-3`;
@@ -54,10 +57,9 @@
         const body = document.createElement('div');
         body.className = 'message-body mt-1';
 
-        const lines = String(message).split(/\r?\n/);
-        lines.forEach((line, i) => {
+        String(message).split(/\r?\n/).forEach((line, i) => {
             buildSafeNodes(line).forEach(n => body.appendChild(n));
-            if (i < lines.length - 1) body.appendChild(document.createElement('br'));
+            if (i < message.split(/\r?\n/).length - 1) body.appendChild(document.createElement('br'));
         });
 
         wrap.appendChild(header);
@@ -75,7 +77,7 @@
         if (h) h.textContent += ' • failed to send';
     }
 
-    // SignalR events
+    // --- SignalR ---
     connection.on('ReceiveMessage', (user, message, time) => {
         const isBot = (user === 'Bot' || user === '🤖 Bot');
         addMessage({ user, message, time: time || nowIso(), isBot });
@@ -85,9 +87,9 @@
         typingEl.style.display = isTyping ? 'block' : 'none';
     });
 
-    connection.onreconnecting(() => { setUiEnabled(false); messagesEl.setAttribute('aria-busy', 'true'); });
-    connection.onreconnected(() => { setUiEnabled(true); messagesEl.removeAttribute('aria-busy'); typingEl.style.display = 'none'; });
-    connection.onclose(() => { setUiEnabled(false); messagesEl.removeAttribute('aria-busy'); typingEl.style.display = 'none'; setTimeout(start, 4000); });
+    connection.onreconnecting(() => { setUiEnabled(false); messagesEl?.setAttribute('aria-busy', 'true'); });
+    connection.onreconnected(() => { setUiEnabled(true); messagesEl?.removeAttribute('aria-busy'); typingEl.style.display = 'none'; });
+    connection.onclose(() => { setUiEnabled(false); messagesEl?.removeAttribute('aria-busy'); typingEl.style.display = 'none'; setTimeout(start, 4000); });
 
     async function start() {
         try {
@@ -102,12 +104,11 @@
     }
 
     async function sendCurrent() {
+        if (!msgInput) return;
         const text = msgInput.value.trim();
         if (!text) return;
         const name = (nameInput?.value?.trim()) || 'You';
         const optimisticId = `opt-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-
-        // optimistic user bubble (RIGHT)
         addMessage({ user: name, message: text, time: nowIso(), isBot: false, optimisticId });
 
         try {
@@ -127,8 +128,8 @@
     sendBtn?.addEventListener('click', sendCurrent);
     msgInput?.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendCurrent(); } });
 
-    // Emoji insert
-    emojiBtn?.addEventListener('click', () => {
+    // --- Emoji handling ---
+    emojiBtn?.addEventListener('click', (e) => {
         if (!emojiPicker) return;
         const visible = emojiPicker.style.display === 'block';
         emojiPicker.style.display = visible ? 'none' : 'block';
@@ -138,6 +139,7 @@
             emojiPicker.style.top = (r.bottom + window.scrollY + 6) + 'px';
             emojiPicker.style.left = (r.left + window.scrollX) + 'px';
         }
+        e.stopPropagation();
     });
     emojiPicker?.addEventListener('emoji-click', (e) => {
         const ch = e?.detail?.unicode || e?.detail?.emoji?.unicode || '';
@@ -146,6 +148,13 @@
         const t = msgInput.selectionEnd ?? msgInput.value.length;
         msgInput.setRangeText(ch, s, t, 'end');
         msgInput.focus();
+    });
+
+    // --- Click outside emoji closes it ---
+    document.addEventListener('click', (e) => {
+        if (!emojiPicker?.contains(e.target) && e.target !== emojiBtn) {
+            emojiPicker.style.display = 'none';
+        }
     });
 
     setUiEnabled(false);
