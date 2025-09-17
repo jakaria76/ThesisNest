@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ThesisNest.Data;
 using ThesisNest.Models;
+using ThesisNest.Models.ViewModels;
 
 namespace ThesisNest.Controllers
 {
@@ -13,7 +14,7 @@ namespace ThesisNest.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        private const long MaxPhotoBytes = 2 * 1024 * 1024;
+        private const long MaxPhotoBytes = 2 * 1024 * 1024; // 2MB
         private static readonly HashSet<string> AllowedContentTypes = new(StringComparer.OrdinalIgnoreCase)
         {
             "image/jpeg", "image/png", "image/webp"
@@ -25,7 +26,7 @@ namespace ThesisNest.Controllers
             _userManager = userManager;
         }
 
-        // ============== STUDENT PROFILE INDEX / VIEW ==============
+        // ================= INDEX / VIEW PROFILE =================
         public async Task<IActionResult> Index()
         {
             var currentUser = await _userManager.GetUserAsync(User);
@@ -39,7 +40,7 @@ namespace ThesisNest.Controllers
             return View(profile);
         }
 
-        // ============== CREATE ==============
+        // ================= CREATE =================
         [HttpGet]
         public async Task<IActionResult> Create()
         {
@@ -86,16 +87,14 @@ namespace ThesisNest.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // ============== EDIT ==============
+        // ================= EDIT =================
         [HttpGet]
         public async Task<IActionResult> Edit()
         {
             var currentUser = await _userManager.GetUserAsync(User);
             if (currentUser == null) return NotFound();
 
-            var profile = await _context.StudentProfiles
-                .FirstOrDefaultAsync(p => p.UserId == currentUser.Id);
-
+            var profile = await _context.StudentProfiles.FirstOrDefaultAsync(p => p.UserId == currentUser.Id);
             if (profile == null) return RedirectToAction(nameof(Create));
             return View(profile);
         }
@@ -116,34 +115,30 @@ namespace ThesisNest.Controllers
                 return View(model);
             }
 
-            // Update scalar fields
+            // Update fields
             profile.FullName = model.FullName;
-            profile.ProfilePictureUrl = model.ProfilePictureUrl;
             profile.DateOfBirth = model.DateOfBirth;
             profile.Gender = model.Gender;
             profile.PhoneNumber = model.PhoneNumber;
             profile.Email = model.Email;
             profile.Address = model.Address;
-
             profile.University = model.University;
             profile.Department = model.Department;
             profile.Semester = model.Semester;
             profile.StudentId = model.StudentId;
             profile.GPA = model.GPA;
-
             profile.ThesisTitle = model.ThesisTitle;
             profile.Supervisor = model.Supervisor;
             profile.ThesisStatus = model.ThesisStatus;
             profile.SubmissionDate = model.SubmissionDate;
             profile.Feedback = model.Feedback;
-
             profile.Skills = model.Skills;
             profile.Achievements = model.Achievements;
-
             profile.LinkedIn = model.LinkedIn;
             profile.GitHub = model.GitHub;
             profile.Portfolio = model.Portfolio;
 
+            // Handle photo
             if (removePhoto)
             {
                 profile.ProfileImage = null;
@@ -164,7 +159,7 @@ namespace ThesisNest.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // ============== DELETE ==============
+        // ================= DELETE =================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete()
@@ -186,25 +181,25 @@ namespace ThesisNest.Controllers
             return RedirectToAction(nameof(Create));
         }
 
-        // ============== PHOTO ==============
+        // ================= PHOTO =================
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> Photo(int id)
         {
-            var currentUser = await _userManager.GetUserAsync(User);
-            if (currentUser == null) return Unauthorized();
+            var profile = await _context.StudentProfiles.AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Id == id);
 
-            var profile = await _context.StudentProfiles.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
-            if (profile == null) return NotFound();
-
-            if (profile.UserId != currentUser.Id) return Forbid();
-
-            if (profile.ProfileImage == null || string.IsNullOrEmpty(profile.ProfileImageContentType))
-                return NotFound();
+            if (profile == null || profile.ProfileImage == null || string.IsNullOrEmpty(profile.ProfileImageContentType))
+            {
+                var defaultPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/default-user.png");
+                var defaultBytes = await System.IO.File.ReadAllBytesAsync(defaultPath);
+                return File(defaultBytes, "image/png");
+            }
 
             return File(profile.ProfileImage, profile.ProfileImageContentType);
         }
 
-        // ============== HELPERS ==============
+        // ================= HELPERS =================
         private static async Task<(bool ok, string? message)> TryBindPhotoAsync(StudentProfile target, IFormFile file)
         {
             if (!AllowedContentTypes.Contains(file.ContentType))
@@ -220,7 +215,27 @@ namespace ThesisNest.Controllers
             return (true, null);
         }
 
-        // ============== VIEW TEACHER DETAILS (Students) ==============
-        
+        // ================= VIEW ALL SUPERVISORS =================
+        [AllowAnonymous]
+        public async Task<IActionResult> AllSupervisors()
+        {
+            var teachers = await _context.TeacherProfiles
+                .Include(t => t.Theses)
+                .AsNoTracking()
+                .ToListAsync();
+
+            var model = teachers.Select(t => new TeacherViewModel
+            {
+                Id = t.Id,
+                FullName = t.FullName,
+                Department = t.Department,
+                Designation = t.Designation,
+                Bio = t.Bio,
+                AvailableSlots = t.AvailableSlots,
+                ProfileImageUrl = Url.Action("Photo", "TeacherProfile", new { id = t.Id })
+            }).ToList();
+
+            return View(model);
+        }
     }
 }

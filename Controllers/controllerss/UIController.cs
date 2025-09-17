@@ -25,39 +25,39 @@ namespace ThesisNest.Controllers.controllerss
         }
 
         // GET: UI/Index
-        public async Task<IActionResult> Index(string searchString, int pageNumber = 1, int pageSize = 10)
-        {
-            try
-            {
-                var users = _context.UIModels.AsQueryable();
+        //public async Task<IActionResult> Index(string searchString, int pageNumber = 1, int pageSize = 10)
+        //{
+        //    try
+        //    {
+        //        var users = _context.UIModels.AsQueryable();
 
-                if (!string.IsNullOrEmpty(searchString))
-                {
-                    //users = users.Where(u => u.Name.Contains(searchString) || u.Email.Contains(searchString));
-                }
+        //        if (!string.IsNullOrEmpty(searchString))
+        //        {
+        //            //users = users.Where(u => u.Name.Contains(searchString) || u.Email.Contains(searchString));
+        //        }
 
-                var count = await users.CountAsync();
-                var totalPages = (int)Math.Ceiling(count / (double)pageSize);
+        //        var count = await users.CountAsync();
+        //        var totalPages = (int)Math.Ceiling(count / (double)pageSize);
 
-                var model = await users
-                    //.OrderByDescending(static u => u.CreatedAt)
-                    .Skip((pageNumber - 1) * pageSize)
-                    .Take(pageSize)
-                    .ToListAsync();
+        //        var model = await users
+        //            //.OrderByDescending(static u => u.CreatedAt)
+        //            .Skip((pageNumber - 1) * pageSize)
+        //            .Take(pageSize)
+        //            .ToListAsync();
 
-                ViewBag.CurrentPage = pageNumber;
-                ViewBag.TotalPages = totalPages;
-                ViewBag.SearchString = searchString;
+        //        ViewBag.CurrentPage = pageNumber;
+        //        ViewBag.TotalPages = totalPages;
+        //        ViewBag.SearchString = searchString;
 
-                return View(model);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Index fetch error.");
-                // Safe fallback: empty list
-                return View(Array.Empty<UIModel>());
-            }
-        }
+        //        return View(model);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex, "Index fetch error.");
+        //        // Safe fallback: empty list
+        //        return View(Array.Empty<UIModel>());
+        //    }
+        //}
 
         // GET: UI/Details/5
         //public IActionResult Details(int? id)
@@ -191,22 +191,22 @@ namespace ThesisNest.Controllers.controllerss
         }
 
         // GET: UI/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null) return NotFound();
+        //public async Task<IActionResult> Delete(int? id)
+        //{
+        //    if (id == null) return NotFound();
 
-            try
-            {
-                var user = (id);
-                if (user == null) return NotFound();
-                return View(user);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Delete fetch error.");
-                return View(new UIModel());
-            }
-        }
+        //    try
+        //    {
+        //        var user = (id);
+        //        if (user == null) return NotFound();
+        //        return View(user);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex, "Delete fetch error.");
+        //        return View(new UIModel());
+        //    }
+        //}
 
         // POST: UI/Delete/5
         [HttpPost, ActionName("Delete")]
@@ -270,22 +270,22 @@ namespace ThesisNest.Controllers.controllerss
         }
 
         // Bulk Delete
-        [HttpPost]
-        public async Task<IActionResult> BulkDelete(int[] ids)
-        {
-            try
-            {
-                var users = _context.UIModels;
-                //_context.UIModels.RemoveRange(users);
-                await _context.SaveChangesAsync();
-                return Json(new { success = true });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "BulkDelete error.");
-                return Json(new { success = false });
-            }
-        }
+        //[HttpPost]
+       // public async Task<IActionResult> BulkDelete(int[] ids)
+        //{
+            //try
+            //{
+            //    var users = _context.UIModels;
+            //    //_context.UIModels.RemoveRange(users);
+            //    await _context.SaveChangesAsync();
+            //    return Json(new { success = true });
+            //}
+            //catch (Exception ex)
+            //{
+            //    _logger.LogError(ex, "BulkDelete error.");
+            //    return Json(new { success = false });
+            //}
+       // }
 
         // Search Autocomplete
         //[HttpGet]

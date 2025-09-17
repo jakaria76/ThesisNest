@@ -13,6 +13,12 @@ namespace ThesisNest.Models
     [Table("TeacherProfiles")]
     public class TeacherProfile
     {
+
+        private const int MaxSlots = 3;
+
+        [NotMapped]
+        public int AvailableSlots => MaxSlots - (Theses?.Count(t => t.Status == ThesisStatus.Accept) ?? 0);
+
         [Key]
         public int Id { get; set; }
 

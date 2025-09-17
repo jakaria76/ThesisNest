@@ -116,6 +116,7 @@ namespace ThesisNest.Controllers
 
         // ========= EDIT =========
         [HttpGet]
+
         public async Task<IActionResult> Edit()
         {
             var user = await _userManager.GetUserAsync(User);
