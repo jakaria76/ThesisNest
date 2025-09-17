@@ -36,12 +36,36 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSWRlbnRpdHlcUGFnZXNcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/3.2/SD/ThesisNest/Views/Account/ForgotPassword.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxGb3Jnb3RQYXNzd29yZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/3.2/SD/ThesisNest/Views/Account/ForgotPasswordConfirmation.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxGb3Jnb3RQYXNzd29yZENvbmZpcm1hdGlvbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/3.2/SD/ThesisNest/Views/Account/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxMb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/3.2/SD/ThesisNest/Views/Account/Register.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxSZWdpc3Rlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/3.2/SD/ThesisNest/Views/Account/ResetPasswordOtp.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxSZXNldFBhc3N3b3JkT3RwLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/3.2/SD/ThesisNest/Views/Account/VerifyOtp.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxWZXJpZnlPdHAuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/3.2/SD/ThesisNest/Views/AdminFAQ/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5GQVFcQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/3.2/SD/ThesisNest/Views/AdminFAQ/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5GQVFcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/3.2/SD/ThesisNest/Views/AdminProposal/Index.cshtml]
@@ -96,6 +120,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGxhZ2lhcmlzbVxSZXN1bHQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/3.2/SD/ThesisNest/Views/Resources/Guidelines.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVzb3VyY2VzXEd1aWRlbGluZXMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/3.2/SD/ThesisNest/Views/Shared/Components/CommSummary/Default.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXENvbXBvbmVudHNcQ29tbVN1bW1hcnlcRGVmYXVsdC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
@@ -106,6 +134,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [D:/3.2/SD/ThesisNest/Views/Shared/Partials/_ProposalStatusBadge.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXFBhcnRpYWxzXF9Qcm9wb3NhbFN0YXR1c0JhZGdlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/3.2/SD/ThesisNest/Views/Shared/_ChatWidget.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9DaGF0V2lkZ2V0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/3.2/SD/ThesisNest/Views/Shared/_LoginPartial.cshtml]
@@ -122,6 +154,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [D:/3.2/SD/ThesisNest/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/3.2/SD/ThesisNest/Views/StudentProfile/AllSupervisors.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3R1ZGVudFByb2ZpbGVcQWxsU3VwZXJ2aXNvcnMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/3.2/SD/ThesisNest/Views/StudentProfile/Create.cshtml]
@@ -174,6 +210,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [D:/3.2/SD/ThesisNest/Views/StudentThesis/_ProposalStatusBadge.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3R1ZGVudFRoZXNpc1xfUHJvcG9zYWxTdGF0dXNCYWRnZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/3.2/SD/ThesisNest/Views/Student/AllSupervisors.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3R1ZGVudFxBbGxTdXBlcnZpc29ycy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/3.2/SD/ThesisNest/Views/TeacherProfile/Create.cshtml]

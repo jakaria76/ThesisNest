@@ -1,0 +1,144 @@
+﻿@{
+    ViewData["Title"] = "Guidelines & Template";
+}
+
+<div class="container my-5">
+    <!-- Page Header -->
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold">Thesis Guidelines & Templates</h1>
+        <p class="text-muted">Follow these instructions to prepare and submit your thesis properly.</p>
+    </div>
+
+    <!-- Guidelines Section -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <i class="bi bi-journal-text me-2"></i>Step-by-Step Guidelines
+        </div>
+        <div class="card-body">
+            <ol class="lh-lg">
+                <li>Read the full thesis submission policy carefully.</li>
+                <li>Follow the formatting rules for font, margins, and headings.</li>
+                <li>Ensure all citations and references are in proper style.</li>
+                <li>Check for plagiarism and submit only original work.</li>
+                <li>Use the official thesis template provided below.</li>
+                <li>Submit through the ThesisNest portal before the deadline.</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- Templates Section -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-success text-white">
+            <i class="bi bi-file-earmark-text me-2"></i>Download Templates
+        </div>
+        <div class="card-body">
+            <div class="row row-cols-1 row-cols-md-2 g-3">
+                <div class="col">
+                    <div class="card h-100 border-primary">
+                        <div class="card-body">
+                            <h5 class="card-title">Word Template</h5>
+                            <p class="card-text">Official MS Word template for thesis submission.</p>
+                            <a href="~/files/thesis_template.docx" class="btn btn-primary">
+                                <i class="bi bi-download me-1"></i>Download
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card h-100 border-secondary">
+                        <div class="card-body">
+                            <h5 class="card-title">PDF Template</h5>
+                            <p class="card-text">Printable PDF template for reference.</p>
+                            <a href="~/files/thesis_template.pdf" class="btn btn-secondary">
+                                <i class="bi bi-download me-1"></i>Download
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Important Notes -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-warning text-dark">
+            <i class="bi bi-exclamation-triangle me-2"></i>Important Notes
+        </div>
+        <div class="card-body">
+            <ul class="lh-lg">
+                <li>Maximum word count: 20,000 words.</li>
+                <li>Plagiarism must be below 20%.</li>
+                <li>Late submissions will not be accepted.</li>
+                <li>All figures and tables must be numbered and captioned.</li>
+                <li>Follow your department-specific guidelines if any.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- FAQ Section -->
+    <div class="card mb-5 shadow-sm">
+        <div class="card-header bg-info text-white">
+            <i class="bi bi-question-circle me-2"></i>Frequently Asked Questions
+        </div>
+        <div class="card-body">
+            <div class="accordion" id="faqAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="faq1">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1" aria-expanded="false" aria-controls="collapse1">
+                            Can I submit my thesis after the deadline?
+                        </button>
+                    </h2>
+                    <div id="collapse1" class="accordion-collapse collapse" aria-labelledby="faq1" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            No, late submissions are not accepted. Please adhere to the deadlines set by your department.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="faq2">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2" aria-expanded="false" aria-controls="collapse2">
+                            What citation style should I use?
+                        </button>
+                    </h2>
+                    <div id="collapse2" class="accordion-collapse collapse" aria-labelledby="faq2" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Use APA 7th edition for all citations unless your department specifies otherwise.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="faq3">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3" aria-expanded="false" aria-controls="collapse3">
+                            How do I check plagiarism?
+                        </button>
+                    </h2>
+                    <div id="collapse3" class="accordion-collapse collapse" aria-labelledby="faq3" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Use the plagiarism checker provided by ThesisNest before final submission.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Responsive styling for mobile -->
+<style>
+    @@media (max-width: 575.98px) {
+        .card-header i
+
+    {
+        margin-right: 0.5rem;
+    }
+
+    .btn {
+        font-size: 0.875rem;
+    }
+
+    .accordion-button {
+        font-size: 0.9rem;
+    }
+
+    }
+</style>

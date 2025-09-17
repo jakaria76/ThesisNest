@@ -23,6 +23,7 @@ namespace ThesisNest.Data
         public DbSet<Thesis> Theses { get; set; } = default!;
         public DbSet<ThesisVersion> ThesisVersions { get; set; } = default!;
         public DbSet<ThesisFeedback> ThesisFeedbacks { get; set; } = default!;
+        public DbSet<ThesisSubmission> ThesisSubmissions { get; set; } = default!; // <-- ADDED
 
         // ========= PLAGIARISM =========
         public DbSet<PlagiarismDocument> PlagiarismDocuments { get; set; } = default!;
@@ -34,7 +35,9 @@ namespace ThesisNest.Data
 
         // ========= CHAT =========
         public DbSet<ChatMessage> ChatMessages { get; set; } = default!;
-        public IEnumerable<object> UIModels { get; internal set; }
+
+        // ========= FAQ =========
+        public DbSet<FAQ> FAQs { get; set; } = default!;
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -151,6 +154,16 @@ namespace ThesisNest.Data
                  .OnDelete(DeleteBehavior.Cascade);
             });
 
+            // ===== ThesisSubmission =====
+            builder.Entity<ThesisSubmission>(e =>
+            {
+                e.Property(s => s.SubmissionDate).HasDefaultValueSql("GETUTCDATE()");
+                e.HasOne(s => s.Student)
+                 .WithMany()
+                 .HasForeignKey(s => s.StudentId)
+                 .OnDelete(DeleteBehavior.Cascade);
+            });
+
             // ========= COMMUNICATION =========
             builder.Entity<CommunicationThread>(e =>
             {
@@ -207,6 +220,13 @@ namespace ThesisNest.Data
 
                 e.Property(c => c.FromBot)
                     .HasDefaultValue(false);
+            });
+
+            builder.Entity<FAQ>(e =>
+            {
+                e.Property(f => f.Question).IsRequired().HasMaxLength(500);
+                e.Property(f => f.Answer).IsRequired().HasMaxLength(4000);
+                e.Property(f => f.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
             });
         }
     }

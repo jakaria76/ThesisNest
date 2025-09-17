@@ -1,10 +1,8 @@
 ﻿(function () {
-    const connection = new signalR.HubConnectionBuilder()
-        .withUrl("/chathub")
-        .withAutomaticReconnect()
-        .build();
-
     // --- Elements ---
+    const bubble = document.getElementById('chatBubble');
+    const popup = document.getElementById('chatPopup');
+    const closeBtn = document.getElementById('closeChatPopup');
     const messagesEl = document.getElementById('messages');
     const typingEl = document.getElementById('typingIndicator');
     const nameInput = document.getElementById('userName');
@@ -12,6 +10,8 @@
     const sendBtn = document.getElementById('sendBtn');
     const emojiBtn = document.getElementById('emojiBtn');
     const emojiPicker = document.getElementById('emojiPicker');
+
+    const userName = nameInput?.value?.trim() || 'You';
 
     const nowIso = () => new Date().toISOString();
     const fmtTime = iso => new Date(iso).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
@@ -39,6 +39,7 @@
     function scrollBottom() {
         requestAnimationFrame(() => { messagesEl.scrollTop = messagesEl.scrollHeight; });
     }
+
     function setUiEnabled(v) {
         if (msgInput) msgInput.disabled = !v;
         if (sendBtn) sendBtn.disabled = !v;
@@ -77,7 +78,19 @@
         if (h) h.textContent += ' • failed to send';
     }
 
+    // --- Bubble toggle ---
+    bubble?.addEventListener('click', () => {
+        if (!popup) return;
+        popup.style.display = popup.style.display === 'flex' ? 'none' : 'flex';
+    });
+    closeBtn?.addEventListener('click', () => popup.style.display = 'none');
+
     // --- SignalR ---
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/chathub")
+        .withAutomaticReconnect()
+        .build();
+
     connection.on('ReceiveMessage', (user, message, time) => {
         const isBot = (user === 'Bot' || user === '🤖 Bot');
         addMessage({ user, message, time: time || nowIso(), isBot });
@@ -107,13 +120,12 @@
         if (!msgInput) return;
         const text = msgInput.value.trim();
         if (!text) return;
-        const name = (nameInput?.value?.trim()) || 'You';
         const optimisticId = `opt-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-        addMessage({ user: name, message: text, time: nowIso(), isBot: false, optimisticId });
+        addMessage({ user: userName, message: text, time: nowIso(), isBot: false, optimisticId });
 
         try {
             setUiEnabled(false);
-            await connection.invoke('SendMessage', name, text);
+            await connection.invoke('SendMessage', userName, text);
             msgInput.value = '';
         } catch (e) {
             console.error(e);
@@ -141,6 +153,7 @@
         }
         e.stopPropagation();
     });
+
     emojiPicker?.addEventListener('emoji-click', (e) => {
         const ch = e?.detail?.unicode || e?.detail?.emoji?.unicode || '';
         if (!ch) return;
@@ -150,13 +163,13 @@
         msgInput.focus();
     });
 
-    // --- Click outside emoji closes it ---
     document.addEventListener('click', (e) => {
         if (!emojiPicker?.contains(e.target) && e.target !== emojiBtn) {
             emojiPicker.style.display = 'none';
         }
     });
 
+    // --- Init ---
     setUiEnabled(false);
     start();
 })();

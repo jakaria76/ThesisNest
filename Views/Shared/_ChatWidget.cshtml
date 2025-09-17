@@ -1,0 +1,183 @@
+﻿<div id="chatWidget">
+    <!-- Chat bubble -->
+    <button id="chatBubble" class="chat-bubble">
+        <i class="bi bi-chat-dots"></i>
+    </button>
+
+    <!-- Chat popup -->
+    <div id="chatPopup" class="chat-popup" style="display:none; position:fixed; bottom:80px; right:20px; width:360px; max-height:500px; border-radius:12px; box-shadow:0 0 15px rgba(0,0,0,0.3); z-index:10000; flex-direction:column;">
+        <!-- Header -->
+        <div class="chat-header px-3 py-2 d-flex justify-content-between align-items-center">
+            <div>
+                <h6 class="mb-0">ThesisNest Chatbot</h6>
+                <small>Ask about thesis, guidelines, or tech help.</small>
+            </div>
+            <button id="closeChatPopup" class="btn btn-sm btn-light">&times;</button>
+        </div>
+
+        <!-- Messages area -->
+        <div id="messages" class="chat-messages" style="flex-grow:1; overflow-y:auto; padding:10px;"></div>
+        <div id="typingIndicator" class="text-muted small px-2 mb-1" style="display:none;">Bot is typing...</div>
+
+        <!-- Composer -->
+        <div class="d-flex gap-2 p-2 chat-composer">
+            <button id="emojiBtn" class="btn btn-outline-secondary" type="button">😀</button>
+            <input id="messageInput" type="text" class="form-control" placeholder="Type your message..." />
+            <button id="sendBtn" class="btn btn-primary">Send</button>
+        </div>
+
+        <!-- Emoji picker -->
+        <emoji-picker id="emojiPicker" style="display:none; position:absolute; z-index:11000;"></emoji-picker>
+    </div>
+</div>
+
+<style>
+    /* Dark/Light Theme */
+    .chat-popup {
+        background-color: var(--chat-bg, #ffffff);
+        color: var(--chat-text, #000000);
+    }
+
+    [data-theme="dark"] .chat-popup {
+        --chat-bg: #1e1e2f;
+        --chat-text: #ffffff;
+    }
+
+    .chat-header {
+        background-color: var(--chat-header-bg, #0d6efd);
+        color: var(--chat-header-text, #ffffff);
+    }
+
+    .chat-messages {
+        background-color: var(--chat-msg-bg, #f8f9fa);
+    }
+
+    [data-theme="dark"] .chat-messages {
+        background-color: #2a2a3d;
+    }
+
+    .chat-composer input {
+        background-color: var(--chat-input-bg, #ffffff);
+        color: var(--chat-input-text, #000000);
+    }
+
+    [data-theme="dark"] .chat-composer input {
+        background-color: #2a2a3d;
+        color: #ffffff;
+    }
+
+    .chat-bubble {
+        position: fixed;
+        bottom: 25px;
+        right: 25px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #6a11cb, #2575fc);
+        color: white;
+        border: none;
+        box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 9999;
+    }
+
+        .chat-bubble:hover {
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 12px 20px rgba(0,0,0,0.4);
+        }
+
+        .chat-bubble:active {
+            transform: scale(0.95);
+            box-shadow: 0 6px 10px rgba(0,0,0,0.3);
+        }
+</style>
+
+<script type="module">
+    document.addEventListener('DOMContentLoaded', () => {
+        const bubble = document.getElementById('chatBubble');
+        const popup = document.getElementById('chatPopup');
+        const closeBtn = document.getElementById('closeChatPopup');
+
+        // Toggle popup
+        bubble.addEventListener('click', () => {
+            popup.style.display = (popup.style.display === 'flex' || popup.style.display === '') ? 'none' : 'flex';
+        });
+        closeBtn.addEventListener('click', () => popup.style.display = 'none');
+
+        // SignalR & chat logic
+        const messagesDiv = document.getElementById('messages');
+        const typingIndicator = document.getElementById('typingIndicator');
+        const input = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const emojiBtn = document.getElementById('emojiBtn');
+        const picker = document.getElementById('emojiPicker');
+        const userName = '@(User.Identity?.Name ?? "You")';
+
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/chathub")
+            .withAutomaticReconnect()
+            .build();
+
+        connection.on("ReceiveMessage", (user, message) => {
+            const div = document.createElement('div');
+            div.innerHTML = `<b>${user}:</b> ${message}`;
+            messagesDiv.appendChild(div);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        });
+
+        connection.on("BotTyping", (isTyping) => {
+            typingIndicator.style.display = isTyping ? 'block' : 'none';
+        });
+
+        async function startConnection() {
+            try {
+                await connection.start();
+                console.log('SignalR connected');
+            } catch (err) {
+                console.error(err);
+                setTimeout(startConnection, 3000);
+            }
+        }
+        startConnection();
+
+        function sendMessage() {
+            const msg = input.value.trim();
+            if (!msg) return;
+            const div = document.createElement('div');
+            div.innerHTML = `<b>You:</b> ${msg}`;
+            messagesDiv.appendChild(div);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            connection.invoke("SendMessage", userName, msg).catch(err => console.error(err));
+            input.value = '';
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+        input.addEventListener('keyup', e => { if (e.key === 'Enter') sendMessage(); });
+
+        // Emoji picker
+        emojiBtn?.addEventListener('click', (e) => {
+            const visible = picker.style.display === 'block';
+            picker.style.display = visible ? 'none' : 'block';
+            if (!visible) {
+                const rect = emojiBtn.getBoundingClientRect();
+                picker.style.top = (rect.bottom + window.scrollY + 6) + 'px';
+                picker.style.left = (rect.left + window.scrollX) + 'px';
+            }
+            e.stopPropagation();
+        });
+
+        picker?.addEventListener('emoji-click', e => {
+            input.value += e.detail.unicode;
+            input.focus();
+        });
+
+        document.addEventListener('click', e => {
+            if (!picker.contains(e.target) && e.target !== emojiBtn) picker.style.display = 'none';
+        });
+    });
+</script>

@@ -1,11 +1,9 @@
-﻿// Program.cs
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
@@ -74,7 +72,7 @@ builder.Services.ConfigureExternalCookie(options =>
 });
 
 // ------------------------
-// 5) External Auth (Google + GitHub) – optional
+// 5) External Auth (Google + GitHub)
 // ------------------------
 builder.Services
     .AddAuthentication()
@@ -83,7 +81,18 @@ builder.Services
         options.SignInScheme = IdentityConstants.ExternalScheme;
         options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
         options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+        options.CallbackPath = "/signin-google"; // Must match Google Cloud Console redirect URI
         options.SaveTokens = true;
+        options.Events.OnRedirectToAuthorizationEndpoint = context =>
+        {
+            // Append prompt=select_account safely
+            var uri = context.RedirectUri;
+            if (!uri.Contains("prompt="))
+                uri += "&prompt=select_account";
+
+            context.Response.Redirect(uri);
+            return Task.CompletedTask;
+        };
     })
     .AddOAuth("GitHub", options =>
     {
@@ -151,7 +160,7 @@ builder.Services.Configure<GoogleMapsOptions>(builder.Configuration.GetSection("
 builder.Services.Configure<IceOptions>(builder.Configuration.GetSection("Ice"));
 
 // ------------------------
-// 7) MVC + Razor Pages (+ Controllers)
+// 7) MVC + Razor Pages
 // ------------------------
 builder.Services.AddControllersWithViews(o =>
 {
@@ -160,7 +169,7 @@ builder.Services.AddControllersWithViews(o =>
 builder.Services.AddRazorPages();
 
 // ------------------------
-// 8) Misc Services (optional)
+// 8) Services & SignalR
 // ------------------------
 builder.Services.AddScoped<IFileTextExtractor, FileTextExtractor>();
 builder.Services.AddSingleton<SimilarityService>();
@@ -172,13 +181,32 @@ builder.Services.AddTransient<GoogleSearchService>(sp =>
     return new GoogleSearchService(http, cfg["GoogleCustomSearch:ApiKey"], cfg["GoogleCustomSearch:Cx"]);
 });
 
-// ------------------------
-// 9) SignalR
-// ------------------------
 builder.Services.AddSignalR();
+builder.Services.AddSingleton<BackgroundOpenAIQueue>();
+builder.Services.AddHostedService<OpenAIWorker>();
+
+builder.Services.AddHttpClient("Groq", (sp, client) =>
+{
+    var cfg = sp.GetRequiredService<IConfiguration>();
+    var token = cfg["Groq:ApiKey"];
+    client.BaseAddress = new Uri("https://api.groq.com/openai/v1/");
+    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+    if (!string.IsNullOrWhiteSpace(token))
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+});
+builder.Services.AddScoped<GroqService>();
+
+
 
 // ------------------------
-// 10) CORS (wide open dev policy)
+// 10) Email Sender + MemoryCache
+// ------------------------
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+builder.Services.AddSingleton<IEmailSender, SmtpEmailSender>();
+builder.Services.AddMemoryCache();
+
+// ------------------------
+// 11) CORS
 // ------------------------
 builder.Services.AddCors(options =>
 {
@@ -190,45 +218,12 @@ builder.Services.AddCors(options =>
 });
 
 // ------------------------
-// 11) Hugging Face HttpClient
-// ------------------------
-builder.Services.AddHttpClient("HuggingFace", (sp, client) =>
-{
-    var cfg = sp.GetRequiredService<IConfiguration>();
-    var token = cfg["HuggingFace:ApiToken"];
-    client.BaseAddress = new Uri("https://api-inference.huggingface.co/");
-    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-    if (!string.IsNullOrWhiteSpace(token))
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-});
-
-
-builder.Services.AddSingleton<BackgroundOpenAIQueue>();
-builder.Services.AddHostedService<OpenAIWorker>();
-
-// ------------------------
-// 12) Groq HttpClient
-// ------------------------
-builder.Services.AddHttpClient("Groq", (sp, client) =>
-{
-    var cfg = sp.GetRequiredService<IConfiguration>();
-    var token = cfg["Groq:ApiKey"];
-    client.BaseAddress = new Uri("https://api.groq.com/openai/v1/");
-    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-    if (!string.IsNullOrWhiteSpace(token))
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-});
-
-builder.Services.AddScoped<GroqService>();
-
-// ------------------------
-// 13) Build app
+// 12) Build app
 // ------------------------
 var app = builder.Build();
 
 // ------------------------
-// 14) Middleware
+// 13) Middleware
 // ------------------------
 if (!app.Environment.IsDevelopment())
 {
@@ -243,28 +238,24 @@ else
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseCookiePolicy(new CookiePolicyOptions
 {
     MinimumSameSitePolicy = SameSiteMode.Lax,
     Secure = CookieSecurePolicy.Always
 });
-
 app.UseRouting();
 app.UseCors("AllowAll");
-
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseStatusCodePages();
 
 // ------------------------
-// 15) Database Migration + Seed
+// 14) DB Migration & Seed
 // ------------------------
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var db = services.GetRequiredService<ApplicationDbContext>();
-
     try
     {
         await db.Database.MigrateAsync();
@@ -276,24 +267,19 @@ using (var scope = app.Services.CreateScope())
                 db.Departments.Add(new Department { Name = deptName });
         }
         await db.SaveChangesAsync();
-
         await SeedData.InitializeAsync(services);
     }
     catch (Exception ex)
     {
-        var provider = useSqlServer ? "SQL Server" : "SQLite";
-        Console.WriteLine($"[DB-INIT-ERROR] Provider={provider}");
-        Console.WriteLine($"[DB-INIT-ERROR] DefaultConnection={(sqlServerConn ?? "(null)")} ");
         Console.WriteLine(ex);
         throw;
     }
 }
 
 // ------------------------
-// 16) Endpoints
+// 15) Endpoints
 // ------------------------
-app.MapControllers(); // Controllers (e.g., DiagController)
-
+app.MapControllers();
 app.MapHub<ThesisNest.Hubs.CommunicationHub>("/hubs/comm");
 app.MapHub<ChatHub>("/chathub");
 
@@ -307,7 +293,6 @@ app.MapControllerRoute(
 
 app.MapRazorPages();
 
-// Optional: ICE config endpoint
 app.MapGet("/rtc/ice", (IOptions<IceOptions> opt) =>
 {
     var ice = opt.Value?.IceServers ?? new List<IceServer>();
@@ -319,19 +304,6 @@ app.Run();
 // ------------------------
 // Option Classes
 // ------------------------
-public sealed class GoogleMapsOptions
-{
-    public string? ApiKey { get; set; }
-}
-
-public sealed class IceOptions
-{
-    public List<IceServer> IceServers { get; set; } = new();
-}
-
-public sealed class IceServer
-{
-    public List<string> Urls { get; set; } = new();
-    public string? Username { get; set; }
-    public string? Credential { get; set; }
-}
+public sealed class GoogleMapsOptions { public string? ApiKey { get; set; } }
+public sealed class IceOptions { public List<IceServer> IceServers { get; set; } = new(); }
+public sealed class IceServer { public List<string> Urls { get; set; } = new(); public string? Username { get; set; } public string? Credential { get; set; } }

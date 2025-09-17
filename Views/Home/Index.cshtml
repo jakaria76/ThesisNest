@@ -5,90 +5,32 @@
 
 @section Styles {
     <style>
-        /* ==== HOMEPAGE LUX DESIGN ==== */
+        /* ===================== HERO SECTION ===================== */
         .hp-hero {
             position: relative;
             padding: clamp(2rem, 4vw, 3rem);
             border-radius: 18px;
             overflow: hidden;
-            background: radial-gradient(1200px 300px at -10% -20%, rgba(13,110,253,.20), transparent 60%), radial-gradient(1200px 300px at 110% 120%, rgba(32,201,151,.20), transparent 60%), linear-gradient(135deg, rgba(13,110,253,.10), rgba(32,201,151,.10));
+            background: radial-gradient(1200px 300px at -10% -20%, rgba(13,110,253,.2), transparent 60%), radial-gradient(1200px 300px at 110% 120%, rgba(32,201,151,.2), transparent 60%), linear-gradient(135deg, rgba(13,110,253,.1), rgba(32,201,151,.1));
             border: 1px solid rgba(255,255,255,.15);
+            margin-bottom: 2rem;
         }
-
-            .hp-hero:before {
-                content: "";
-                position: absolute;
-                inset: 0;
-                background-image: linear-gradient(to right, rgba(255,255,255,.12) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,.12) 1px, transparent 1px);
-                background-size: 24px 24px;
-                opacity: .2;
-                pointer-events: none;
-            }
 
         .hp-title {
             font-weight: 800;
             letter-spacing: -.02em;
+            font-size: 2.5rem;
+            color: #222;
+        }
+
+        [data-theme="dark"] .hp-title {
+            color: #fff;
         }
 
         .hp-sub {
             color: var(--bs-secondary-color);
-            max-width: 720px
-        }
-
-        .kpi {
-            backdrop-filter: blur(10px);
-            background: rgba(255,255,255,.55);
-            border: 1px solid rgba(255,255,255,.35);
-            border-radius: 16px;
-            padding: 1rem 1.2rem;
-            transition: transform .18s ease, box-shadow .18s ease;
-        }
-
-        [data-theme="dark"] .kpi {
-            background: rgba(18,18,20,.5);
-            border-color: rgba(255,255,255,.08);
-        }
-
-        .kpi:hover {
-            transform: translateY(-2px)
-        }
-
-        .kpi .kpi-label {
-            color: var(--bs-secondary-color);
-            font-size: .9rem
-        }
-
-        .kpi .kpi-value {
-            font-size: 1.85rem;
-            font-weight: 800
-        }
-
-        .quick .btn {
-            border-radius: 12px;
-            padding: .7rem 1rem;
-            font-weight: 600;
-        }
-
-        .card-soft {
-            border-radius: 16px;
-            border: 1px solid rgba(0,0,0,.08);
-        }
-
-        [data-theme="dark"] .card-soft {
-            border-color: rgba(255,255,255,.09);
-            background: rgba(18,18,20,.55);
-        }
-
-        .list-clean .list-group-item {
-            border: 0;
-            padding: .75rem 0
-        }
-
-        .eyebrow {
-            text-transform: uppercase;
-            letter-spacing: .12em;
-            font-size: .8rem;
-            color: var(--bs-secondary-color)
+            max-width: 720px;
+            margin-top: .5rem;
         }
 
         .pill {
@@ -99,293 +41,1034 @@
             color: #0d6efd;
             border-radius: 999px;
             padding: .25rem .6rem;
-            font-size: .85rem
+            font-size: .85rem;
+            margin-bottom: .5rem;
         }
 
         [data-theme="dark"] .pill {
-            background: rgba(13,110,253,.18)
+            background: rgba(13,110,253,.25);
+            color: #99cfff;
         }
+
+        /* ===================== KPI CARDS ===================== */
+        .fancy-card {
+            background: linear-gradient(145deg, #ffffff, #f2f7ff);
+            border-radius: 20px;
+            padding: 1.5rem 1.2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 12px 28px rgba(0,0,0,.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        [data-theme="dark"] .fancy-card {
+            background: rgba(18,18,20,.85);
+            color: #eee;
+            box-shadow: 0 6px 18px rgba(0,0,0,.4);
+        }
+
+        .fancy-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,.25);
+            background: linear-gradient(145deg, #f0f4ff, #e0e9ff);
+        }
+
+        [data-theme="dark"] .fancy-card:hover {
+            background: rgba(28,28,30,.9);
+        }
+
+        /* ================= KPI ICON ================= */
+        .kpi-top {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: .5rem;
+        }
+
+        .kpi-icon {
+            width: 65px;
+            height: 65px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            border-radius: 50%;
+            color: #fff;
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+            margin: 0 auto 12px auto;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+        }
+
+        .fancy-card:hover .kpi-icon {
+            transform: scale(1.25);
+            box-shadow: 0 8px 20px rgba(0,0,0,.25);
+        }
+
+        [data-theme="dark"] .kpi-icon {
+            box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+        }
+
+        /* Gradient Variants */
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+        }
+
+        .bg-gradient-success {
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+        }
+
+        .bg-gradient-warning {
+            background: linear-gradient(135deg, #f7971e, #ffd200);
+        }
+
+        .bg-gradient-info {
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+        }
+
+        /* KPI Labels & Values */
+        .kpi-label {
+            font-weight: 600;
+            font-size: 1rem;
+            color: #555;
+            margin-bottom: 6px;
+        }
+
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #222;
+        }
+
+        .kpi-footer {
+            font-size: 0.75rem;
+            color: #888;
+            margin-top: 8px;
+        }
+
+        /* DARK MODE TEXT FIX */
+        [data-theme="dark"] .kpi-label {
+            color: #ccc;
+        }
+
+        [data-theme="dark"] .kpi-value {
+            color: #fff;
+        }
+
+        [data-theme="dark"] .kpi-footer {
+            color: #aaa;
+        }
+
+        /* ===================== RECENT ACTIVITY ===================== */
+        .card-soft {
+            border-radius: 16px;
+            border: 1px solid rgba(0,0,0,.08);
+            background: rgba(255,255,255,.6);
+            backdrop-filter: blur(10px);
+        }
+
+        [data-theme="dark"] .card-soft {
+            border-color: rgba(255,255,255,.1);
+            background: rgba(18,18,20,.6);
+        }
+
+        .eyebrow {
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            font-size: .8rem;
+            color: var(--bs-secondary-color);
+        }
+
+        [data-theme="dark"] .eyebrow {
+            color: #aaa;
+        }
+
+        .list-clean .list-group-item {
+            border: 0;
+            padding: .75rem 0;
+        }
+
+        /* ===================== RESPONSIVE ===================== */
+       @@media (max-width: 768px) {
+            .kpi-icon
+
+        {
+            width: 55px;
+            height: 55px;
+            font-size: 1.6rem;
+        }
+
+        .kpi-value {
+            font-size: 1.6rem;
+        }
+
+        }
+
+        /* ===================== ACTIVITY ITEMS ===================== */
+        .activity-item {
+            background: rgba(255,255,255,0.45);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            border-radius: 18px;
+        }
+
+            .activity-item:hover {
+                transform: translateY(-6px);
+                box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+                background: rgba(255,255,255,0.6);
+            }
+
+        .activity-title {
+            font-size: 1rem;
+            color: #222;
+        }
+
+        .activity-detail {
+            color: #555;
+        }
+
+        .activity-time {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        /* ===================== RESOURCE BUTTONS ===================== */
+        .resource-btn {
+            border-radius: 16px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+            .resource-btn:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 12px 28px rgba(0,0,0,0.2);
+            }
+
+        /* ===================== DARK MODE ===================== */
+        [data-theme="dark"] .activity-item {
+            background: rgba(18,18,20,0.65);
+            color: #eee;
+        }
+
+            [data-theme="dark"] .activity-item:hover {
+                background: rgba(28,28,30,0.75);
+            }
+
+        [data-theme="dark"] .activity-title {
+            color: #fff;
+        }
+
+        [data-theme="dark"] .activity-detail {
+            color: #ccc;
+        }
+
+        [data-theme="dark"] .activity-time {
+            color: #aaa;
+        }
+
+        [data-theme="dark"] .resource-btn {
+            color: #fff;
+        }
+
+            [data-theme="dark"] .resource-btn:hover {
+                box-shadow: 0 12px 28px rgba(255,255,255,0.2);
+            }
+
+        /* ===================== RESPONSIVE ===================== */
+        @@media (max-width: 768px) {
+            .activity-title
+
+        {
+            font-size: 0.95rem;
+        }
+
+        .activity-detail {
+            font-size: 0.8rem;
+        }
+
+        .activity-time {
+            font-size: 0.7rem;
+        }
+
+        .resource-btn {
+            font-size: 0.95rem;
+            padding: 12px;
+        }
+
+        }
+
+        /* Fixed size recent card */
+        .recent-card {
+            height: 380px; /* এখানে ফিক্সড হাইট — ইচ্ছা হলে 320/420px দিন */
+            display: flex;
+            flex-direction: column;
+        }
+
+            .recent-card .recent-body {
+                flex: 1;
+                min-height: 0; /* flex-children scroll enable */
+                overflow-y: auto; /* ভিতরে স্ক্রল হবে */
+            }
+
+                /* Optional: scrollbar styling */
+                .recent-card .recent-body::-webkit-scrollbar {
+                    width: 8px;
+                }
+
+                .recent-card .recent-body::-webkit-scrollbar-thumb {
+                    background: rgba(0,0,0,.2);
+                    border-radius: 8px;
+                }
+
+        [data-theme="dark"] .recent-card .recent-body::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,.25);
+        }
+
+
+
+        .fancy-card {
+            background: rgba(255,255,255,0.6);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            padding: 24px;
+            transition: all 0.3s ease;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.1);
+        }
+
+            .fancy-card:hover {
+                transform: translateY(-6px);
+                box-shadow: 0 18px 35px rgba(0,0,0,0.15);
+            }
+
+        /* ===================== Resource Buttons ===================== */
+        .resource-btn {
+            border-radius: 16px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            color: #fff;
+            text-align: left;
+        }
+
+            .resource-btn i {
+                font-size: 1.2rem;
+            }
+
+            .resource-btn:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 12px 28px rgba(0,0,0,0.2);
+            }
+
+        /* ===================== Gradient Variants ===================== */
+        .btn-gradient-primary {
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+        }
+
+        .btn-gradient-success {
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+        }
+
+        .btn-gradient-warning {
+            background: linear-gradient(135deg, #f7971e, #ffd200);
+        }
+
+        /* ===================== Dark Mode ===================== */
+        [data-theme="dark"] .fancy-card {
+            background: rgba(18,18,20,0.65);
+            color: #fff;
+        }
+
+        [data-theme="dark"] .resource-btn {
+            color: #fff;
+        }
+
+            [data-theme="dark"] .resource-btn:hover {
+                box-shadow: 0 12px 28px rgba(255,255,255,0.2);
+            }
+
+        /* ===================== Hover Scale Animation ===================== */
+        .hover-scale {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+            .hover-scale:hover {
+                transform: translateY(-4px);
+            }
+
+        /* ===================== Responsive ===================== */
+        @@media (max-width: 768px) {
+            .resource-btn
+
+        {
+            font-size: 0.95rem;
+            padding: 12px;
+        }
+
+        }
+
+
+        .btn-gradient-primary {
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: #fff;
+            border: none;
+        }
+
+        .btn-gradient-success {
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+            color: #fff;
+            border: none;
+        }
+
+        .btn-gradient-warning {
+            background: linear-gradient(135deg, #f7971e, #ffd200);
+            color: #fff;
+            border: none;
+        }
+
+        /* ===================== Hover Effects ===================== */
+        .resource-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.25);
+        }
+
+        /* ===================== Rounded & Padding ===================== */
+        .resource-btn {
+            border-radius: 16px;
+            font-size: 1rem;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+
+            /* Icon inside button */
+            .resource-btn i {
+                font-size: 1.2rem;
+            }
+
+        /* Dark mode support */
+        [data-theme="dark"] .btn-gradient-primary,
+        [data-theme="dark"] .btn-gradient-success,
+        [data-theme="dark"] .btn-gradient-warning {
+            color: #fff;
+        }
+
+        /* Responsive adjustments */
+        @@media (max-width: 768px) {
+            .resource-btn
+
+        {
+            font-size: 0.95rem;
+            padding: 12px;
+        }
+
+        }
+
+        .recent-card {
+            height: 380px;
+            display: flex;
+            flex-direction: column;
+        }
+
+            .recent-card .recent-body {
+                flex: 1;
+                min-height: 0;
+                overflow-y: auto;
+            }
+
+                .recent-card .recent-body::-webkit-scrollbar {
+                    width: 8px;
+                }
+
+                .recent-card .recent-body::-webkit-scrollbar-thumb {
+                    background: rgba(0,0,0,.2);
+                    border-radius: 8px;
+                }
+
+        [data-theme="dark"] .recent-card .recent-body::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,.25);
+        }
+
+        .activity-item {
+            transition: transform .15s ease;
+        }
+
+            .activity-item:hover {
+                transform: translateY(-2px);
+            }
+
+        /* Make all KPI cards equal height & align footers */
+        .equal-cards .fancy-card {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .equal-cards .kpi-footer {
+            margin-top: auto; /* footer নিচে আটকে থাকবে */
+        }
+        /* columns-কে flex বানাই, যাতে ভিতরের কার্ড স্ট্রেচ হতে পারে */
+        .equal-cards > [class*='col-'] {
+            display: flex;
+        }
+
+        /* কার্ডকে কলামের পুরো উচ্চতা দিই এবং ভিতরের কন্টেন্ট কলাম লেআউটে রাখি */
+        .equal-cards .fancy-card {
+            flex: 1; /* কলামের ভেতর পুরোটা নেবে */
+            height: 100%; /* সেফটি */
+            display: flex;
+            flex-direction: column; /* কন্টেন্ট উপরে-নিচে */
+        }
+
+        /* ফুটার/শেষ অংশ নিচে আটকে থাকবে */
+        .equal-cards .kpi-footer {
+            margin-top: auto;
+        }
+        /* ছোট/কমপ্যাক্ট কার্ড স্টাইল */
+        .card-compact {
+            padding: 0.9rem !important; /* আগে p-4 ছিল */
+            border-radius: 14px; /* একটু কম বর্ডার রেডিয়াস */
+        }
+
+        /* Recent card-এর ফিক্সড হাইট ছোট করা */
+        .recent-card.card-compact {
+            height: 280px; /* আগে 380px ছিল */
+        }
+        @@media (max-width: 992px) {
+            .recent-card.card-compact
+
+        {
+            height: 220px;
+        }
+
+        }
+
+        /* হেডিং/লিস্ট আইটেমও একটু কম্প্যাক্ট */
+        .card-compact .eyebrow {
+            font-size: .78rem;
+        }
+
+        .card-compact .list-group-item {
+            padding: .55rem .75rem;
+            border-radius: 12px !important;
+            margin-bottom: .5rem !important;
+        }
+
+        /* Resources বাটনগুলো ছোট করা */
+        .card-compact .resource-btn {
+            padding: .7rem 1rem; /* আগে p-3 ছিল */
+            font-size: .95rem;
+            border-radius: 12px;
+        }
+
+            .card-compact .resource-btn i {
+                font-size: 1rem;
+            }
+
+        .accordion-button:not(.collapsed) {
+            background-color: #f0f7ff !important;
+            color: #0d6efd !important;
+            box-shadow: none;
+        }
+
+        .accordion-body {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .accordion-item {
+            transition: all 0.2s ease-in-out;
+        }
+
+            .accordion-item:hover {
+                transform: translateY(-2px);
+            }
+        /* Accordion Hover Effect */
+        .accordion-item {
+            transition: all 0.2s ease-in-out;
+        }
+
+            .accordion-item:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+            }
+
+        /* Dark Mode Support */
+        [data-theme="dark"] .accordion-button {
+            color: #fff;
+            background-color: rgba(28,28,30,0.7);
+        }
+
+            [data-theme="dark"] .accordion-button:not(.collapsed) {
+                background-color: rgba(18,18,20,0.8);
+                color: #0d6efd;
+            }
+
+        [data-theme="dark"] .accordion-body {
+            color: #ccc;
+            background-color: rgba(18,18,20,0.6);
+        }
+
+        /* Icon Rotate Animation */
+        .accordion-button i {
+            transition: transform 0.2s ease;
+        }
+
+        .accordion-button.collapsed i {
+            transform: rotate(0deg);
+        }
+
+        .accordion-button:not(.collapsed) i {
+            transform: rotate(90deg);
+        }
+
+        /* Smooth transition for collapse */
+        .accordion-collapse {
+            transition: max-height 0.3s ease;
+        }
+        /* Default (light mode) */
+        .hp-sub {
+            color: #6c757d; /* muted gray for light mode */
+        }
+
+        /* Dark mode support */
+        body.dark-mode .hp-sub {
+            color: #d1d5db; /* light gray for dark mode */
+        }
+
+        .btn-gradient-primary {
+            background: linear-gradient(135deg, #007bff, #00c6ff);
+            color: #fff;
+            border-radius: 0.75rem;
+            transition: all 0.25s ease-in-out;
+        }
+
+        .btn-gradient-info {
+            background: linear-gradient(135deg, #17a2b8, #5bc0de);
+            color: #fff;
+            border-radius: 0.75rem;
+            transition: all 0.25s ease-in-out;
+        }
+
+        .btn-gradient-warning {
+            background: linear-gradient(135deg, #ffc107, #ffcd39);
+            color: #fff;
+            border-radius: 0.75rem;
+            transition: all 0.25s ease-in-out;
+        }
+
+        /* Hover Effects */
+        .resource-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            text-decoration: none;
+            color: #fff;
+        }
+
+        /* Mobile adjustments */
+        @@media (max-width: 575.98px) {
+            .resource-btn
+
+        {
+            font-size: 0.95rem;
+            padding: 0.65rem 0.75rem;
+        }
+
+        .resource-btn i {
+            font-size: 1.1rem;
+        }
+
+        }
+
+
     </style>
+
+
+
+
+
 }
 
-<div class="hp-hero mb-4">
+<!-- ===================== HERO SECTION ===================== -->
+<div class="hp-hero">
     <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
         <div>
-            <div class="pill mb-2">
-                <i class="bi bi-stars"></i> Streamlined Thesis Workflow
-            </div>
-            <h1 class="hp-title display-5 m-0">
-                Hi, @Model.UserFullName ?? "there"! <span class="text-primary">Welcome to ThesisNest</span>
-            </h1>
-            <p class="hp-sub mt-2">
-                One secured place for proposals, reviews, feedback, and real-time communication.
-            </p>
+            <div class="pill"><i class="bi bi-stars"></i> Streamlined Thesis Workflow</div>
+            <h1 class="hp-title">Hi, @(Model.UserFullName ?? "there")! <span class="text-primary">Welcome to ThesisNest</span></h1>
+            <p class="hp-sub">One secured place for proposals, reviews, feedback, and real-time communication.</p>
             <div class="d-flex flex-wrap gap-2 mt-3">
                 @if (Model.Role == "Student")
                 {
-                    <a class="btn btn-primary btn-lg" asp-controller="StudentThesis" asp-action="Create">
-                        <i class="bi bi-upload"></i> Upload Proposal
-                    </a>
-                    <a class="btn btn-outline-secondary btn-lg" asp-controller="StudentThesis" asp-action="Index">
-                        <i class="bi bi-journal-text"></i> My Submissions
-                    </a>
+                    <a class="btn btn-primary btn-lg" asp-controller="StudentThesis" asp-action="Create"><i class="bi bi-upload"></i> Upload Proposal</a>
+                    <a class="btn btn-outline-secondary btn-lg" asp-controller="StudentThesis" asp-action="Index"><i class="bi bi-journal-text"></i> My Submissions</a>
                 }
                 else if (Model.Role == "Teacher")
                 {
-                    <a class="btn btn-primary btn-lg" asp-controller="ThesisReview" asp-action="Index">
-                        <i class="bi bi-clipboard-check"></i> Review Theses
-                    </a>
-                    <a class="btn btn-outline-secondary btn-lg" asp-controller="Plagiarism" asp-action="Index">
-                        <i class="bi bi-shield-check"></i> Plagiarism Checker
-                    </a>
+                    <a class="btn btn-primary btn-lg" asp-controller="ThesisReview" asp-action="Index"><i class="bi bi-clipboard-check"></i> Review Theses</a>
+                    <a class="btn btn-outline-secondary btn-lg" asp-controller="Plagiarism" asp-action="Index"><i class="bi bi-shield-check"></i> Plagiarism Checker</a>
                 }
                 else if (Model.Role == "Admin")
                 {
-                    <a class="btn btn-primary btn-lg" asp-controller="AdminProposal" asp-action="Index">
-                        <i class="bi bi-file-earmark-text"></i> Proposal Manage
-                    </a>
-                    <a class="btn btn-outline-secondary btn-lg" asp-controller="AdminTeacher" asp-action="Index">
-                        <i class="bi bi-people"></i> Manage People
-                    </a>
+                    <a class="btn btn-primary btn-lg" asp-controller="AdminProposal" asp-action="Index"><i class="bi bi-file-earmark-text"></i> Proposal Manage</a>
+                    <a class="btn btn-outline-secondary btn-lg" asp-controller="AdminTeacher" asp-action="Index"><i class="bi bi-people"></i> Manage People</a>
                 }
                 else
                 {
-                    <a class="btn btn-primary btn-lg" asp-controller="Account" asp-action="Login">
-                        <i class="bi bi-box-arrow-in-right"></i> Get Started
-                    </a>
+                    <a class="btn btn-primary btn-lg" asp-controller="Account" asp-action="Register"><i class="bi bi-box-arrow-in-right"></i> Get Started</a>
                 }
             </div>
         </div>
-        <div class="text-center text-lg-end">
-            <img src="~/images/hero-illustration.svg" alt="ThesisNest" style="max-width:360px;width:100%;opacity:.95">
+        
+    </div>
+</div>
+
+<!-- ===================== KPI CARDS ===================== -->
+<div class="row g-4 mb-5 equal-cards">
+
+    @if (Model.Role == "Student")
+    {
+        <div class="col-6 col-md-3">
+            <div class="fancy-card hover-scale h-100">
+                <div class="kpi-top flex-column align-items-center">
+                    <div class="kpi-icon bg-gradient-primary shadow-icon"><i class="bi bi-journal-text"></i></div>
+                    <div class="kpi-label">My Submissions</div>
+                </div>
+                <div class="kpi-value">@Model.MyTotalSubmissions</div>
+                <div class="kpi-footer text-muted small mt-2">Total uploaded proposals</div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <div class="fancy-card hover-scale">
+                <div class="kpi-top flex-column align-items-center">
+                    <div class="kpi-icon bg-gradient-success shadow-icon"><i class="bi bi-file-earmark-text"></i></div>
+                    <div class="kpi-label">Proposal Status</div>
+                </div>
+                <div class="kpi-value">@(!string.IsNullOrWhiteSpace(Model.MyProposalStatus) ? Model.MyProposalStatus : "—")</div>
+                <div class="kpi-footer text-muted small mt-2">Current proposal stage</div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <div class="fancy-card hover-scale">
+                <div class="kpi-top flex-column align-items-center">
+                    <div class="kpi-icon bg-gradient-warning shadow-icon"><i class="bi bi-chat-left-text"></i></div>
+                    <div class="kpi-label">Feedback</div>
+                </div>
+                <div class="kpi-value">@Model.MyFeedbackCount</div>
+                <div class="kpi-footer text-muted small mt-2">Total feedback received</div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <div class="fancy-card hover-scale d-flex flex-column justify-content-between">
+                <div class="kpi-label mb-2 text-center fw-bold">Quick Links</div>
+                <div class="d-grid gap-2">
+                    <a class="btn btn-outline-primary res-btn w-100" asp-controller="StudentThesis" asp-action="Index"><i class="bi bi-journal-text me-2"></i> My Submissions</a>
+                    <a class="btn btn-outline-success res-btn w-100" asp-controller="Resources" asp-action="Guidelines"><i class="bi bi-book me-2"></i> Guidelines</a>
+                    <a class="btn btn-outline-success res-btn w-100" asp-controller="StudentProfile" asp-action="Index"><i class="bi bi-book me-2"></i> Student Profile</a>
+                    <a class="btn btn-outline-success res-btn w-100"
+                       asp-controller="StudentThesis" asp-action="Create">
+                        <i class="bi bi-upload me-2"></i> Upload Proposal
+                    </a>
+
+                </div>
+            </div>
+        </div>
+    }
+    else if (Model.Role == "Teacher")
+    {
+        <div class="col-6 col-md-3">
+            <div class="fancy-card hover-scale">
+                <div class="kpi-top flex-column align-items-center">
+                    <div class="kpi-icon bg-gradient-warning shadow-icon"><i class="bi bi-hourglass-split"></i></div>
+                    <div class="kpi-label">Pending Reviews</div>
+                </div>
+                <div class="kpi-value">@Model.PendingReviews</div>
+                <div class="kpi-footer text-muted small mt-2">Proposals awaiting review</div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <div class="fancy-card hover-scale">
+                <div class="kpi-top flex-column align-items-center">
+                    <div class="kpi-icon bg-gradient-info shadow-icon"><i class="bi bi-arrow-repeat"></i></div>
+                    <div class="kpi-label">Ongoing</div>
+                </div>
+                <div class="kpi-value">@Model.OngoingCount</div>
+                <div class="kpi-footer text-muted small mt-2">Currently active reviews</div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <div class="fancy-card hover-scale">
+                <div class="kpi-top flex-column align-items-center">
+                    <div class="kpi-icon bg-gradient-success shadow-icon"><i class="bi bi-check-circle"></i></div>
+                    <div class="kpi-label">Completed</div>
+                </div>
+                <div class="kpi-value">@Model.CompletedCount</div>
+                <div class="kpi-footer text-muted small mt-2">Total completed reviews</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="fancy-card hover-scale d-flex flex-column justify-content-between">
+                <div class="kpi-label mb-2 text-center fw-bold">Quick Links</div>
+                <div class="d-grid gap-2">
+                    <a class="btn btn-outline-primary res-btn w-100" asp-controller="StudentThesis" asp-action="Index"><i class="bi bi-journal-text me-2"></i> My Submissions</a>
+                    <a class="btn btn-outline-success res-btn w-100" asp-controller="Resources" asp-action="Guidelines"><i class="bi bi-book me-2"></i> Guidelines</a>
+                    <a class="btn btn-outline-success res-btn w-100" asp-controller="StudentProfile" asp-action="Index"><i class="bi bi-book me-2"></i> Student Profile</a>
+                    <a class="btn btn-outline-success res-btn w-100"
+                       asp-controller="StudentThesis" asp-action="Create">
+                        <i class="bi bi-upload me-2"></i> Upload Proposal
+                    </a>
+
+                </div>
+            </div>
+        </div>
+    }
+    else if (Model.Role == "Admin")
+    {
+        <div class="col-6 col-md-3">
+            <div class="fancy-card hover-scale">
+                <div class="kpi-top flex-column align-items-center">
+                    <div class="kpi-icon bg-gradient-primary shadow-icon"><i class="bi bi-people"></i></div>
+                    <div class="kpi-label">Students</div>
+                </div>
+                <div class="kpi-value">@Model.TotalStudents</div>
+                <div class="kpi-footer text-muted small mt-2">Total registered students</div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <div class="fancy-card hover-scale">
+                <div class="kpi-top flex-column align-items-center">
+                    <div class="kpi-icon bg-gradient-success shadow-icon"><i class="bi bi-mortarboard"></i></div>
+                    <div class="kpi-label">Teachers</div>
+                </div>
+                <div class="kpi-value">@Model.TotalTeachers</div>
+                <div class="kpi-footer text-muted small mt-2">Total registered teachers</div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <div class="fancy-card hover-scale">
+                <div class="kpi-top flex-column align-items-center">
+                    <div class="kpi-icon bg-gradient-warning shadow-icon"><i class="bi bi-file-earmark-text"></i></div>
+                    <div class="kpi-label">Proposals (7d)</div>
+                </div>
+                <div class="kpi-value">@Model.ProposalsThisWeek</div>
+                <div class="kpi-footer text-muted small mt-2">Uploaded in last 7 days</div>
+            </div>
+        </div>
+    }
+
+</div>
+
+<!-- ===================== RECENT ACTIVITY & RESOURCES ===================== -->
+
+<div class="row g-4">
+    <!-- ===================== RECENT ACTIVITY ===================== -->
+  
+
+    @* ---- Recent Activity/Submissions (role-based, fixed size) ---- *@
+    <div class="col-lg-6">
+        <div class="card-soft fancy-card recent-card card-compact">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <div class="eyebrow text-uppercase fw-bold">
+                    @(
+                                        Model.Role == "Teacher" ? "Recent Submissions" :
+                                        Model.Role == "Admin" ? "Site Activity" :
+                                        "Recent Activity"
+                                        )
+                </div>
+                <i class="bi bi-clock-history fs-4 text-secondary"></i>
+            </div>
+
+            @{
+                // Role অনুযায়ী কোন লিস্ট দেখাব
+                var activityList =
+                Model.Role == "Teacher" ? Model.TeacherRecent :
+                Model.Role == "Admin" ? Model.SiteRecent :
+                Model.MyRecentActivities;
+            }
+
+            <div class="recent-body">
+                @if (activityList == null || !activityList.Any())
+                {
+                    <div class="text-muted text-center py-5">No recent updates.</div>
+                }
+                else
+                {
+                    <ul class="list-group list-clean">
+                        @foreach (var activity in activityList)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-start rounded-4 mb-3 shadow-sm activity-item">
+                                <div>
+                                    @if (!string.IsNullOrWhiteSpace(activity.Link))
+                                    {
+                                        <a href="@activity.Link" class="fw-semibold activity-title text-decoration-none">
+                                            @activity.Title
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <div class="fw-semibold activity-title">@activity.Title</div>
+                                    }
+                                    <div class="text-muted small activity-detail">@activity.Detail</div>
+                                </div>
+                                <small class="text-muted activity-time">
+                                    @activity.At.ToLocalTime().ToString("dd MMM yyyy, HH:mm")
+                                </small>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <!-- ===================== RESOURCES ===================== -->
+    <div class="col-12 col-lg-6">
+        <div class="card-soft fancy-card h-100 card-compact p-4 shadow-sm">
+            <!-- Header -->
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <div class="eyebrow text-uppercase fw-bold text-primary">Resources</div>
+                <i class="bi bi-journal-bookmark fs-4 text-secondary"></i>
+            </div>
+
+            <!-- Buttons -->
+            <div class="row g-3 mt-3">
+                <!-- Google Scholar -->
+                <div class="col-12 col-md-6">
+                    <a class="btn btn-gradient-primary resource-btn w-100 d-flex align-items-center justify-content-center gap-2 p-3 fw-semibold shadow-sm"
+                       href="https://scholar.google.com" target="_blank" rel="noopener">
+                        <i class="bi bi-lightbulb fs-5"></i>
+                        <span>Google Scholar</span>
+                    </a>
+                </div>
+
+                <!-- Research Paper Template -->
+                <div class="col-12 col-md-6">
+                    <a class="btn btn-gradient-info resource-btn w-100 d-flex align-items-center justify-content-center gap-2 p-3 fw-semibold shadow-sm"
+                       href="https://gradcoach.com/research-paper-template/" target="_blank" rel="noopener">
+                        <i class="bi bi-file-earmark-text fs-5"></i>
+                        <span>Research Paper Template (DOCX)</span>
+                    </a>
+                </div>
+
+                <!-- Video Walkthrough -->
+                <div class="col-12">
+                    <a class="btn btn-gradient-warning resource-btn w-100 d-flex align-items-center justify-content-center gap-2 p-3 fw-semibold shadow-sm"
+                       href="https://www.youtube.com" target="_blank" rel="noopener">
+                        <i class="bi bi-play-circle fs-5"></i>
+                        <span>Video Walkthrough</span>
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-@if (Model.Role == "Student")
+<!-- ===================== FAQ SECTION ===================== -->
+@if (Model.Role != "Admin" && Model.Role != "Student" && Model.Role != "Teacher")
 {
-    <div class="row g-3 mb-4">
-        <div class="col-6 col-md-3">
-            <div class="kpi h-100">
-                <div class="kpi-label">My Submissions</div>
-                <div class="kpi-value">@Model.MyTotalSubmissions</div>
-            </div>
+    <div class="faq-section mt-4">
+        <div class="faq-header mb-3">
+            <h2><i class="bi bi-patch-question-fill text-primary me-3"></i>Frequently Asked Questions</h2>
+            <p>Find quick answers to common questions about ThesisNest and the thesis submission process.</p>
         </div>
-        <div class="col-6 col-md-3">
-            <div class="kpi h-100">
-                <div class="kpi-label">Proposal Status</div>
-                <div class="kpi-value">@Model.MyProposalStatus ?? "—"</div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="kpi h-100">
-                <div class="kpi-label">Feedback</div>
-                <div class="kpi-value">@Model.MyFeedbackCount</div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="kpi h-100">
-                <div class="kpi-label">Quick Links</div>
-                <div class="d-grid gap-2 mt-2 quick">
-                    <a class="btn btn-outline-secondary" asp-controller="StudentThesis" asp-action="Index"><i class="bi bi-journal-text"></i> My Submissions</a>
-                    <a class="btn btn-outline-secondary" asp-controller="Resources" asp-action="Guidelines"><i class="bi bi-book"></i> Guidelines</a>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <div class="row g-3">
-        <div class="col-lg-6">
-            <div class="card card-soft h-100">
-                <div class="card-body">
-                    <div class="eyebrow mb-2">Recent Activity</div>
-                    @if (!Model.MyRecentActivities.Any())
-                    {
-                        <div class="text-muted">No recent updates.</div>
-                    }
-                    else
-                    {
-                        <ul class="list-group list-clean">
-                            @foreach (var a in Model.MyRecentActivities)
-                            {
-                                <li class="list-group-item d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <div class="fw-semibold">@a.Title</div>
-                                        <div class="text-muted small">@a.Detail</div>
-                                    </div>
-                                    <small class="text-muted">@a.At.ToLocalTime()</small>
-                                </li>
-                            }
-                        </ul>
-                    }
-                </div>
+        <!-- Search Box -->
+        <div class="faq-search mb-4">
+            <div class="position-relative">
+                <input type="text" class="form-control" id="faqSearch" placeholder="Search FAQs...">
+                
             </div>
         </div>
-        <div class="col-lg-6">
-            <div class="card card-soft h-100">
-                <div class="card-body">
-                    <div class="eyebrow mb-2">Resources</div>
-                    <div class="row g-3">
-                        <div class="col-12 col-md-6">
-                            <a class="btn btn-outline-primary w-100" asp-controller="Resources" asp-action="Guidelines"><i class="bi bi-lightbulb"></i> How to write proposal</a>
-                        </div>
-                        <div class="col-12 col-md-6">
-                            <a class="btn btn-outline-primary w-100" href="~/files/ThesisTemplate.docx"><i class="bi bi-file-earmark"></i> Template (DOCX)</a>
-                        </div>
-                        <div class="col-12">
-                            <a class="btn btn-outline-secondary w-100" href="https://www.youtube.com" target="_blank" rel="noopener">
-                                <i class="bi bi-play-circle"></i> Video walkthrough
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-}
 
-@if (Model.Role == "Teacher")
-{
-    <div class="row g-3 mb-4">
-        <div class="col-6 col-md-3"><div class="kpi h-100"><div class="kpi-label">Pending Reviews</div><div class="kpi-value">@Model.PendingReviews</div></div></div>
-        <div class="col-6 col-md-3"><div class="kpi h-100"><div class="kpi-label">Ongoing</div><div class="kpi-value">@Model.OngoingCount</div></div></div>
-        <div class="col-6 col-md-3"><div class="kpi h-100"><div class="kpi-label">Completed</div><div class="kpi-value">@Model.CompletedCount</div></div></div>
-        <div class="col-6 col-md-3">
-            <div class="kpi h-100">
-                <div class="kpi-label">Quick</div>
-                <div class="d-grid gap-2 mt-2 quick">
-                    <a class="btn btn-outline-secondary" asp-controller="ThesisReview" asp-action="Index"><i class="bi bi-clipboard-check"></i> Review</a>
-                    <a class="btn btn-outline-secondary" asp-controller="Plagiarism" asp-action="Index"><i class="bi bi-shield-check"></i> Plagiarism</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="card card-soft">
-        <div class="card-body">
-            <div class="eyebrow mb-2">Recent Submissions</div>
-            @if (!Model.TeacherRecent.Any())
+        <!-- FAQ Accordion -->
+        <div class="accordion" id="faqAccordion">
+            @if (Model.FAQs == null || !Model.FAQs.Any())
             {
-                <div class="text-muted">No recent submissions.</div>
+                <p class="text-muted fst-italic">No FAQs available yet.</p>
             }
             else
             {
-                <ul class="list-group list-clean">
-                    @foreach (var a in Model.TeacherRecent)
-                    {
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span><strong>@a.Title:</strong> @a.Detail</span>
-                            <small class="text-muted">@a.At.ToLocalTime()</small>
-                        </li>
-                    }
-                </ul>
+                @foreach (var faq in Model.FAQs)
+                {
+                    var headingId = $"heading-{faq.Id}";
+                    var collapseId = $"collapse-{faq.Id}";
+                    <div class="accordion-item faq-item mb-2 shadow-sm rounded-3 overflow-hidden">
+                        <h2 class="accordion-header" id="@headingId">
+                            <button class="accordion-button collapsed" type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#@collapseId"
+                                    aria-expanded="false"
+                                    aria-controls="@collapseId">
+                                <div class="faq-question-icon me-2"><i class="bi bi-question"></i></div>
+                                <span class="faq-question-text flex-grow-1">@faq.Question</span>
+                                <i class="bi bi-chevron-right faq-icon"></i>
+                            </button>
+                        </h2>
+                        <div id="@collapseId"
+                             class="accordion-collapse collapse"
+                             aria-labelledby="@headingId"
+                             data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                <div class="faq-answer">@faq.Answer</div>
+                            </div>
+                        </div>
+                    </div>
+                }
             }
         </div>
     </div>
-}
 
-@if (Model.Role == "Admin")
-{
-    <div class="row g-3 mb-4">
-        <div class="col-6 col-md-3"><div class="kpi h-100"><div class="kpi-label">Students</div><div class="kpi-value">@Model.TotalStudents</div></div></div>
-        <div class="col-6 col-md-3"><div class="kpi h-100"><div class="kpi-label">Teachers</div><div class="kpi-value">@Model.TotalTeachers</div></div></div>
-        <div class="col-6 col-md-3"><div class="kpi h-100"><div class="kpi-label">Proposals (7d)</div><div class="kpi-value">@Model.ProposalsThisWeek</div></div></div>
-        <div class="col-6 col-md-3">
-            <div class="kpi h-100">
-                <div class="kpi-label">Quick</div>
-                <div class="d-grid gap-2 mt-2 quick">
-                    <a class="btn btn-outline-secondary" asp-controller="AdminProposal" asp-action="Index"><i class="bi bi-file-earmark-text"></i> Proposal</a>
-                    <a class="btn btn-outline-secondary" asp-controller="AdminTeacher" asp-action="Index"><i class="bi bi-people"></i> Teachers</a>
-                    <a class="btn btn-outline-secondary" asp-controller="AdminStudent" asp-action="Index"><i class="bi bi-person-badge"></i> Students</a>
-                </div>
-            </div>
-        </div>
-    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const accordion = document.getElementById('faqAccordion');
+            const searchInput = document.getElementById('faqSearch');
+            const faqItems = accordion.querySelectorAll('.faq-item');
+            const noResults = document.getElementById('noResults');
 
-    <div class="row g-3">
-        <div class="col-lg-6">
-            <div class="card card-soft h-100">
-                <div class="card-body">
-                    <div class="eyebrow mb-2">Recent Site Activity</div>
-                    @if (!Model.SiteRecent.Any())
-                    {
-                        <div class="text-muted">No recent uploads.</div>
+            // একসাথে শুধু একটি ওপেন রাখুন
+            accordion.addEventListener('show.bs.collapse', function (e) {
+                accordion.querySelectorAll('.accordion-collapse.show').forEach(openItem => {
+                    if (openItem !== e.target) {
+                        bootstrap.Collapse.getOrCreateInstance(openItem).hide();
                     }
-                    else
-                    {
-                        <ul class="list-group list-clean">
-                            @foreach (var a in Model.SiteRecent)
-                            {
-                                <li class="list-group-item d-flex justify-content-between">
-                                    <span><strong>@a.Title:</strong> @a.Detail</span>
-                                    <small class="text-muted">@a.At.ToLocalTime()</small>
-                                </li>
-                            }
-                        </ul>
-                    }
-                </div>
-            </div>
-        </div>
+                });
+            });
 
-        <div class="col-lg-6">
-            <div class="card card-soft h-100">
-                <div class="card-body">
-                    <div class="eyebrow mb-2">Announcements & Deadlines</div>
-                    <div class="row">
-                        <div class="col-12 col-md-6">
-                            <div class="fw-semibold mb-2">Announcements</div>
-                            @if (!Model.Notices.Any())
-                            {
-                                <div class="text-muted">No announcements.</div>
-                            }
-                            else
-                            {
-                                <ul class="list-unstyled m-0">
-                                    @foreach (var n in Model.Notices)
-                                    {
-                                        <li class="mb-2">• <a href="@n.Url">@n.Title</a></li>
-                                    }
-                                </ul>
-                            }
-                        </div>
-                        <div class="col-12 col-md-6">
-                            <div class="fw-semibold mb-2">Deadlines</div>
-                            @if (!Model.Deadlines.Any())
-                            {
-                                <div class="text-muted">No deadlines.</div>
-                            }
-                            else
-                            {
-                                <ul class="list-unstyled m-0">
-                                    @foreach (var d in Model.Deadlines)
-                                    {
-                                        <li class="mb-2 d-flex justify-content-between">
-                                            <span>@d.Title</span>
-                                            <span class="text-muted">@d.DueAt.ToString("MMM dd, yyyy")</span>
-                                        </li>
-                                    }
-                                </ul>
-                            }
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+            // সার্চ ফিল্টার
+            if (searchInput) {
+                searchInput.addEventListener('input', function () {
+                    const term = this.value.toLowerCase().trim();
+                    let hasResults = false;
+
+                    faqItems.forEach(item => {
+                        const qText = item.querySelector('.faq-question-text').textContent.toLowerCase();
+                        const aText = item.querySelector('.faq-answer').textContent.toLowerCase();
+                        const match = term === '' || qText.includes(term) || aText.includes(term);
+
+                        if (match) {
+                            item.classList.remove('d-none');
+                            hasResults = true;
+                        } else {
+                            item.classList.add('d-none');
+                            // লুকানোর সময় ওপেন থাকলে বন্ধ করে দিন
+                            const collapse = item.querySelector('.accordion-collapse');
+                            bootstrap.Collapse.getOrCreateInstance(collapse).hide();
+                        }
+                    });
+
+                    noResults.classList.toggle('d-none', hasResults || term === '');
+                });
+            }
+        });
+    </script>
+
 }
 
-@if (Model.Role == "Guest")
-{
-    <div class="card card-soft mt-4">
-        <div class="card-body d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
-            <div>
-                <div class="eyebrow">Get Started</div>
-                <div class="h5 m-0">Create an account and submit your thesis proposal today.</div>
-            </div>
-            <div>
-                <a class="btn btn-primary me-2" asp-controller="Account" asp-action="Register">Register</a>
-                <a class="btn btn-outline-secondary" asp-controller="Account" asp-action="Login">Login</a>
-            </div>
-        </div>
-    </div>
-}

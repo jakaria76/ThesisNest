@@ -1,0 +1,87 @@
+﻿@model IEnumerable<FAQ>
+@{
+    ViewData["Title"] = "Manage FAQs";
+}
+
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between mb-4 gap-3">
+        <h2 class="mb-0">Manage FAQs</h2>
+        <a asp-action="Create" class="btn btn-primary d-flex align-items-center gap-2">
+            <i class="bi bi-plus"></i> Add FAQ
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-warning shadow-sm rounded">No FAQs found.</div>
+    }
+    else
+    {
+        <div class="table-responsive shadow-sm rounded">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark text-uppercase small">
+                    <tr>
+                        <th>Question</th>
+                        <th>Answer</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var faq in Model)
+                    {
+                        <tr>
+                            <td>@faq.Question</td>
+                            <td>@faq.Answer</td>
+                            <td class="text-end">
+                                <div class="d-flex flex-column flex-sm-row justify-content-end gap-2">
+                                    <a asp-action="Edit" asp-route-id="@faq.Id" class="btn btn-sm btn-warning d-flex align-items-center gap-1">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </a>
+
+                                    <form asp-action="Delete" asp-route-id="@faq.Id" method="post" class="d-inline"
+                                          onsubmit="return confirm('Are you sure to delete this FAQ?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-danger d-flex align-items-center gap-1">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<style>
+    /* Mobile adjustments */
+    @@media (max-width: 575.98px) {
+        .table tbody td
+
+    {
+        font-size: 0.85rem;
+    }
+
+    .d-flex.flex-column.flex-sm-row {
+        flex-direction: column !important;
+        gap: 0.25rem;
+    }
+
+    .btn-sm i {
+        font-size: 0.85rem;
+    }
+
+    }
+
+    /* Optional: table row hover effect */
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .table td, .table th {
+        vertical-align: middle;
+    }
+</style>
