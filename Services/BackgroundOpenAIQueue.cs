@@ -1,6 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace ThesisNest.Services
 {
@@ -9,17 +7,28 @@ namespace ThesisNest.Services
         private readonly ConcurrentQueue<QueuedMessage> _messages = new();
         private readonly SemaphoreSlim _signal = new(0);
 
-        public void QueueMessage(QueuedMessage message)
+        public event EventHandler<BotResponseEventArgs>? BotResponded;
+
+        public void QueueMessage(QueuedMessage msg)
         {
-            _messages.Enqueue(message);
+            _messages.Enqueue(msg);
             _signal.Release();
         }
 
-        public async Task<QueuedMessage> DequeueAsync(CancellationToken cancellationToken)
+        public async Task<QueuedMessage> DequeueAsync(CancellationToken token)
         {
-            await _signal.WaitAsync(cancellationToken);
-            _messages.TryDequeue(out var message);
-            return message!;
+            await _signal.WaitAsync(token);
+            _messages.TryDequeue(out var msg);
+            return msg!;
+        }
+
+        public void RaiseBotResponse(string connectionId, string response)
+        {
+            BotResponded?.Invoke(this, new BotResponseEventArgs
+            {
+                ConnectionId = connectionId,
+                Response = response
+            });
         }
     }
 }
