@@ -1,9 +1,9 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "D:\\3.2\\SD\\ThesisNest\\",
+  "WorkspaceRootPath": "E:\\Final-3.2\\ThesisNest\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{7B89202D-79C7-4D41-9CBF-2A8C9876A7E1}|ThesisNest.csproj|d:\\3.2\\sd\\thesisnest\\services\\smtpemailsender.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{7B89202D-79C7-4D41-9CBF-2A8C9876A7E1}|ThesisNest.csproj|e:\\final-3.2\\thesisnest\\services\\smtpemailsender.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7B89202D-79C7-4D41-9CBF-2A8C9876A7E1}|ThesisNest.csproj|solutionrelative:services\\smtpemailsender.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
@@ -17,35 +17,15 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 5,
+          "SelectedChildIndex": 0,
           "Children": [
-            {
-              "$type": "Bookmark",
-              "Name": "ST:128:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:129:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
-            },
             {
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "SmtpEmailSender.cs",
-              "DocumentMoniker": "D:\\3.2\\SD\\ThesisNest\\Services\\SmtpEmailSender.cs",
+              "DocumentMoniker": "E:\\Final-3.2\\ThesisNest\\Services\\SmtpEmailSender.cs",
               "RelativeDocumentMoniker": "Services\\SmtpEmailSender.cs",
-              "ToolTip": "D:\\3.2\\SD\\ThesisNest\\Services\\SmtpEmailSender.cs",
+              "ToolTip": "E:\\Final-3.2\\ThesisNest\\Services\\SmtpEmailSender.cs",
               "RelativeToolTip": "Services\\SmtpEmailSender.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAZAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
