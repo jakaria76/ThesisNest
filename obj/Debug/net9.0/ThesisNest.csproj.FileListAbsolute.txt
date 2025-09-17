@@ -780,17 +780,3 @@ E:\Final-3.2\ThesisNest\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt
 E:\Final-3.2\ThesisNest\obj\Debug\net9.0\ThesisNest.csproj.Up2Date
 E:\Final-3.2\ThesisNest\obj\Debug\net9.0\ThesisNest.genruntimeconfig.cache
 E:\Final-3.2\ThesisNest\obj\Debug\net9.0\ref\ThesisNest.dll
-D:\3.2\SD\ThesisNest\obj\Debug\net9.0\ThesisNest.csproj.AssemblyReference.cache
-D:\3.2\SD\ThesisNest\obj\Debug\net9.0\ThesisNest.dll
-D:\3.2\SD\ThesisNest\obj\Debug\net9.0\refint\ThesisNest.dll
-D:\3.2\SD\ThesisNest\obj\Debug\net9.0\ThesisNest.pdb
-D:\3.2\SD\ThesisNest\obj\Debug\net9.0\rpswa.dswa.cache.json
-D:\3.2\SD\ThesisNest\obj\Debug\net9.0\ThesisNest.GeneratedMSBuildEditorConfig.editorconfig
-D:\3.2\SD\ThesisNest\obj\Debug\net9.0\ThesisNest.AssemblyInfoInputs.cache
-D:\3.2\SD\ThesisNest\obj\Debug\net9.0\ThesisNest.AssemblyInfo.cs
-D:\3.2\SD\ThesisNest\obj\Debug\net9.0\ThesisNest.csproj.CoreCompileInputs.cache
-D:\3.2\SD\ThesisNest\obj\Debug\net9.0\ThesisNest.MvcApplicationPartsAssemblyInfo.cs
-D:\3.2\SD\ThesisNest\obj\Debug\net9.0\ThesisNest.MvcApplicationPartsAssemblyInfo.cache
-D:\3.2\SD\ThesisNest\obj\Debug\net9.0\ThesisNest.RazorAssemblyInfo.cache
-D:\3.2\SD\ThesisNest\obj\Debug\net9.0\ThesisNest.RazorAssemblyInfo.cs
-D:\3.2\SD\ThesisNest\obj\Debug\net9.0\ThesisNest.sourcelink.json
