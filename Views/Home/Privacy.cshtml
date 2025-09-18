@@ -1,6 +1,161 @@
 ﻿@{
     ViewData["Title"] = "Privacy Policy";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div class="container my-5">
+
+    <!-- Page Header -->
+    <div class="text-center mb-5">
+        <h1 class="text-primary">Privacy Policy</h1>
+        <p class="text-muted">We value your privacy and are committed to protecting your personal information.</p>
+        <button id="themeToggle" class="btn btn-outline-primary btn-sm mt-2">
+            <i class="bi bi-moon-fill me-1"></i> Toggle Dark/Light
+        </button>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Information Collection -->
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-file-earmark-text fs-2 text-primary me-3"></i>
+                        <h5 class="card-title mb-0">Information We Collect</h5>
+                    </div>
+                    <ul class="list-unstyled mb-0">
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i> Personal info (name, email, contact)</li>
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i> Website usage & activity</li>
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i> Device & browser details</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- How We Use -->
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-gear-fill fs-2 text-primary me-3"></i>
+                        <h5 class="card-title mb-0">How We Use Your Info</h5>
+                    </div>
+                    <ul class="list-unstyled mb-0">
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i> Provide and improve our services</li>
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i> Communicate updates and submissions</li>
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i> Personalize your experience</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cookies -->
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-pie-chart-fill fs-2 text-primary me-3"></i>
+                        <h5 class="card-title mb-0">Cookies</h5>
+                    </div>
+                    <p>We use cookies to enhance user experience, track usage, and improve performance. You can manage cookies in your browser settings.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Sharing -->
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-shield-lock-fill fs-2 text-primary me-3"></i>
+                        <h5 class="card-title mb-0">Data Sharing</h5>
+                    </div>
+                    <p>We never sell your data. Only share with trusted partners to provide services or as required by law.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Rights -->
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-person-check-fill fs-2 text-primary me-3"></i>
+                        <h5 class="card-title mb-0">Your Rights</h5>
+                    </div>
+                    <ul class="list-unstyled mb-0">
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i> Access your data anytime</li>
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i> Request correction or deletion</li>
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i> Opt out of communications</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security Measures -->
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-shield-check fs-2 text-primary me-3"></i>
+                        <h5 class="card-title mb-0">Security Measures</h5>
+                    </div>
+                    <p>We implement technical & organizational measures to protect your data from unauthorized access or destruction.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact -->
+        <div class="col-12">
+            <div class="card shadow-sm text-center">
+                <div class="card-body">
+                    <h5 class="card-title mb-3"><i class="bi bi-envelope-fill text-primary me-2"></i>Contact Us</h5>
+                    <p>
+                        Email: <a href="mailto:support@thesisnest.com">support@thesisnest.com</a><br />
+                        Phone: +880 123 456 789<br />
+                        Address: ThesisNest, Dhaka, Bangladesh
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <p class="text-muted small text-center mt-5">Last updated: 17 September 2025</p>
+</div>
+
+@section Scripts {
+    <script>
+        const toggleBtn = document.getElementById('themeToggle');
+        toggleBtn.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark-mode');
+        });
+    </script>
+}
+
+<style>
+    /* Dark mode styles */
+    .dark-mode {
+        background-color: #121212;
+        color: #e0e0e0;
+    }
+
+        .dark-mode .card {
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+        }
+
+        .dark-mode a {
+            color: #4dabf7;
+        }
+
+        .dark-mode .btn-outline-primary {
+            border-color: #4dabf7;
+            color: #4dabf7;
+        }
+
+            .dark-mode .btn-outline-primary:hover {
+                background-color: #4dabf7;
+                color: #fff;
+            }
+</style>

@@ -1,0 +1,42 @@
+﻿@model List<ThesisNest.Models.ViewModels.TeacherViewModel>
+
+@{
+    ViewData["Title"] = "All Supervisors";
+}
+
+<h2>All Supervisors</h2>
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    @foreach (var teacher in Model)
+    {
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                @if (!string.IsNullOrEmpty(teacher.ProfileImageUrl))
+                {
+                    <img src="@teacher.ProfileImageUrl" class="card-img-top" alt="@teacher.FullName" style="height:200px; object-fit:cover;" />
+                }
+                <div class="card-body">
+                    <h5 class="card-title">@teacher.FullName</h5>
+                    <p class="card-text">
+                        <strong>Department:</strong> @teacher.Department <br />
+                        <strong>Designation:</strong> @teacher.Designation <br />
+                        <strong>Bio:</strong> @teacher.Bio <br />
+                        <strong>Available Slots:</strong> @teacher.AvailableSlots
+                    </p>
+                </div>
+                <div class="card-footer text-center">
+                    @if (teacher.AvailableSlots > 0)
+                    {
+                        <a asp-controller="StudentThesis" asp-action="Create" asp-route-teacherId="@teacher.Id" class="btn btn-primary">
+                            Send Proposal
+                        </a>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger">No Slots Available</span>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>

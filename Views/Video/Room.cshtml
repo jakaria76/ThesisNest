@@ -53,15 +53,12 @@
             }
 
         @@media (min-width: 992px) {
-            .chat-body
-
-        {
-            height: calc(100vh - 320px);
+            .chat-body {
+                height: calc(100vh - 320px);
+            }
         }
 
-        }
-
-        /* Bubbles (Comm.addMsgToUi চাইলে ব্যবহার করতে পারবে) */
+        /* Message bubbles */
         .msg {
             max-width: 85%;
             margin-bottom: .5rem;
@@ -69,13 +66,14 @@
             border: 1px solid var(--bs-border-color);
             border-radius: .5rem;
             background: var(--bs-body-bg);
+            word-break: break-word;
         }
 
             .msg.me {
                 margin-left: auto;
                 background: rgba(13,110,253,.08);
             }
-            /* my side */
+
             .msg .meta {
                 font-size: .75rem;
                 color: var(--bs-secondary-color);
@@ -85,6 +83,11 @@
                 font-weight: 600;
                 margin-right: .5rem;
             }
+
+        /* ✅ এই পাতায় site-wide popup chat লুকিয়ে রাখি */
+        #chatBubble, #chatPopup {
+            display: none !important;
+        }
     </style>
 }
 
@@ -171,11 +174,55 @@
             return;
           }
 
+          // --------- PAGE-SCOPED UI TARGET (সব মেসেজ ডান পাশে যাবে) ----------
+          const $msgs = document.getElementById('chat-messages');
+
+          // Helper: render one message bubble
+          function renderMsg(m) {
+            if (!$msgs) return;
+            const el = document.createElement('div');
+
+            const fromName = m?.user ?? m?.from ?? (m?.fromMe ? 'Me' : 'Peer');
+            const isMe = !!m?.fromMe ||
+                         (fromName && Comm?.me && String(fromName).toLowerCase() === String(Comm.me).toLowerCase());
+
+            el.className = 'msg' + (isMe ? ' me' : '');
+            const when = new Date(m?.timestamp || Date.now()).toLocaleTimeString();
+
+            el.innerHTML = `
+              <div class="meta">
+                <span class="name">${fromName}</span>
+                <span>${when}</span>
+              </div>
+              <div class="text"></div>
+            `;
+            el.querySelector('.text').textContent = m?.text ?? m?.message ?? '';
+            $msgs.appendChild(el);
+            $msgs.scrollTop = $msgs.scrollHeight;
+          }
+
+          // যদি Comm.setUiTarget থাকে, direct ভাবে সেট করুন
+          if (typeof Comm.setUiTarget === 'function') {
+            Comm.setUiTarget('#chat-messages');
+          } else {
+            // না থাকলে fallback: UI rendering hook override
+            const origAdd = Comm.addMsgToUi?.bind(Comm);
+            Comm.addMsgToUi = (m) => { try { renderMsg(m); } catch(e) { console.error(e); origAdd?.(m); } };
+
+            // bulk load হলে এখানে রেন্ডার
+            if (typeof Comm.onMessagesLoaded === 'function') {
+              Comm.onMessagesLoaded((list) => {
+                $msgs.innerHTML = '';
+                (list || []).forEach(renderMsg);
+              });
+            }
+          }
+
           // -------- join + load ----------
           (async () => {
             try {
               await Comm.joinThread(threadId);
-              await Comm.loadMessages?.();
+              await Comm.loadMessages?.(); // load & will come into our panel via hooks
             } catch (e) {
               console.error(e);
               alert("Failed to join the room. Are you a participant?");

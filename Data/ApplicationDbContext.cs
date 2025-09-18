@@ -23,6 +23,7 @@ namespace ThesisNest.Data
         public DbSet<Thesis> Theses { get; set; } = default!;
         public DbSet<ThesisVersion> ThesisVersions { get; set; } = default!;
         public DbSet<ThesisFeedback> ThesisFeedbacks { get; set; } = default!;
+        public DbSet<ThesisSubmission> ThesisSubmissions { get; set; } = default!;
 
         // ========= PLAGIARISM =========
         public DbSet<PlagiarismDocument> PlagiarismDocuments { get; set; } = default!;
@@ -35,6 +36,9 @@ namespace ThesisNest.Data
         // ========= CHAT =========
         public DbSet<ChatMessage> ChatMessages { get; set; } = default!;
 
+        // ========= FAQ =========
+        public DbSet<FAQ> FAQs { get; set; } = default!;
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -42,7 +46,7 @@ namespace ThesisNest.Data
             // ===== StudentProfile =====
             builder.Entity<StudentProfile>(e =>
             {
-                e.Property(p => p.ProfileImage).HasColumnType("varbinary(max)");
+                e.Property(p => p.ProfileImage).HasColumnType("bytea");
             });
 
             // ===== TeacherProfile =====
@@ -51,10 +55,15 @@ namespace ThesisNest.Data
                 e.ToTable("TeacherProfiles");
                 e.HasIndex(t => t.UserId).IsUnique();
                 e.HasIndex(t => t.Slug).IsUnique();
-                e.Property(t => t.ProfileImage).HasColumnType("varbinary(max)");
+                e.Property(t => t.ProfileImage).HasColumnType("bytea");
                 e.Ignore(t => t.OngoingThesisCount);
                 e.Ignore(t => t.CompletedThesisCount);
-                e.Property(t => t.RowVersion).IsRowVersion().IsConcurrencyToken();
+
+                // PostgreSQL optimistic concurrency via xmin (shadow property)
+                e.Property<uint>("xmin")
+                 .IsConcurrencyToken()
+                 .ValueGeneratedOnAddOrUpdate();
+
                 e.Property(t => t.UserId).HasMaxLength(450);
                 e.HasOne<ApplicationUser>()
                  .WithMany()
@@ -66,8 +75,8 @@ namespace ThesisNest.Data
             builder.Entity<TeacherEducation>(e =>
             {
                 e.HasIndex(t => new { t.TeacherProfileId, t.Degree }).IsUnique();
-                e.Property(t => t.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
-                e.Property(t => t.UpdatedAt).HasDefaultValueSql("GETUTCDATE()");
+                e.Property(t => t.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP AT TIME ZONE 'UTC'");
+                e.Property(t => t.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP AT TIME ZONE 'UTC'");
                 e.HasOne(t => t.TeacherProfile)
                  .WithMany(p => p.Educations)
                  .HasForeignKey(t => t.TeacherProfileId)
@@ -78,8 +87,8 @@ namespace ThesisNest.Data
             builder.Entity<TeacherAchievement>(e =>
             {
                 e.HasIndex(t => new { t.TeacherProfileId, t.Title }).IsUnique();
-                e.Property(t => t.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
-                e.Property(t => t.UpdatedAt).HasDefaultValueSql("GETUTCDATE()");
+                e.Property(t => t.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP AT TIME ZONE 'UTC'");
+                e.Property(t => t.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP AT TIME ZONE 'UTC'");
                 e.HasOne(t => t.TeacherProfile)
                  .WithMany(p => p.Achievements)
                  .HasForeignKey(t => t.TeacherProfileId)
@@ -90,8 +99,8 @@ namespace ThesisNest.Data
             builder.Entity<TeacherPublication>(e =>
             {
                 e.HasIndex(t => new { t.TeacherProfileId, t.Title }).IsUnique();
-                e.Property(t => t.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
-                e.Property(t => t.UpdatedAt).HasDefaultValueSql("GETUTCDATE()");
+                e.Property(t => t.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP AT TIME ZONE 'UTC'");
+                e.Property(t => t.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP AT TIME ZONE 'UTC'");
                 e.HasOne(t => t.TeacherProfile)
                  .WithMany(p => p.Publications)
                  .HasForeignKey(t => t.TeacherProfileId)
@@ -110,7 +119,7 @@ namespace ThesisNest.Data
                 e.ToTable("Theses");
                 e.HasIndex(t => new { t.TeacherProfileId, t.Status });
                 e.HasIndex(t => new { t.DepartmentId, t.ProposalStatus });
-                e.Property(t => t.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+                e.Property(t => t.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP AT TIME ZONE 'UTC'");
 
                 e.HasOne(t => t.Supervisor)
                  .WithMany(p => p.Theses)
@@ -132,7 +141,7 @@ namespace ThesisNest.Data
             builder.Entity<ThesisVersion>(e =>
             {
                 e.HasIndex(v => new { v.ThesisId, v.VersionNo }).IsUnique();
-                e.Property(v => v.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+                e.Property(v => v.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP AT TIME ZONE 'UTC'");
                 e.HasOne(v => v.Thesis)
                  .WithMany(t => t.Versions)
                  .HasForeignKey(v => v.ThesisId)
@@ -143,10 +152,20 @@ namespace ThesisNest.Data
             builder.Entity<ThesisFeedback>(e =>
             {
                 e.HasIndex(f => new { f.ThesisId, f.CreatedAt });
-                e.Property(f => f.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+                e.Property(f => f.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP AT TIME ZONE 'UTC'");
                 e.HasOne(f => f.Thesis)
                  .WithMany(t => t.Feedbacks)
                  .HasForeignKey(f => f.ThesisId)
+                 .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // ===== ThesisSubmission =====
+            builder.Entity<ThesisSubmission>(e =>
+            {
+                e.Property(s => s.SubmissionDate).HasDefaultValueSql("CURRENT_TIMESTAMP AT TIME ZONE 'UTC'");
+                e.HasOne(s => s.Student)
+                 .WithMany()
+                 .HasForeignKey(s => s.StudentId)
                  .OnDelete(DeleteBehavior.Cascade);
             });
 
@@ -172,7 +191,7 @@ namespace ThesisNest.Data
                 e.ToTable("Messages");
                 e.HasIndex(m => new { m.ThreadId, m.SentAt });
                 e.Property(m => m.Text).HasMaxLength(4000).IsRequired();
-                e.Property(m => m.SentAt).HasDefaultValueSql("GETUTCDATE()");
+                e.Property(m => m.SentAt).HasDefaultValueSql("CURRENT_TIMESTAMP AT TIME ZONE 'UTC'");
 
                 e.HasOne(m => m.Thread)
                  .WithMany(t => t.Messages)
@@ -183,7 +202,7 @@ namespace ThesisNest.Data
             builder.Entity<CallSession>(e =>
             {
                 e.HasIndex(c => new { c.ThreadId, c.StartedAt });
-                e.Property(c => c.StartedAt).HasDefaultValueSql("GETUTCDATE()");
+                e.Property(c => c.StartedAt).HasDefaultValueSql("CURRENT_TIMESTAMP AT TIME ZONE 'UTC'");
                 e.HasOne(c => c.Thread)
                  .WithMany(t => t.Calls)
                  .HasForeignKey(c => c.ThreadId)
@@ -198,7 +217,7 @@ namespace ThesisNest.Data
                     .IsRequired();
 
                 e.Property(c => c.Timestamp)
-                    .HasDefaultValueSql("GETUTCDATE()");
+                    .HasDefaultValueSql("CURRENT_TIMESTAMP AT TIME ZONE 'UTC'");
 
                 e.Property(c => c.User)
                     .HasMaxLength(255)
@@ -206,6 +225,13 @@ namespace ThesisNest.Data
 
                 e.Property(c => c.FromBot)
                     .HasDefaultValue(false);
+            });
+
+            builder.Entity<FAQ>(e =>
+            {
+                e.Property(f => f.Question).IsRequired().HasMaxLength(500);
+                e.Property(f => f.Answer).IsRequired().HasMaxLength(4000);
+                e.Property(f => f.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP AT TIME ZONE 'UTC'");
             });
         }
     }

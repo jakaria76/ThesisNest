@@ -5,7 +5,7 @@
 namespace ThesisNest.Migrations
 {
     /// <inheritdoc />
-    public partial class AddNewFieldToChat : Migration
+    public partial class Add_NewChanges : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

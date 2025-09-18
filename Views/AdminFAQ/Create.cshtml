@@ -1,0 +1,24 @@
+﻿@model ThesisNest.Models.FAQ
+
+<h3>Add FAQ</h3>
+
+<form asp-action="Create" method="post">
+    <div class="mb-3">
+        <label asp-for="Question" class="form-label"></label>
+        <input asp-for="Question" class="form-control" />
+        <span asp-validation-for="Question" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Answer" class="form-label"></label>
+        <textarea asp-for="Answer" class="form-control"></textarea>
+        <span asp-validation-for="Answer" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

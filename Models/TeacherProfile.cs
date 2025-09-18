@@ -13,6 +13,12 @@ namespace ThesisNest.Models
     [Table("TeacherProfiles")]
     public class TeacherProfile
     {
+
+        private const int MaxSlots = 3;
+
+        [NotMapped]
+        public int AvailableSlots => MaxSlots - (Theses?.Count(t => t.Status == ThesisStatus.Accept) ?? 0);
+
         [Key]
         public int Id { get; set; }
 
@@ -37,7 +43,7 @@ namespace ThesisNest.Models
         [MaxLength(1000)] public string? Bio { get; set; }
         [MaxLength(1500)] public string? ResearchSummary { get; set; }
 
-        [Column(TypeName = "varbinary(max)")]
+        [Column(TypeName = "bytea")]
         public byte[]? ProfileImage { get; set; }
 
         [MaxLength(100)] public string? ProfileImageContentType { get; set; }
