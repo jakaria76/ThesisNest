@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -12,9 +13,6 @@ using ThesisNest.Data;
 using ThesisNest.Hubs;
 using ThesisNest.Models;
 using ThesisNest.Services;
-
-// যদি UseNpgsql resolve না হয়, এই 'using' আনকমেন্ট করো:
-// using Npgsql.EntityFrameworkCore.PostgreSQL;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -75,15 +73,32 @@ builder.Services.ConfigureExternalCookie(options =>
 });
 
 // ------------------------
-// 5) External Auth (Google + GitHub)
+// 4.1) Forwarded headers (Render/Proxy safe HTTPS)
 // ------------------------
-builder.Services
-    .AddAuthentication()
-    .AddGoogle(options =>
+builder.Services.Configure<ForwardedHeadersOptions>(o =>
+{
+    o.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    o.KnownNetworks.Clear();
+    o.KnownProxies.Clear();
+});
+
+// ------------------------
+// 5) External Auth (Google + GitHub) — only if keys exist
+// ------------------------
+bool Has(IConfiguration cfg, string key) => !string.IsNullOrWhiteSpace(cfg[key]);
+var cfgAll = builder.Configuration;
+
+var auth = builder.Services.AddAuthentication();
+
+// Google
+if (Has(cfgAll, "Authentication:Google:ClientId") &&
+    Has(cfgAll, "Authentication:Google:ClientSecret"))
+{
+    auth.AddGoogle(options =>
     {
         options.SignInScheme = IdentityConstants.ExternalScheme;
-        options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
-        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+        options.ClientId = cfgAll["Authentication:Google:ClientId"]!;
+        options.ClientSecret = cfgAll["Authentication:Google:ClientSecret"]!;
         options.CallbackPath = "/signin-google";
         options.SaveTokens = true;
         options.Events.OnRedirectToAuthorizationEndpoint = context =>
@@ -94,12 +109,22 @@ builder.Services
             context.Response.Redirect(uri);
             return Task.CompletedTask;
         };
-    })
-    .AddOAuth("GitHub", options =>
+    });
+}
+else
+{
+    Console.WriteLine("Google OAuth not configured (missing Authentication:Google:*). Skipping.");
+}
+
+// GitHub (OAuth)
+if (Has(cfgAll, "Authentication:GitHub:ClientId") &&
+    Has(cfgAll, "Authentication:GitHub:ClientSecret"))
+{
+    auth.AddOAuth("GitHub", options =>
     {
         options.SignInScheme = IdentityConstants.ExternalScheme;
-        options.ClientId = builder.Configuration["Authentication:GitHub:ClientId"];
-        options.ClientSecret = builder.Configuration["Authentication:GitHub:ClientSecret"];
+        options.ClientId = cfgAll["Authentication:GitHub:ClientId"]!;
+        options.ClientSecret = cfgAll["Authentication:GitHub:ClientSecret"]!;
         options.CallbackPath = new PathString("/signin-github");
 
         options.AuthorizationEndpoint = "https://github.com/login/oauth/authorize";
@@ -153,6 +178,11 @@ builder.Services
             }
         };
     });
+}
+else
+{
+    Console.WriteLine("GitHub OAuth not configured (missing Authentication:GitHub:*). Skipping.");
+}
 
 // ------------------------
 // 6) Options (Google Maps, ICE)
@@ -224,6 +254,8 @@ var app = builder.Build();
 // ------------------------
 // 12) Middleware
 // ------------------------
+app.UseForwardedHeaders(); // <-- proxy headers first
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
