@@ -1,0 +1,14 @@
+﻿services:
+  - type: web
+    name: thesisnest-web
+    env: docker
+    plan: free
+    region: oregon
+    autoDeploy: true
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ConnectionStrings__DefaultConnection
+        value: "Host=dpg-d2ti29buibrs73eqtsa0-a.oregon-postgres.render.com;Port=5432;Database=hpcaadb;Username=hpcaadb_user;Password=sH4Z4waTkKhNraMzXJB0nJp2ZeOqGAdU;SSL Mode=Require;Trust Server Certificate=true;Search Path=thesisnest"

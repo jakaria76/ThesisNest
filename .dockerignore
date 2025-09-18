@@ -1,0 +1,7 @@
+﻿**/bin
+**/obj
+**/*.user
+**/*.swp
+.git
+.gitignore
+README.md
